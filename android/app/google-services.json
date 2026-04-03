@@ -1,0 +1,62 @@
+{
+  "project_info": {
+    "project_number": "602388392410",
+    "project_id": "mxcome-1affd",
+    "storage_bucket": "mxcome-1affd.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:602388392410:android:f69533384263a3f1fab8e3",
+        "android_client_info": {
+          "package_name": "com.mxcome.app.mxcome"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "602388392410-1ue9smv2773eqrascun5giahh5g0p4eb.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.mxcome.app.mxcome",
+            "certificate_hash": "c0b0e5def733f72ba1d58fe6fdca84a6c8701c3c"
+          }
+        },
+        {
+          "client_id": "602388392410-sk5o4gd84qigfjahkfr3832496q8th98.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.mxcome.app.mxcome",
+            "certificate_hash": "307d6de13c1dd5b534146e2d7efb3ca416d19974"
+          }
+        },
+        {
+          "client_id": "602388392410-ne53q6ic3lml1bs35oo2mpca025hqtjf.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyANYrKTIuzJ4CyOxS0EVwvqatg0ncKjwmM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "602388392410-ne53q6ic3lml1bs35oo2mpca025hqtjf.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "602388392410-dqo72mp2erp4h84nlk15touj5i9hj1pe.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.fenazola.app.mxcome"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

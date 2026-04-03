@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>602388392410-v4qk2ldidov7vgevcfjuona4pui4ifg1.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.602388392410-v4qk2ldidov7vgevcfjuona4pui4ifg1</string>
+	<key>ANDROID_CLIENT_ID</key>
+	<string>602388392410-1ue9smv2773eqrascun5giahh5g0p4eb.apps.googleusercontent.com</string>
+	<key>API_KEY</key>
+	<string>AIzaSyBbDwiWagTRGuW63B6rkgME7TzVvrMBeG0</string>
+	<key>GCM_SENDER_ID</key>
+	<string>602388392410</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.mxcome.app.mxcome</string>
+	<key>PROJECT_ID</key>
+	<string>mxcome-1affd</string>
+	<key>STORAGE_BUCKET</key>
+	<string>mxcome-1affd.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:602388392410:ios:1597722dbebfa32bfab8e3</string>
+</dict>
+</plist>

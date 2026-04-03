@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">MXCOME</string>
+    <string name="facebook_app_id">8874358239271451</string>
+    <string name="fb_login_protocol_scheme">fb8874358239271451</string>
+    <string name="facebook_client_token">00764e57b951ac2f536571368d874648</string>
+</resources>

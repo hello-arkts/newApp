@@ -1,0 +1,5 @@
+class OpenMenuEvent {
+
+  OpenMenuEvent();
+
+}
