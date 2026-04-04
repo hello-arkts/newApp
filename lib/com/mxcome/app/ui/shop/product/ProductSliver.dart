@@ -61,6 +61,7 @@ class ProductSliverState extends BaseKeepAliveState<ProductSliver> {
   
   late ScrollController _scrollController;
   double _lastScrollOffset = 0;
+  bool _isAtBottom = false;
 
   @override
   void initState() {
@@ -68,12 +69,19 @@ class ProductSliverState extends BaseKeepAliveState<ProductSliver> {
     _scrollController = ScrollController();
     _scrollController.addListener(() {
       double currentOffset = _scrollController.offset;
+      double maxScroll = _scrollController.position.maxScrollExtent;
+
       if (currentOffset > _lastScrollOffset && currentOffset > 50) {
-        // 往上滑，隐藏占位框
+        _isAtBottom = false;
         EventBusUtil.getInstance().emit(ScrollEvent(ScrollDirection.down));
       } else if (currentOffset < _lastScrollOffset) {
-        // 往下滑，显示占位框
-        EventBusUtil.getInstance().emit(ScrollEvent(ScrollDirection.up));
+        if (currentOffset >= maxScroll - 10) {
+          _isAtBottom = true;
+        }
+        if (_isAtBottom && currentOffset < maxScroll - 10) {
+          _isAtBottom = false;
+          EventBusUtil.getInstance().emit(ScrollEvent(ScrollDirection.up));
+        }
       }
       _lastScrollOffset = currentOffset;
     });
