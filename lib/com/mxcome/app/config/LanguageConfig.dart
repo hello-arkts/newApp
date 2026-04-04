@@ -1133,6 +1133,10 @@ class LanguageConfig {
       LanguageConfigKeys.Shop_modify_buy_quantity: "100% Brand genuine", //修改购买数量
       LanguageConfigKeys.Shop_rights_unlocked: "Rights not yet unlocked, please stay tuned for community updates.", //权益尚未解锁，敬请关注社区公告
 
+      // 泰国政府推荐占位框
+      LanguageConfigKeys.Gov_recommend_title: "Officially Recommended by Thai Government", //泰国政府官方推荐
+      LanguageConfigKeys.Gov_recommend_subtitle: "Ministry of Tourism and Sports, Ministry of Culture, Tourism Authority of Thailand", //体育旅游部, 文化部, 国家旅游局
+
     },
 
     //泰语
@@ -2252,6 +2256,10 @@ class LanguageConfig {
       LanguageConfigKeys.Shop_please_check_agreement: "กรุณา Tick Line ข้อตกลงการเป็นสมาชิก", //请勾线用户会员协议
       LanguageConfigKeys.Shop_modify_buy_quantity: "ของแท้ 100% จากแบรนด์", //修改购买数量
       LanguageConfigKeys.Shop_rights_unlocked: "สิทธิ์ยังไม่ถูกปลดล็อก โปรดติดตามประกาศจากชุมชน", //权益尚未解锁，敬请关注社区公告
+
+      // 泰国政府推荐占位框
+      LanguageConfigKeys.Gov_recommend_title: "แนะนำโดยรัฐบาลไทย", //泰国政府官方推荐
+      LanguageConfigKeys.Gov_recommend_subtitle: "กระทรวงการท่องเที่ยวและกีฬา, กระทรวงวัฒนธรรม, การท่องเที่ยวแห่งประเทศไทย", //体育旅游部, 文化部, 国家旅游局
 
     },
 
@@ -3373,6 +3381,10 @@ class LanguageConfig {
       LanguageConfigKeys.Shop_modify_buy_quantity: "100% 品牌自营正品", //修改购买数量
       LanguageConfigKeys.Shop_rights_unlocked: "权益尚未解锁，敬请关注社区公告", //权益尚未解锁，敬请关注社区公告
 
+      // 泰国政府推荐占位框
+      LanguageConfigKeys.Gov_recommend_title: "泰国政府官方推荐", //泰国政府官方推荐
+      LanguageConfigKeys.Gov_recommend_subtitle: "体育旅游部, 文化部, 国家旅游局", //体育旅游部, 文化部, 国家旅游局
+
     },
   };
 }
@@ -4493,6 +4505,10 @@ class LanguageConfigKeys {
   static const Shop_please_check_agreement = "Shop_please_check_agreement";
   static const Shop_modify_buy_quantity = "Shop_modify_buy_quantity";
   static const Shop_rights_unlocked = "Shop_rights_unlocked";
+
+  // 泰国政府推荐占位框
+  static const Gov_recommend_title = "Gov_recommend_title";
+  static const Gov_recommend_subtitle = "Gov_recommend_subtitle";
 
 }
 

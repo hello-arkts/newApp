@@ -47,6 +47,7 @@ import '../utils/HttpUtils.dart';
 import '../utils/TextUtils.dart';
 import '../utils/ViewUtils.dart';
 import 'shop/event/ScrollEvent.dart';
+import 'shop/widget/GovRecommendBar.dart';
 
 class MainPage extends StatefulWidget {
 
@@ -384,12 +385,10 @@ class MainPageState extends BaseKeepAliveState<MainPage> {
       bottomNavigationBar: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
-        height: isBottomBarVisible ? 50.h : 0,
-        color: const Color.fromARGB(255, 179, 33, 33),
+        height: isBottomBarVisible ? 59 : 0,
+        color: const Color(0xFFF5F5F5),
         child: isBottomBarVisible
-            ? const Center(
-                child: Text('占位框'),
-              )
+            ? const GovRecommendBar()
             : null,
       ),
       // bottomNavigationBar: PartRefreshWidget(
