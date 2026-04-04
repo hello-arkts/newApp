@@ -25,6 +25,7 @@ import 'package:mxcome/com/mxcome/app/ui/shop/event/PocketEvent.dart';
 import 'package:mxcome/com/mxcome/app/ui/shop/event/QRCodeEvent.dart';
 import 'package:mxcome/com/mxcome/app/ui/shop/event/UserInfoEvent.dart';
 import 'package:mxcome/com/mxcome/app/ui/shop/coupon/CouponPage.dart';
+import 'package:mxcome/com/mxcome/app/ui/shop/grow/GrowPage.dart';
 import 'package:mxcome/com/mxcome/app/ui/shop/mine/MinePage.dart';
 import 'package:mxcome/com/mxcome/app/ui/shop/mine/setting/VersionPage.dart';
 import 'package:mxcome/com/mxcome/app/ui/shop/model/ReadCount.dart';
@@ -81,7 +82,7 @@ class MainPageState extends BaseKeepAliveState<MainPage> {
   @override
   void initState() {
     super.initState();
-    pages = [ShopPage(), TabPocketPage(), CouponPage()];
+    pages = [ShopPage(), TabPocketPage(), CouponPage(), GrowPage()];
     checkDeepLink();
     loginSuccessEvent = EventBusUtil.getInstance().on<LoginSuccessEvent>((event) async {
       await Future.delayed(const Duration(milliseconds: 200));
@@ -401,7 +402,7 @@ class MainPageState extends BaseKeepAliveState<MainPage> {
                   label: LanguageConfig.get(LanguageConfigKeys.Shop_pocket)),
 
               BottomNavigationBarItem(
-                  icon: buildBadgeCoupon("task_menu_active_icon"),
+                  icon: buildBadgeCoupon("task_menu_inactive_icon"),
                   activeIcon: buildBadgeCoupon("task_menu_active_icon"),
                   label: LanguageConfig.get(LanguageConfigKeys.Shop_coupon)),
               // BottomNavigationBarItem(
@@ -415,6 +416,8 @@ class MainPageState extends BaseKeepAliveState<MainPage> {
               } else if (idx == 1) {
                 loadPocket();
               } else if (idx  == 2) {
+                // 优惠券
+              } else if (idx == 3) {
                 bool isLogin = await AppUtils.isLogined();
                 if (!isLogin) {
                   toLogin((ctx) => {
