@@ -385,10 +385,17 @@ class MainPageState extends BaseKeepAliveState<MainPage> {
       bottomNavigationBar: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
-        height: isBottomBarVisible ? 59 : 0,
-        color: const Color(0xFFF5F5F5),
+        height: isBottomBarVisible ? 59.h : 0,
+        // 去掉 clipBehavior，改用 overflow 包裹解决溢出
+        decoration: const BoxDecoration(
+          color: Color(0xFFF5F5F5),
+        ),
         child: isBottomBarVisible
-            ? const GovRecommendBar()
+            ? OverflowBox(
+          maxHeight: double.infinity, // 允许子组件超出容器，不报溢出错误
+          alignment: Alignment.topCenter,
+          child: const GovRecommendBar(),
+        )
             : null,
       ),
       // bottomNavigationBar: PartRefreshWidget(
