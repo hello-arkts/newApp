@@ -46,6 +46,7 @@ import '../utils/Adapt.dart';
 import '../utils/HttpUtils.dart';
 import '../utils/TextUtils.dart';
 import '../utils/ViewUtils.dart';
+import 'shop/event/ScrollEvent.dart';
 
 class MainPage extends StatefulWidget {
 
@@ -77,6 +78,10 @@ class MainPageState extends BaseKeepAliveState<MainPage> {
   dynamic balanceEvent;
   ReadCount pocketCount = ReadCount(IConstant.pocket_count, 0, 0);
   ReadCount activityCount = ReadCount(IConstant.activity_count, 0, 0);
+  
+  // 占位框动画控制
+  bool isBottomBarVisible = true;
+  double lastScrollPosition = 0;
 
   @override
   void initState() {
@@ -181,6 +186,10 @@ class MainPageState extends BaseKeepAliveState<MainPage> {
     });
     balanceEvent = EventBusUtil.getInstance().on<BalanceEvent>((event) async {
       // checkBalanceStatus();
+    });
+    // 监听滚动事件，控制占位框显示/隐藏
+    EventBusUtil.getInstance().on<ScrollEvent>((event) {
+      handleScroll(event.scrollDirection);
     });
     loadUserInfo();
     //handleRedInfo();
@@ -372,59 +381,70 @@ class MainPageState extends BaseKeepAliveState<MainPage> {
         controller: pageController,
         physics: const NeverScrollableScrollPhysics(),
       ),
-      bottomNavigationBar: PartRefreshWidget(
-          keyMenus,
-              () => BottomNavigationBar(
-            currentIndex: pageIdx,
-            type: BottomNavigationBarType.fixed,
-            selectedFontSize: 12.sp,
-            unselectedFontSize: 12.sp,
-            selectedItemColor: IConstant.main_color,
-            unselectedItemColor: IConstant.main_inactive_color,
-            items: [
-              BottomNavigationBarItem(
-                  icon: Image.asset(
-                    'assets/icons/shop_menu_inactive_icon.png',
-                    width: 26.w,
-                    height: 26.w,
-                    color: IConstant.text_color,
-                  ),
-                  activeIcon: Image.asset(
-                    'assets/icons/shop_menu_active_icon.png',
-                    width: 26.w,
-                    height: 26.w,
-                  ),
-                  label: LanguageConfig.get(LanguageConfigKeys.Shop_home)),
-              BottomNavigationBarItem(
-                  icon: buildBadgeTask("task_menu_inactive_icon"),
-                  activeIcon: buildBadgeTask("task_menu_active_icon"),
-                  label: LanguageConfig.get(LanguageConfigKeys.Shop_pocket)),
-              // BottomNavigationBarItem(
-              //     icon: buildBadgeGrow("growth_menu_inactive_icon"),
-              //     activeIcon: buildBadgeGrow("growth_menu_active_icon"),
-              //     label: LanguageConfig.get(LanguageConfigKeys.Shop_grow))
-            ],
-            onTap: (idx) async {
-              if (idx == 0) {
-                loadActivity();
-              } else if (idx == 1) {
-                loadPocket();
-              } else if (idx  == 2) {
-                bool isLogin = await AppUtils.isLogined();
-                if (!isLogin) {
-                  toLogin((ctx) => {
-                    setState(() {
-                      finishContext(ctx);
-                    })
-                  });
-                  return;
-                }
-              }
-              pageIdx = idx;
-              pageController.jumpToPage(idx);
-              keyMenus.currentState?.update();
-            },
-          )),
+      bottomNavigationBar: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+        height: isBottomBarVisible ? 50.h : 0,
+        color: const Color.fromARGB(255, 179, 33, 33),
+        child: isBottomBarVisible
+            ? const Center(
+                child: Text('占位框'),
+              )
+            : null,
+      ),
+      // bottomNavigationBar: PartRefreshWidget(
+      //     keyMenus,
+      //         () => BottomNavigationBar(
+      //       currentIndex: pageIdx,
+      //       type: BottomNavigationBarType.fixed,
+      //       selectedFontSize: 12.sp,
+      //       unselectedFontSize: 12.sp,
+      //       selectedItemColor: IConstant.main_color,
+      //       unselectedItemColor: IConstant.main_inactive_color,
+      //       items: [
+      //         BottomNavigationBarItem(
+      //             icon: Image.asset(
+      //               'assets/icons/shop_menu_inactive_icon.png',
+      //               width: 26.w,
+      //               height: 26.w,
+      //               color: IConstant.text_color,
+      //             ),
+      //             activeIcon: Image.asset(
+      //               'assets/icons/shop_menu_active_icon.png',
+      //               width: 26.w,
+      //               height: 26.w,
+      //             ),
+      //             label: LanguageConfig.get(LanguageConfigKeys.Shop_home)),
+      //         BottomNavigationBarItem(
+      //             icon: buildBadgeTask("task_menu_inactive_icon"),
+      //             activeIcon: buildBadgeTask("task_menu_active_icon"),
+      //             label: LanguageConfig.get(LanguageConfigKeys.Shop_pocket)),
+      //         // BottomNavigationBarItem(
+      //         //     icon: buildBadgeGrow("growth_menu_inactive_icon"),
+      //         //     activeIcon: buildBadgeGrow("growth_menu_active_icon"),
+      //         //     label: LanguageConfig.get(LanguageConfigKeys.Shop_grow))
+      //       ],
+      //       onTap: (idx) async {
+      //         if (idx == 0) {
+      //           loadActivity();
+      //         } else if (idx == 1) {
+      //           loadPocket();
+      //         } else if (idx  == 2) {
+      //           bool isLogin = await AppUtils.isLogined();
+      //           if (!isLogin) {
+      //             toLogin((ctx) => {
+      //               setState(() {
+      //                 finishContext(ctx);
+      //               })
+      //             });
+      //             return;
+      //           }
+      //         }
+      //         pageIdx = idx;
+      //         pageController.jumpToPage(idx);
+      //         keyMenus.currentState?.update();
+      //       },
+      //     )),
       drawer: MinePage(),
     );
   }
@@ -657,6 +677,21 @@ class MainPageState extends BaseKeepAliveState<MainPage> {
 
   finishRedWindow() async{
     await HttpUtils.post(IURLConstant.MALL_FINISH_RED_WINDOW, {});
+  }
+
+  // 处理滚动事件，控制占位框显示/隐藏
+  void handleScroll(ScrollDirection direction) {
+    if (direction == ScrollDirection.up && !isBottomBarVisible) {
+      // 往下滑，显示占位框
+      setState(() {
+        isBottomBarVisible = true;
+      });
+    } else if (direction == ScrollDirection.down && isBottomBarVisible) {
+      // 往上滑，隐藏占位框
+      setState(() {
+        isBottomBarVisible = false;
+      });
+    }
   }
 
 }

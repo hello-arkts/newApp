@@ -34,6 +34,7 @@ import '../widget/ClockComponent.dart';
 import '../widget/LoadImageView.dart';
 import 'ProductHeaderBar.dart';
 import 'ProductTask.dart';
+import '../event/ScrollEvent.dart';
 
 class ProductSliver extends StatefulWidget {
 
@@ -57,10 +58,25 @@ class ProductSliverState extends BaseKeepAliveState<ProductSliver> {
 
   bool isLogin = false;
   dynamic userInfo;
+  
+  late ScrollController _scrollController;
+  double _lastScrollOffset = 0;
 
   @override
   void initState() {
     super.initState();
+    _scrollController = ScrollController();
+    _scrollController.addListener(() {
+      double currentOffset = _scrollController.offset;
+      if (currentOffset > _lastScrollOffset && currentOffset > 50) {
+        // 往上滑，隐藏占位框
+        EventBusUtil.getInstance().emit(ScrollEvent(ScrollDirection.down));
+      } else if (currentOffset < _lastScrollOffset) {
+        // 往下滑，显示占位框
+        EventBusUtil.getInstance().emit(ScrollEvent(ScrollDirection.up));
+      }
+      _lastScrollOffset = currentOffset;
+    });
     qrcodeEvent = EventBusUtil.getInstance().on<QRCodeEvent>((event) {
       if (TextUtils.isNotEmpty(event.content)) {
         if (event.content.startsWith(PageConstant.MXCOME_WEB_URI)) {
@@ -93,7 +109,7 @@ class ProductSliverState extends BaseKeepAliveState<ProductSliver> {
     });
     loadContentDatas();
   }
-
+  
   parserWebScanResult(Uri? uri) {
     try {
       if (uri == null) return;
@@ -143,6 +159,7 @@ class ProductSliverState extends BaseKeepAliveState<ProductSliver> {
 
   @override
   void dispose() {
+    _scrollController.dispose();
     EventBusUtil.getInstance().off(activityEvent);
     EventBusUtil.getInstance().off(qrcodeEvent);
     EventBusUtil.getInstance().off(userInfoEvent);
@@ -210,6 +227,8 @@ class ProductSliverState extends BaseKeepAliveState<ProductSliver> {
 
   CustomScrollView myCustomScrollView() {
     return CustomScrollView(
+      physics: const BouncingScrollPhysics(),
+      controller: _scrollController,
       slivers: <Widget>[
         ProductHeaderBar(true),
         SliverToBoxAdapter(
