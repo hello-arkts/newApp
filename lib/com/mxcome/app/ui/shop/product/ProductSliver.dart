@@ -231,9 +231,6 @@ class ProductSliverState extends BaseKeepAliveState<ProductSliver> {
       controller: _scrollController,
       slivers: <Widget>[
         ProductHeaderBar(true),
-        SliverToBoxAdapter(
-          child: buildKOLShare(),
-        ),
         SliverList(
             delegate:
             SliverChildBuilderDelegate((BuildContext context, int index) {
@@ -245,7 +242,7 @@ class ProductSliverState extends BaseKeepAliveState<ProductSliver> {
             return buildActivity();
           }, childCount: 1),
         ),
-        SliverList(
+        SliverList( 
           delegate:
           SliverChildBuilderDelegate((BuildContext context, int index) {
             return buildActivityItem(index);
@@ -284,6 +281,10 @@ class ProductSliverState extends BaseKeepAliveState<ProductSliver> {
             height: 140.w,
             child: buildHeader(),
           ),
+        ),
+        
+        SliverToBoxAdapter(
+          child: buildKOLShare(),
         ),
        ]
     );
