@@ -1132,7 +1132,7 @@ class LanguageConfig {
       LanguageConfigKeys.Shop_please_check_agreement: "Please check the user membership agreement", //请勾线用户会员协议
       LanguageConfigKeys.Shop_modify_buy_quantity: "100% Brand genuine", //修改购买数量
       LanguageConfigKeys.Shop_rights_unlocked: "Rights not yet unlocked, please stay tuned for community updates.", //权益尚未解锁，敬请关注社区公告
-
+      LanguageConfigKeys.Shop_coupon: "Coupon", //优惠券
     },
 
     //泰语
@@ -2252,7 +2252,7 @@ class LanguageConfig {
       LanguageConfigKeys.Shop_please_check_agreement: "กรุณา Tick Line ข้อตกลงการเป็นสมาชิก", //请勾线用户会员协议
       LanguageConfigKeys.Shop_modify_buy_quantity: "ของแท้ 100% จากแบรนด์", //修改购买数量
       LanguageConfigKeys.Shop_rights_unlocked: "สิทธิ์ยังไม่ถูกปลดล็อก โปรดติดตามประกาศจากชุมชน", //权益尚未解锁，敬请关注社区公告
-
+      LanguageConfigKeys.Shop_coupon: "คูปอง", //优惠券
     },
 
     //简体中文
@@ -3372,7 +3372,7 @@ class LanguageConfig {
       LanguageConfigKeys.Shop_please_check_agreement: "请勾线用户会员协议", //请勾线用户会员协议
       LanguageConfigKeys.Shop_modify_buy_quantity: "100% 品牌自营正品", //修改购买数量
       LanguageConfigKeys.Shop_rights_unlocked: "权益尚未解锁，敬请关注社区公告", //权益尚未解锁，敬请关注社区公告
-
+      LanguageConfigKeys.Shop_coupon: "优惠券", //优惠券
     },
   };
 }
@@ -4493,6 +4493,7 @@ class LanguageConfigKeys {
   static const Shop_please_check_agreement = "Shop_please_check_agreement";
   static const Shop_modify_buy_quantity = "Shop_modify_buy_quantity";
   static const Shop_rights_unlocked = "Shop_rights_unlocked";
+  static const Shop_coupon = "Shop_coupon";
 
 }
 

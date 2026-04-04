@@ -24,7 +24,7 @@ import 'package:mxcome/com/mxcome/app/ui/shop/event/PayloadEvent.dart';
 import 'package:mxcome/com/mxcome/app/ui/shop/event/PocketEvent.dart';
 import 'package:mxcome/com/mxcome/app/ui/shop/event/QRCodeEvent.dart';
 import 'package:mxcome/com/mxcome/app/ui/shop/event/UserInfoEvent.dart';
-import 'package:mxcome/com/mxcome/app/ui/shop/grow/GrowPage.dart';
+import 'package:mxcome/com/mxcome/app/ui/shop/coupon/CouponPage.dart';
 import 'package:mxcome/com/mxcome/app/ui/shop/mine/MinePage.dart';
 import 'package:mxcome/com/mxcome/app/ui/shop/mine/setting/VersionPage.dart';
 import 'package:mxcome/com/mxcome/app/ui/shop/model/ReadCount.dart';
@@ -81,7 +81,7 @@ class MainPageState extends BaseKeepAliveState<MainPage> {
   @override
   void initState() {
     super.initState();
-    pages = [ShopPage(), TabPocketPage(), GrowPage()];
+    pages = [ShopPage(), TabPocketPage(), CouponPage()];
     checkDeepLink();
     loginSuccessEvent = EventBusUtil.getInstance().on<LoginSuccessEvent>((event) async {
       await Future.delayed(const Duration(milliseconds: 200));
@@ -399,6 +399,11 @@ class MainPageState extends BaseKeepAliveState<MainPage> {
                   icon: buildBadgeTask("task_menu_inactive_icon"),
                   activeIcon: buildBadgeTask("task_menu_active_icon"),
                   label: LanguageConfig.get(LanguageConfigKeys.Shop_pocket)),
+
+              BottomNavigationBarItem(
+                  icon: buildBadgeCoupon("task_menu_active_icon"),
+                  activeIcon: buildBadgeCoupon("task_menu_active_icon"),
+                  label: LanguageConfig.get(LanguageConfigKeys.Shop_coupon)),
               // BottomNavigationBarItem(
               //     icon: buildBadgeGrow("growth_menu_inactive_icon"),
               //     activeIcon: buildBadgeGrow("growth_menu_active_icon"),
@@ -441,6 +446,15 @@ class MainPageState extends BaseKeepAliveState<MainPage> {
   Widget buildBadgeGrow(String iconName) {
     return badges.Badge(
       showBadge: activityCount.getNumber() > 0,
+      position: badges.BadgePosition.topEnd(top: -8, end: -10),
+      badgeContent: Text("", style: TextStyle(fontSize: 10.sp, color: Colors.white)),
+      child: Image.asset("assets/icons/$iconName.png", width: 26.w, height: 26.w),
+    );
+  }
+
+  Widget buildBadgeCoupon(String iconName) {
+    return badges.Badge(
+      showBadge: false,
       position: badges.BadgePosition.topEnd(top: -8, end: -10),
       badgeContent: Text("", style: TextStyle(fontSize: 10.sp, color: Colors.white)),
       child: Image.asset("assets/icons/$iconName.png", width: 26.w, height: 26.w),
