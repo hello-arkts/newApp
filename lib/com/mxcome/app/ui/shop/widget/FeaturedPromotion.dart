@@ -78,6 +78,9 @@ class FeaturedPromotion extends StatelessWidget {
           onPressed: () {
             // TODO: 跳转到精选优惠详情页
           },
+          style: TextButton.styleFrom(
+            padding: EdgeInsets.zero, // 移除默认内边距
+          ),
           child: Row(
             children: [
               Text(
