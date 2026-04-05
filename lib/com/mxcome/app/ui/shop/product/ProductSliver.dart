@@ -238,58 +238,61 @@ class ProductSliverState extends BaseKeepAliveState<ProductSliver> {
       physics: const BouncingScrollPhysics(),
       controller: _scrollController,
       slivers: <Widget>[
-        ProductHeaderBar(true),
+        ProductHeaderBar(true), // 任务头
         SliverList(
             delegate:
             SliverChildBuilderDelegate((BuildContext context, int index) {
               return ProductTask();
             }, childCount: 1)),
-        SliverList(
-          delegate:
-          SliverChildBuilderDelegate((BuildContext context, int index) {
-            return buildActivity();
-          }, childCount: 1),
-        ),
-        SliverList( 
-          delegate:
-          SliverChildBuilderDelegate((BuildContext context, int index) {
-            return buildActivityItem(index);
-          }, childCount: datas.length),
-        ),
-        datas.isNotEmpty ? SliverToBoxAdapter(
-          child: InkWell(
-            onTap: () {
-              nextPage(HotActivityPage(), false);
-            },
-            child: Container(
-              width: 340.w,
-              padding: EdgeInsets.symmetric(vertical: 6.w),
-              margin: EdgeInsets.only(bottom: 15.w, left: 18.w, right: 18.w),
-              clipBehavior: Clip.antiAlias,
-              decoration: ShapeDecoration(
-                color: Colors.white,
-                shape: RoundedRectangleBorder(
-                  side: BorderSide(width: 1.w, color: const Color(0x8C292929)),
-                  borderRadius: BorderRadius.circular(25.r),
+        if (datas.isNotEmpty) ...[
+          SliverList(
+            delegate:
+            SliverChildBuilderDelegate((BuildContext context, int index) {
+              return buildActivity();
+            }, childCount: 1),
+          ),
+          SliverList(
+            delegate:
+            SliverChildBuilderDelegate((BuildContext context, int index) {
+              return buildActivityItem(index);
+            }, childCount: datas.length),
+          ),
+          SliverToBoxAdapter(
+            child: InkWell(
+              onTap: () {
+                nextPage(HotActivityPage(), false);
+              },
+              child: Container(
+                width: 340.w,
+                padding: EdgeInsets.symmetric(vertical: 6.w),
+                margin: EdgeInsets.only(bottom: 15.w, left: 18.w, right: 18.w),
+                clipBehavior: Clip.antiAlias,
+                decoration: ShapeDecoration(
+                  color: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    side: BorderSide(width: 1.w, color: const Color(0x8C292929)),
+                    borderRadius: BorderRadius.circular(25.r),
+                  ),
                 ),
-              ),
-              child: Text(
-                LanguageConfig.get(LanguageConfigKeys.shop_home_load_more),
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                    color: IConstant.text_color,
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.bold
+                child: Text(
+                  LanguageConfig.get(LanguageConfigKeys.shop_home_load_more),
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                      color: IConstant.text_color,
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.bold
+                  ),
                 ),
               ),
             ),
           ),
-        ) : SliverToBoxAdapter(
-          child: SizedBox(
-            height: 140.w,
-            child: buildHeader(),
+          if (datas.isEmpty) SliverToBoxAdapter(
+            child: SizedBox(
+              height: 140.w,
+              child: buildHeader(),
+            ),
           ),
-        ),
+        ],
         
         SliverToBoxAdapter(
           child: buildKOLShare(),
