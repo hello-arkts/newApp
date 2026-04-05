@@ -7,17 +7,17 @@ import '../utils/FormatUtil.dart';
 /// 精选优惠 - 优惠操作组件
 /// 对应红色标记区域 2：展示优惠操作按钮或交互元素
 /// 独立可复用，具有清晰的接口和样式隔离
-class PromotionAction extends StatelessWidget {
+class PromotionAction extends StatefulWidget {
   /// 优惠商品数据列表
   /// 每个商品应包含：id, name, pic, minPrice, maxPrice, promotionAmount
   final List<dynamic> promotionItems;
-  
+
   /// 点击优惠商品的回调
   final Function(dynamic)? onPromotionTap;
-  
+
   /// 每行显示的商品数量
   final int columnsCount;
-  
+
   /// 商品卡片的高度
   final double cardHeight;
 
@@ -30,8 +30,13 @@ class PromotionAction extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  State<PromotionAction> createState() => _PromotionActionState();
+}
+
+class _PromotionActionState extends State<PromotionAction> {
+  @override
   Widget build(BuildContext context) {
-    if (promotionItems.isEmpty) {
+    if (widget.promotionItems.isEmpty) {
       return _buildEmptyState();
     }
 
@@ -47,12 +52,12 @@ class PromotionAction extends StatelessWidget {
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: columnsCount,
-          mainAxisExtent: 160.h, // 增加高度以适应图片
+          crossAxisCount: widget.columnsCount,
+          mainAxisExtent: 132.h,
           mainAxisSpacing: 12.w,
           crossAxisSpacing: 12.w,
         ),
-        itemCount: promotionItems.length > 4 ? 4 : promotionItems.length,
+        itemCount: widget.promotionItems.length > 4 ? 4 : widget.promotionItems.length,
         itemBuilder: (BuildContext context, int index) {
           return _buildPromotionItem(index);
         },
@@ -93,11 +98,11 @@ class PromotionAction extends StatelessWidget {
 
   /// 构建优惠商品项
   Widget _buildPromotionItem(int index) {
-    if (index >= promotionItems.length) {
+    if (index >= widget.promotionItems.length) {
       return const SizedBox.shrink();
     }
 
-    final item = promotionItems[index];
+    final item = widget.promotionItems[index];
     final String name = BaseModel.getString(item, "name");
     final String logo = BaseModel.getString(item['shop'], "logo");
     final String pic = BaseModel.getString(item, "pic");
@@ -105,21 +110,20 @@ class PromotionAction extends StatelessWidget {
 
     return GestureDetector(
       onTap: () {
-        if (onPromotionTap != null) {
-          onPromotionTap!(item);
+        if (widget.onPromotionTap != null) {
+          widget.onPromotionTap!(item);
         }
       },
       child: Container(
-        height: 160.h,
-        padding: EdgeInsets.all(16.w),
+        height: 132.h,
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(22.r),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.08),
-              blurRadius: 4,
-              offset: const Offset(0, 4),
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
             ),
           ],
         ),
@@ -180,21 +184,7 @@ class PromotionAction extends StatelessWidget {
             ),
             SizedBox(height: 6.h),
             // 立即使用按钮
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 4.h),
-              decoration: BoxDecoration(
-                color: IConstant.main_color,
-                borderRadius: BorderRadius.circular(20.r),
-              ),
-              child: Text(
-                '立即使用',
-                style: TextStyle(
-                  fontSize: 10.sp,
-                  color: Colors.white,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ),
+            _buildActionButton(item),
           ],
         ),
       ),
@@ -216,5 +206,40 @@ class PromotionAction extends StatelessWidget {
     } catch (e) {
       return '优惠';
     }
+  }
+
+  /// 构建立即使用按钮
+  Widget _buildActionButton(dynamic item) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () {
+          if (widget.onPromotionTap != null) {
+            widget.onPromotionTap!(item);
+          }
+        },
+        borderRadius: BorderRadius.circular(20.r),
+        splashColor: IConstant.main_color.withOpacity(0.2),
+        highlightColor: IConstant.main_color.withOpacity(0.1),
+        child: Container(
+          padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 4.h),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20.r),
+            border: Border.all(
+              color: Colors.grey.shade400,
+              width: 1.w,
+            ),
+          ),
+          child: Text(
+            '立即使用',
+            style: TextStyle(
+              fontSize: 10.sp,
+              color: IConstant.title_color,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }

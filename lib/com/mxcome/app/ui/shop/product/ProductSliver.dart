@@ -627,11 +627,6 @@ class ProductSliverState extends BaseKeepAliveState<ProductSliver> {
       if (rsp.retCode == 200) {
         setState(() {
           promotionItems = BaseModel.getDynamicList(rsp.data, 'list') ?? [];
-          print('加载优惠券成功: ${promotionItems.length}');
-          if (promotionItems.isNotEmpty) {
-            print('第一个优惠券完整数据: $promotionItems[0]');
-            print('第一个优惠券所有key: ${promotionItems[0].keys.toList()}');
-          }
         });
       }
     } catch (e) {

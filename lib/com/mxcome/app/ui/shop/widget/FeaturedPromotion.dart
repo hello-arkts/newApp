@@ -79,7 +79,7 @@ class _FeaturedPromotionState extends State<FeaturedPromotion> {
               _onCategorySelected(category, index);
             },
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: 8.h),
           // 优惠商品列表 (PromotionAction)
           PromotionAction(
             promotionItems: widget.promotionItems,
