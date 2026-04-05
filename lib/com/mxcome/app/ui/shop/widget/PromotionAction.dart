@@ -39,21 +39,16 @@ class PromotionAction extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12.r),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
       ),
-      padding: EdgeInsets.all(12.w),
+      padding: EdgeInsets.all(6.w),
       child: GridView.builder(
+        padding: EdgeInsets.zero,
+        primary: false,
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: columnsCount,
-          mainAxisExtent: cardHeight.h,
+          mainAxisExtent: 160.h, // 增加高度以适应图片
           mainAxisSpacing: 12.w,
           crossAxisSpacing: 12.w,
         ),
@@ -104,8 +99,8 @@ class PromotionAction extends StatelessWidget {
 
     final item = promotionItems[index];
     final String name = BaseModel.getString(item, "name");
+    final String logo = BaseModel.getString(item['shop'], "logo");
     final String pic = BaseModel.getString(item, "pic");
-    final double price = BaseModel.getDouble(item, "price");
     final String promotionAmount = _getPromotionAmount(item);
 
     return GestureDetector(
@@ -115,101 +110,88 @@ class PromotionAction extends StatelessWidget {
         }
       },
       child: Container(
+        height: 160.h,
+        padding: EdgeInsets.all(16.w),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(12.r),
-          border: Border.all(color: IConstant.white_bg_color, width: 1.w),
+          borderRadius: BorderRadius.circular(22.r),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.03),
+              color: Colors.black.withOpacity(0.08),
               blurRadius: 4,
-              offset: const Offset(0, 1),
+              offset: const Offset(0, 4),
             ),
           ],
         ),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // 商品图片
-            ClipRRect(
-              borderRadius: BorderRadius.vertical(top: Radius.circular(12.r)),
-              child: Stack(
-                children: [
-                  Image.network(
-                    pic,
-                    width: double.infinity,
-                    height: 120.h,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container(
-                        width: double.infinity,
-                        height: 120.h,
-                        color: IConstant.grey_color.withOpacity(0.1),
-                        child: Icon(
-                          Icons.image,
-                          size: 40.w,
-                          color: IConstant.grey_color.withOpacity(0.3),
-                        ),
-                      );
-                    },
-                  ),
-                  // 优惠标签
-                  Positioned(
-                    top: 6.h,
-                    left: 6.w,
-                    child: Container(
-                      padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 3.h),
-                      decoration: BoxDecoration(
-                        color: IConstant.main_color.withOpacity(0.9),
-                        borderRadius: BorderRadius.circular(4.r),
-                      ),
-                      child: Text(
-                        '特惠',
-                        style: TextStyle(
-                          fontSize: 10.sp,
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
+            // Logo 圆形头像
+            Container(
+              width: 35.w,
+              height: 35.w,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: IConstant.grey_color.withOpacity(0.1),
+                image: logo.isNotEmpty
+                    ? DecorationImage(
+                        image: NetworkImage(logo),
+                        fit: BoxFit.cover,
+                      )
+                    : null,
+              ),
+              child: logo.isEmpty
+                  ? Icon(
+                      Icons.store,
+                      size: 20.w,
+                      color: IConstant.grey_color,
+                    )
+                  : null,
+            ),
+            SizedBox(height: 6.h),
+            // 店铺名称
+            SizedBox(
+              width: 84.w,
+              height: 12.h,
+              child: Text(
+                name,
+                style: TextStyle(
+                  fontSize: 10.sp,
+                  color: IConstant.title_color,
+                  fontWeight: FontWeight.w500,
+                ),
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
             ),
-            // 商品信息
-            Expanded(
-              child: Padding(
-                padding: EdgeInsets.fromLTRB(8.w, 6.w, 8.w, 0.w),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // 商品名称
-                    Text(
-                      name,
-                      style: TextStyle(
-                        fontSize: 12.sp,
-                        color: IConstant.title_color,
-                        fontWeight: FontWeight.w500,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    SizedBox(height: 4.h),
-                    // 优惠金额
-                    Text(
-                      promotionAmount,
-                      style: TextStyle(
-                        fontSize: 13.sp,
-                        color: IConstant.main_color,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    Spacer(),
-                    // 价格和使用按钮
-                    _buildPriceAndButton(price),
-                  ],
+            SizedBox(height: 4.h),
+            // 优惠金额（满减信息）
+            Text(
+              promotionAmount,
+              style: TextStyle(
+                fontSize: 12.sp,
+                color: IConstant.main_color,
+                fontWeight: FontWeight.w500,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            SizedBox(height: 6.h),
+            // 立即使用按钮
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 4.h),
+              decoration: BoxDecoration(
+                color: IConstant.main_color,
+                borderRadius: BorderRadius.circular(20.r),
+              ),
+              child: Text(
+                '立即使用',
+                style: TextStyle(
+                  fontSize: 10.sp,
+                  color: Colors.white,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
             ),
@@ -219,62 +201,20 @@ class PromotionAction extends StatelessWidget {
     );
   }
 
-  /// 构建价格和使用按钮
-  Widget _buildPriceAndButton(double price) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        // 价格
-        RichText(
-          text: TextSpan(
-            children: [
-              TextSpan(
-                text: '¥',
-                style: TextStyle(
-                  fontSize: 10.sp,
-                  color: IConstant.title_color,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              TextSpan(
-                text: price.toStringAsFixed(0),
-                style: TextStyle(
-                  fontSize: 14.sp,
-                  color: IConstant.title_color,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-        ),
-        // 使用按钮
-        Container(
-          padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 4.h),
-          decoration: BoxDecoration(
-            color: IConstant.main_color,
-            borderRadius: BorderRadius.circular(20.r),
-          ),
-          child: Text(
-            '立即使用',
-            style: TextStyle(
-              fontSize: 11.sp,
-              color: Colors.white,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  /// 获取优惠金额文本
+  /// 获取优惠金额文本（满减信息）
   String _getPromotionAmount(dynamic item) {
     try {
-      double minProfit = BaseModel.getDouble(item, "minProfit");
-      double maxProfit = BaseModel.getDouble(item, "maxProfit");
-      return FormatUtil.profitAmount(maxProfit, maxPrice: maxProfit);
+      double minPoint = BaseModel.getDouble(item, "minPoint");
+      double amount = BaseModel.getDouble(item, "amount");
+
+      // 显示满减信息
+      if (minPoint > 0) {
+        return '满 ฿${minPoint.toInt()} 减 ฿${amount.toInt()}';
+      } else {
+        return '฿${amount.toInt()} 代金券';
+      }
     } catch (e) {
-      return '优惠详情';
+      return '优惠';
     }
   }
 }
