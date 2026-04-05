@@ -354,4 +354,6 @@ class IURLConstant {
 
   static const MALL_LIST_BY_PRODUCT_SHOP = "${BASE_URL}/mall-portal/member/coupon/listByProductShop/"; //获取当前商家优惠券
 
+  static const MALL_COUPON_LIST = "${BASE_URL}/mall-portal/member/coupon/coupon1List"; //优惠券列表（精选优惠）
+
 }
