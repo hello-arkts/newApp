@@ -10,16 +10,19 @@ class PromotionHighlight extends StatelessWidget {
   /// 分类数据列表
   /// 每个分类应包含：id, name, icon, chName, enName
   final List<dynamic> categories;
-  
+
   /// 点击分类的回调
   final Function(dynamic)? onCategoryTap;
-  
+
+  /// 当前选中的分类索引（用于高亮显示）
+  final int activeIndex;
+
   /// 显示模式：grid-九宫格，row-单行滚动
   final String mode;
-  
+
   /// 每行显示的分类数量（仅在 grid 模式下有效）
   final int columnsCount;
-  
+
   /// 分类卡片的高度
   final double cardHeight;
 
@@ -27,6 +30,7 @@ class PromotionHighlight extends StatelessWidget {
     Key? key,
     required this.categories,
     this.onCategoryTap,
+    this.activeIndex = 0,
     this.mode = 'grid',
     this.columnsCount = 3,
     this.cardHeight = 30,
@@ -99,7 +103,7 @@ class PromotionHighlight extends StatelessWidget {
         decoration: BoxDecoration(
           color: _getCategoryBgColor(index),
           borderRadius: BorderRadius.circular(20.r),
-          border: index == 0 
+          border: index == activeIndex
               ? Border.all(color: IConstant.main_color.withOpacity(0.3), width: 1.w)
               : null,
         ),
@@ -115,8 +119,8 @@ class PromotionHighlight extends StatelessWidget {
                 name,
                 style: TextStyle(
                   fontSize: 12.sp,
-                  fontWeight: index == 0 ? FontWeight.bold : FontWeight.normal,
-                  color: index == 0 ? IConstant.main_color : IConstant.title_color,
+                  fontWeight: index == activeIndex ? FontWeight.bold : FontWeight.normal,
+                  color: index == activeIndex ? IConstant.main_color : IConstant.title_color,
                 ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
@@ -199,6 +203,11 @@ class PromotionHighlight extends StatelessWidget {
 
   /// 获取分类背景颜色
   Color _getCategoryBgColor(int index) {
+    // 如果是选中的分类，使用主色调背景
+    if (index == activeIndex) {
+      return IConstant.main_color.withOpacity(0.1);
+    }
+    
     const colors = [
       Color(0xFFFFF0F0), // 网红餐厅 - 浅红色
       Color(0xFFF0F8FF), // 酒店住宿 - 浅蓝色

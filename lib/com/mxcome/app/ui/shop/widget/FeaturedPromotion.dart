@@ -9,16 +9,16 @@ import 'PromotionAction.dart';
 /// 精选优惠主组件
 /// 作为 PromotionHighlight 和 PromotionAction 的容器
 /// 提供响应式布局和统一的样式规范
-class FeaturedPromotion extends StatelessWidget {
+class FeaturedPromotion extends StatefulWidget {
   /// 分类数据列表
   final List<dynamic> categories;
-  
+
   /// 优惠商品数据列表
   final List<dynamic> promotionItems;
-  
+
   /// 点击分类的回调
   final Function(dynamic)? onCategoryTap;
-  
+
   /// 点击优惠商品的回调
   final Function(dynamic)? onPromotionTap;
 
@@ -29,6 +29,36 @@ class FeaturedPromotion extends StatelessWidget {
     this.onCategoryTap,
     this.onPromotionTap,
   }) : super(key: key);
+
+  @override
+  State<FeaturedPromotion> createState() => _FeaturedPromotionState();
+}
+
+class _FeaturedPromotionState extends State<FeaturedPromotion> {
+  /// 当前选中的分类索引
+  int _activeIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    // 初始化时选中第一个分类
+    if (widget.categories.isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _onCategorySelected(widget.categories[0], 0);
+      });
+    }
+  }
+
+  /// 处理分类选中事件
+  void _onCategorySelected(dynamic category, int index) {
+    setState(() {
+      _activeIndex = index;
+    });
+    // 调用父组件的回调获取数据
+    if (widget.onCategoryTap != null) {
+      widget.onCategoryTap!(category);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,14 +72,18 @@ class FeaturedPromotion extends StatelessWidget {
           SizedBox(height: 2.h),
           // 分类导航区域 (PromotionHighlight)
           PromotionHighlight(
-            categories: categories,
-            onCategoryTap: onCategoryTap,
+            categories: widget.categories,
+            activeIndex: _activeIndex,
+            onCategoryTap: (category) {
+              int index = widget.categories.indexOf(category);
+              _onCategorySelected(category, index);
+            },
           ),
           SizedBox(height: 16.h),
           // 优惠商品列表 (PromotionAction)
           PromotionAction(
-            promotionItems: promotionItems,
-            onPromotionTap: onPromotionTap,
+            promotionItems: widget.promotionItems,
+            onPromotionTap: widget.onPromotionTap,
           ),
         ],
       ),
