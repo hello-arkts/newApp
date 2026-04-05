@@ -5,6 +5,7 @@ import 'package:mxcome/com/mxcome/app/IConstant.dart';
 
 import 'PromotionHighlight.dart';
 import 'PromotionAction.dart';
+import 'FeaturedOfferDetails.dart';
 
 /// 精选优惠主组件
 /// 作为 PromotionHighlight 和 PromotionAction 的容器
@@ -110,7 +111,12 @@ class _FeaturedPromotionState extends State<FeaturedPromotion> {
         // 查看所有按钮
         TextButton(
           onPressed: () {
-            // TODO: 跳转到精选优惠详情页
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const FeaturedOfferDetails(),
+              ),
+            );
           },
           style: TextButton.styleFrom(
             padding: EdgeInsets.zero, // 移除默认内边距

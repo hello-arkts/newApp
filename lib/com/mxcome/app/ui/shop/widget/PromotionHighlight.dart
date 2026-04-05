@@ -27,14 +27,14 @@ class PromotionHighlight extends StatelessWidget {
   final double cardHeight;
 
   const PromotionHighlight({
-    Key? key,
+    super.key,
     required this.categories,
     this.onCategoryTap,
     this.activeIndex = 0,
     this.mode = 'grid',
     this.columnsCount = 3,
     this.cardHeight = 30,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -100,6 +100,7 @@ class PromotionHighlight extends StatelessWidget {
         }
       },
       child: Container(
+        padding: mode == 'row' ? EdgeInsets.symmetric(horizontal: 14.w) : EdgeInsets.zero,
         decoration: BoxDecoration(
           color: _getCategoryBgColor(index),
           borderRadius: BorderRadius.circular(20.r),
@@ -109,23 +110,33 @@ class PromotionHighlight extends StatelessWidget {
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: mode == 'row' ? MainAxisSize.min : MainAxisSize.max,
           children: [
             // 分类图标
             _buildCategoryIcon(icon, index),
             SizedBox(width: 6.w),
             // 分类名称
-            Flexible(
-              child: Text(
-                name,
-                style: TextStyle(
-                  fontSize: 12.sp,
-                  fontWeight: index == activeIndex ? FontWeight.bold : FontWeight.normal,
-                  color: index == activeIndex ? IConstant.main_color : IConstant.title_color,
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
+            mode == 'row' 
+                ? Text(
+                    name,
+                    style: TextStyle(
+                      fontSize: 12.sp,
+                      fontWeight: index == activeIndex ? FontWeight.bold : FontWeight.normal,
+                      color: index == activeIndex ? IConstant.main_color : IConstant.title_color,
+                    ),
+                  )
+                : Flexible(
+                    child: Text(
+                      name,
+                      style: TextStyle(
+                        fontSize: 12.sp,
+                        fontWeight: index == activeIndex ? FontWeight.bold : FontWeight.normal,
+                        color: index == activeIndex ? IConstant.main_color : IConstant.title_color,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
           ],
         ),
       ),
