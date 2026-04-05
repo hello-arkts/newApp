@@ -32,6 +32,7 @@ import '../utils/EventBusUtil.dart';
 import '../utils/Util.dart';
 import '../widget/ClockComponent.dart';
 import '../widget/LoadImageView.dart';
+import '../widget/FeaturedPromotion.dart';
 import 'ProductHeaderBar.dart';
 import 'ProductTask.dart';
 import '../event/ScrollEvent.dart';
@@ -239,11 +240,13 @@ class ProductSliverState extends BaseKeepAliveState<ProductSliver> {
       controller: _scrollController,
       slivers: <Widget>[
         ProductHeaderBar(true), // 任务头
+        // 任务列表
         SliverList(
             delegate:
             SliverChildBuilderDelegate((BuildContext context, int index) {
               return ProductTask();
             }, childCount: 1)),
+        // 当活动为空时隐藏活动列表
         if (datas.isNotEmpty) ...[
           SliverList(
             delegate:
@@ -293,7 +296,11 @@ class ProductSliverState extends BaseKeepAliveState<ProductSliver> {
             ),
           ),
         ],
-        
+        // 精选优惠组件
+        SliverToBoxAdapter(
+          child: _buildFeaturedPromotion(),
+        ),
+        // KOL 分享
         SliverToBoxAdapter(
           child: buildKOLShare(),
         ),
@@ -582,4 +589,32 @@ class ProductSliverState extends BaseKeepAliveState<ProductSliver> {
     Share.share(shareUrl);
   }
 
+  /// 构建精选优惠组件
+  Widget _buildFeaturedPromotion() {
+    // TODO: 从后端加载精选优惠数据
+    // 这里是示例数据
+    List<dynamic> categories = [
+      {"id": "1", "name": "网红餐厅", "chName": "网红餐厅"},
+      {"id": "2", "name": "酒店住宿", "chName": "酒店住宿"},
+      {"id": "3", "name": "租车接机", "chName": "租车接机"},
+      {"id": "4", "name": "景点门票", "chName": "景点门票"},
+      {"id": "5", "name": "热门泰货", "chName": "热门泰货"},
+      {"id": "6", "name": "休闲娱乐", "chName": "休闲娱乐"},
+    ];
+    
+    List<dynamic> promotionItems = []; // TODO: 加载实际的优惠商品数据
+    
+    return FeaturedPromotion(
+      categories: categories,
+      promotionItems: promotionItems,
+      onCategoryTap: (category) {
+        // TODO: 处理分类点击
+        print('点击分类：${category}');
+      },
+      onPromotionTap: (item) {
+        // TODO: 处理商品点击
+        print('点击商品：${item}');
+      },
+    );
+  }
 }
