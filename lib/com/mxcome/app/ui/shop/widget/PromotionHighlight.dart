@@ -40,10 +40,9 @@ class PromotionHighlight extends StatelessWidget {
         color: Colors.white,
       ),
       padding: EdgeInsets.all(2.w),
-      // child: mode == 'row' ? _buildRowMode() : _buildGridMode(),
+      child: mode == 'row' ? _buildRowMode() : _buildGridMode(),
     );
   }
-
   /// 构建单行滚动模式
   Widget _buildRowMode() {
     return SizedBox(
@@ -64,6 +63,7 @@ class PromotionHighlight extends StatelessWidget {
   /// 构建九宫格模式
   Widget _buildGridMode() {
     return GridView.builder(
+      padding: EdgeInsets.zero, // 移除默认内边距
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
