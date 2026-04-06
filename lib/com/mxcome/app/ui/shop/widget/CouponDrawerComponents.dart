@@ -352,7 +352,7 @@ class CouponShopHeader extends StatelessWidget {
                           size: 28.w, color: IConstant.grey_color)
                       : null,
                 ),
-                SizedBox(height: 8.w),
+                SizedBox(height: 4.w),
                 Text(
                   title,
                   maxLines: 1,
@@ -363,7 +363,7 @@ class CouponShopHeader extends StatelessWidget {
                     color: IConstant.title_color,
                   ),
                 ),
-                SizedBox(height: 8.w),
+                SizedBox(height: 4.w),
                 Text(
                   subtitle,
                   style: TextStyle(
@@ -435,8 +435,8 @@ class CouponQrSection extends StatelessWidget {
     return Column(
       children: [
         Container(
-          width: 220.w,
-          height: 220.w,
+          width: 200.w,
+          height: 200.w,
           padding: EdgeInsets.all(10.w),
           decoration: BoxDecoration(
             color: Colors.white,
@@ -754,7 +754,6 @@ class CouponMapPickerDrawer extends StatelessWidget {
   final String address;
   final String lat;
   final String lng;
-  final String tipText;
   final double initialChildSize;
   final double minChildSize;
   final double maxChildSize;
@@ -764,10 +763,9 @@ class CouponMapPickerDrawer extends StatelessWidget {
     required this.address,
     required this.lat,
     required this.lng,
-    this.tipText = '请在右上角点击浏览器打开',
-    this.initialChildSize = 0.8,
-    this.minChildSize = 0.3,
-    this.maxChildSize = 0.9,
+    this.initialChildSize = 1,
+    this.minChildSize = 0.60,
+    this.maxChildSize = 0.90,
   });
 
   static Future<bool> show(
@@ -775,18 +773,15 @@ class CouponMapPickerDrawer extends StatelessWidget {
     required String address,
     required String lat,
     required String lng,
-    String tipText = '请在右上角点击浏览器打开',
   }) async {
     final bool? ok = await showModalBottomSheet<bool>(
       context: context,
-      isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (ctx) {
         return CouponMapPickerDrawer(
           address: address,
           lat: lat,
           lng: lng,
-          tipText: tipText,
         );
       },
     );
@@ -956,10 +951,11 @@ class CouponMapPickerDrawer extends StatelessWidget {
       );
     }
 
+    final double fixedChildSize = initialChildSize.clamp(0.1, 1.0);
     return DraggableScrollableSheet(
-      initialChildSize: initialChildSize,
-      minChildSize: minChildSize,
-      maxChildSize: maxChildSize,
+      initialChildSize: fixedChildSize,
+      minChildSize: fixedChildSize,
+      maxChildSize: fixedChildSize,
       expand: false,
       builder: (context, controller) {
         return SafeArea(
@@ -976,19 +972,6 @@ class CouponMapPickerDrawer extends StatelessWidget {
                   GestureDetector(
                     onTap: () => Navigator.pop(context, false),
                     child: const CouponDrawerHandle(),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.only(right: 20.w, bottom: 6.w),
-                    child: Align(
-                      alignment: Alignment.centerRight,
-                      child: Text(
-                        tipText,
-                        style: TextStyle(
-                          fontSize: 12.sp,
-                          color: IConstant.grey_color,
-                        ),
-                      ),
-                    ),
                   ),
                   Expanded(
                     child: ListView.separated(

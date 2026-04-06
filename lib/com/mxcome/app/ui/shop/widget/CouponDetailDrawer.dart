@@ -136,20 +136,6 @@ class _CouponDetailDrawerState extends State<CouponDetailDrawer> {
     );
   }
 
-  bool _handleUseTabScrollNotification(ScrollNotification notification) {
-    if (_tabIndex != 0) return false;
-    if (notification is OverscrollNotification) {
-      final metrics = notification.metrics;
-      final bool atBottom = metrics.pixels >= metrics.maxScrollExtent;
-      if (atBottom && notification.overscroll > 10) {
-        setState(() {
-          _tabIndex = 1;
-        });
-      }
-    }
-    return false;
-  }
-
   void _switchToShopTab() {
     if (_tabIndex != 0) return;
     if (_bottomDragDy < -40) {
@@ -162,9 +148,8 @@ class _CouponDetailDrawerState extends State<CouponDetailDrawer> {
   @override
   Widget build(BuildContext context) {
     return DraggableScrollableSheet(
-      initialChildSize: 0.93,
-      minChildSize: 0.3,
-      maxChildSize: 0.93,
+      initialChildSize: 0.94,
+      maxChildSize: 0.94,
       builder: (context, scrollController) {
         return Container(
           decoration: BoxDecoration(
@@ -214,18 +199,12 @@ class _CouponDetailDrawerState extends State<CouponDetailDrawer> {
                             child: Column(
                               children: [
                                 Expanded(
-                                  child:
-                                      NotificationListener<ScrollNotification>(
-                                    onNotification:
-                                        _handleUseTabScrollNotification,
-                                    child: SingleChildScrollView(
-                                      controller: scrollController,
-                                      padding: EdgeInsets.fromLTRB(
-                                          16.w, 8.w, 16.w, 12.w),
-                                      child: _tabIndex == 0
-                                          ? _buildContent()
-                                          : _buildShopTab(),
-                                    ),
+                                  child: SingleChildScrollView(
+                                    padding: EdgeInsets.fromLTRB(
+                                        16.w, 8.w, 16.w, 12.w),
+                                    child: _tabIndex == 0
+                                        ? _buildContent()
+                                        : _buildShopTab(),
                                   ),
                                 ),
                                 if (_tabIndex == 0) _buildBottom(),
@@ -392,7 +371,7 @@ class _CouponDetailDrawerState extends State<CouponDetailDrawer> {
         top: false,
         child: Container(
           width: double.infinity,
-          padding: EdgeInsets.fromLTRB(16.w, 10.w, 16.w, 12.w),
+          padding: EdgeInsets.fromLTRB(8.w, 4.w, 8.w, 4.w),
           decoration: BoxDecoration(
             color: Colors.white,
             border: Border(
@@ -405,7 +384,6 @@ class _CouponDetailDrawerState extends State<CouponDetailDrawer> {
                 children: [
                   Icon(Icons.keyboard_arrow_up,
                       size: 18.w, color: IConstant.grey_color),
-                  SizedBox(height: 2.w),
                   Text(
                     '上滑查看店铺',
                     style:
