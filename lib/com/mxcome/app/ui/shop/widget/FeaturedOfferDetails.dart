@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mxcome/com/mxcome/app/config/LanguageConfig.dart';
 import 'package:mxcome/com/mxcome/app/IConstant.dart';
+import 'package:mxcome/com/mxcome/app/IURLConstant.dart';
+import 'package:mxcome/com/mxcome/app/model/BaseModel.dart';
 import 'package:mxcome/com/mxcome/app/ui/shop/widget/PromotionAction.dart';
 import 'package:mxcome/com/mxcome/app/ui/shop/widget/PromotionHighlight.dart';
+import 'package:mxcome/com/mxcome/app/utils/HttpUtils.dart';
 
 class FeaturedOfferDetails extends StatefulWidget {
   const FeaturedOfferDetails({super.key});
@@ -16,14 +19,7 @@ class _FeaturedOfferDetailsState extends State<FeaturedOfferDetails> {
   int _activeIndex = 0;
 
   // 模拟分类数据
-  final List<dynamic> _categories = [
-    {'id': 1, 'chName': '网红餐厅'},
-    {'id': 2, 'chName': '酒店住宿'},
-    {'id': 3, 'chName': '租车接机'},
-    {'id': 4, 'chName': '景点门票'},
-    {'id': 5, 'chName': '热门泰货'},
-    {'id': 6, 'chName': '休闲娱乐'},
-  ];
+  final List<dynamic> _categories = featuredPromotionCategories;
 
   // 模拟数据 - 后续可以从 API 获取
   final List<dynamic> _allPromotionItems = List.generate(
@@ -40,7 +36,41 @@ class _FeaturedOfferDetailsState extends State<FeaturedOfferDetails> {
   @override
   void initState() {
     super.initState();
-    _filteredItems = List.from(_allPromotionItems);
+    if (_categories.isNotEmpty) {
+      _loadPromotionItems(_categories[0]);
+    }
+  }
+
+  Future<void> _loadPromotionItems(dynamic category) async {
+    try {
+      String categoryId = BaseModel.getString(category, 'id');
+      var rsp = await HttpUtils.post(IURLConstant.MALL_COUPON_LIST, {
+        'type': categoryId,
+        'pageNum': '1',
+        'pageSize': '999',
+      });
+      if (!mounted) return;
+      if (rsp.retCode == 200) {
+        setState(() {
+          _filteredItems = BaseModel.getDynamicList(rsp.data, 'list') ?? [];
+        });
+      }
+    } catch (e) {
+      debugPrint('加载优惠券失败: $e');
+      if (!mounted) return;
+      setState(() {
+        _filteredItems = List.from(_allPromotionItems);
+      });
+    }
+  }
+
+  void _onCategoryTap(dynamic category) {
+    final index = _categories.indexOf(category);
+    if (index < 0 || index == _activeIndex) return;
+    setState(() {
+      _activeIndex = index;
+    });
+    _loadPromotionItems(category);
   }
 
   @override
@@ -68,6 +98,7 @@ class _FeaturedOfferDetailsState extends State<FeaturedOfferDetails> {
               categories: _categories,
               activeIndex: _activeIndex,
               mode: 'row',
+              onCategoryTap: _onCategoryTap,
             ),
           ),
           // 商品列表

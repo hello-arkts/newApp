@@ -3,6 +3,33 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mxcome/com/mxcome/app/IConstant.dart';
 import 'package:mxcome/com/mxcome/app/config/LanguageConfig.dart';
 
+const List<Map<String, String>> featuredPromotionCategories = [
+  {
+    "id": "1",
+    "i18nKey": LanguageConfigKeys.Featured_promotion_category_restaurant,
+  },
+  {
+    "id": "2",
+    "i18nKey": LanguageConfigKeys.Featured_promotion_category_hotel,
+  },
+  {
+    "id": "3",
+    "i18nKey": LanguageConfigKeys.Featured_promotion_category_car,
+  },
+  {
+    "id": "4",
+    "i18nKey": LanguageConfigKeys.Featured_promotion_category_ticket,
+  },
+  {
+    "id": "5",
+    "i18nKey": LanguageConfigKeys.Featured_promotion_category_popular_thai,
+  },
+  {
+    "id": "6",
+    "i18nKey": LanguageConfigKeys.Featured_promotion_category_leisure,
+  },
+];
+
 /// 精选优惠 - 分类高亮组件
 /// 对应红色标记区域 1：展示优惠重点信息（分类导航）
 /// 独立可复用，具有清晰的接口和样式隔离
@@ -47,6 +74,7 @@ class PromotionHighlight extends StatelessWidget {
       child: mode == 'row' ? _buildRowMode() : _buildGridMode(),
     );
   }
+
   /// 构建单行滚动模式
   Widget _buildRowMode() {
     return SizedBox(
@@ -100,12 +128,15 @@ class PromotionHighlight extends StatelessWidget {
         }
       },
       child: Container(
-        padding: mode == 'row' ? EdgeInsets.symmetric(horizontal: 14.w) : EdgeInsets.zero,
+        padding: mode == 'row'
+            ? EdgeInsets.symmetric(horizontal: 14.w)
+            : EdgeInsets.zero,
         decoration: BoxDecoration(
           color: _getCategoryBgColor(index),
           borderRadius: BorderRadius.circular(20.r),
           border: index == activeIndex
-              ? Border.all(color: IConstant.main_color.withOpacity(0.3), width: 1.w)
+              ? Border.all(
+                  color: IConstant.main_color.withOpacity(0.3), width: 1.w)
               : null,
         ),
         child: Row(
@@ -116,13 +147,17 @@ class PromotionHighlight extends StatelessWidget {
             _buildCategoryIcon(icon, index),
             SizedBox(width: 6.w),
             // 分类名称
-            mode == 'row' 
+            mode == 'row'
                 ? Text(
                     name,
                     style: TextStyle(
                       fontSize: 12.sp,
-                      fontWeight: index == activeIndex ? FontWeight.bold : FontWeight.normal,
-                      color: index == activeIndex ? IConstant.main_color : IConstant.title_color,
+                      fontWeight: index == activeIndex
+                          ? FontWeight.bold
+                          : FontWeight.normal,
+                      color: index == activeIndex
+                          ? IConstant.main_color
+                          : IConstant.title_color,
                     ),
                   )
                 : Flexible(
@@ -130,8 +165,12 @@ class PromotionHighlight extends StatelessWidget {
                       name,
                       style: TextStyle(
                         fontSize: 12.sp,
-                        fontWeight: index == activeIndex ? FontWeight.bold : FontWeight.normal,
-                        color: index == activeIndex ? IConstant.main_color : IConstant.title_color,
+                        fontWeight: index == activeIndex
+                            ? FontWeight.bold
+                            : FontWeight.normal,
+                        color: index == activeIndex
+                            ? IConstant.main_color
+                            : IConstant.title_color,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -170,7 +209,9 @@ class PromotionHighlight extends StatelessWidget {
       'assets/icons/category_popular.png',
       'assets/icons/category_leisure.png',
     ];
-    return index < icons.length ? icons[index] : 'assets/icons/category_default.png';
+    return index < icons.length
+        ? icons[index]
+        : 'assets/icons/category_default.png';
   }
 
   /// 获取默认图标
@@ -188,8 +229,6 @@ class PromotionHighlight extends StatelessWidget {
 
   /// 获取分类名称
   String _getCategoryName(dynamic category, int index) {
-    // 这里应该根据实际的语言配置返回
-    // 简化处理，直接返回预设的名称
     const names = [
       '网红餐厅',
       '酒店住宿',
@@ -198,9 +237,13 @@ class PromotionHighlight extends StatelessWidget {
       '热门泰货',
       '休闲娱乐',
     ];
-    
+
     // 如果有传入的 category 数据，优先使用
     try {
+      String? i18nKey = category['i18nKey'];
+      if (i18nKey != null && i18nKey.isNotEmpty) {
+        return LanguageConfig.get(i18nKey);
+      }
       String? chName = category['chName'];
       if (chName != null && chName.isNotEmpty) {
         return chName;
@@ -208,7 +251,7 @@ class PromotionHighlight extends StatelessWidget {
     } catch (e) {
       // 忽略错误
     }
-    
+
     return index < names.length ? names[index] : '分类';
   }
 
@@ -218,7 +261,7 @@ class PromotionHighlight extends StatelessWidget {
     if (index == activeIndex) {
       return IConstant.main_color.withOpacity(0.1);
     }
-    
+
     const colors = [
       Color(0xFFFFF0F0), // 网红餐厅 - 浅红色
       Color(0xFFF0F8FF), // 酒店住宿 - 浅蓝色

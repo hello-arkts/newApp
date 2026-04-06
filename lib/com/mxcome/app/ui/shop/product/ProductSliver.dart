@@ -33,6 +33,7 @@ import '../utils/Util.dart';
 import '../widget/ClockComponent.dart';
 import '../widget/LoadImageView.dart';
 import '../widget/FeaturedPromotion.dart';
+import '../widget/PromotionHighlight.dart';
 import 'ProductHeaderBar.dart';
 import 'ProductTask.dart';
 import '../event/ScrollEvent.dart';
@@ -600,14 +601,7 @@ class ProductSliverState extends BaseKeepAliveState<ProductSliver> {
   Future<void> loadPromotionCategories() async {
     // 这里使用硬编码的分类数据，实际应该从接口获取
     setState(() {
-      promotionCategories = [
-        {"id": "1", "name": "网红餐厅", "chName": "网红餐厅"},
-        {"id": "2", "name": "酒店住宿", "chName": "酒店住宿"},
-        {"id": "3", "name": "租车接机", "chName": "租车接机"},
-        {"id": "4", "name": "景点门票", "chName": "景点门票"},
-        {"id": "5", "name": "热门泰货", "chName": "热门泰货"},
-        {"id": "6", "name": "休闲娱乐", "chName": "休闲娱乐"},
-      ];
+      promotionCategories = featuredPromotionCategories;
     });
     // 加载第一个分类的优惠券
     if (promotionCategories.isNotEmpty) {
