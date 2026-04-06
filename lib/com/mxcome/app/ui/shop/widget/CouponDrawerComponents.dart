@@ -455,7 +455,6 @@ class CouponQrSection extends StatelessWidget {
                   ),
                 ),
         ),
-        SizedBox(height: 6.w),
         if (code.isNotEmpty)
           Container(
             padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.w),
@@ -705,13 +704,14 @@ class CouponStoreAddressRow extends StatelessWidget {
             height: 44.w,
             child: InkWell(
               onTap: onToggle,
-              borderRadius: BorderRadius.circular(14.w),
+              borderRadius: BorderRadius.circular(22.w),
               child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 12.w),
+                padding: EdgeInsets.symmetric(horizontal: 10.w),
                 decoration: BoxDecoration(
-                  color: IConstant.white_bg_color2,
-                  borderRadius: BorderRadius.circular(14.w),
-                  border: Border.all(width: 1.w, color: IConstant.line_color),
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(22.w),
+                  border:
+                      Border.all(width: 1.w, color: IConstant.grey_line_color),
                 ),
                 child: Row(
                   children: [
@@ -724,9 +724,9 @@ class CouponStoreAddressRow extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
-                          fontSize: 13.sp,
+                          fontSize: 14.sp,
                           color: IConstant.title_color,
-                          fontWeight: FontWeight.w500,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
                     ),
@@ -734,8 +734,8 @@ class CouponStoreAddressRow extends StatelessWidget {
                       expanded
                           ? Icons.keyboard_arrow_up
                           : Icons.keyboard_arrow_down,
-                      size: 18.w,
-                      color: IConstant.grey_color,
+                      size: 20.w,
+                      color: IConstant.title_color,
                     ),
                   ],
                 ),
@@ -849,7 +849,7 @@ class CouponPrimaryButton extends StatelessWidget {
     required this.text,
     required this.onPressed,
     this.icon,
-    this.backgroundColor = IConstant.blue_color,
+    this.backgroundColor = const Color(0xFF4B6DFF),
     this.textColor = Colors.white,
   });
 
@@ -857,12 +857,12 @@ class CouponPrimaryButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       width: double.infinity,
-      height: 56.w,
+      height: 52.w,
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
           backgroundColor: backgroundColor,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(28.w),
+            borderRadius: BorderRadius.circular(26.w),
           ),
           elevation: 0,
         ),
@@ -872,15 +872,15 @@ class CouponPrimaryButton extends StatelessWidget {
           children: [
             icon ??
                 Icon(
-                  Icons.near_me,
-                  size: 18.w,
+                  Icons.near_me_outlined,
+                  size: 20.w,
                   color: textColor,
                 ),
             SizedBox(width: 6.w),
             Text(
               text,
               style: TextStyle(
-                fontSize: 14.sp,
+                fontSize: 16.sp,
                 fontWeight: FontWeight.w600,
                 color: textColor,
               ),

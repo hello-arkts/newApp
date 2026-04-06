@@ -276,7 +276,6 @@ class _CouponDetailDrawerState extends State<CouponDetailDrawer> {
           title: name,
           subtitle: _couponAmount(detail),
         ),
-        SizedBox(height: 6.w),
         CouponQrSection(
           qrData: qrcode,
           code: code,
@@ -338,15 +337,14 @@ class _CouponDetailDrawerState extends State<CouponDetailDrawer> {
             ),
             if (_addressExpanded) SizedBox(height: 10.w),
             if (_addressExpanded) _buildStoreList(),
-            SizedBox(height: 12.w),
+            SizedBox(height: 6.w),
             CouponPrimaryButton(text: '导航到店', onPressed: _openNavigation),
-            SizedBox(height: 10.w),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+            SizedBox(height: 12.w),
+            Column(
               children: [
                 Icon(Icons.keyboard_arrow_up,
                     size: 18.w, color: IConstant.grey_color),
-                SizedBox(width: 4.w),
+                SizedBox(height: 2.w),
                 Text(
                   '上滑查看店铺',
                   style:
