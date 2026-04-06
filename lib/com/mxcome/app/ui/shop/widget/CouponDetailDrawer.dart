@@ -4,11 +4,10 @@ import 'package:mxcome/com/mxcome/app/IConstant.dart';
 import 'package:mxcome/com/mxcome/app/IURLConstant.dart';
 import 'package:mxcome/com/mxcome/app/config/LanguageConfig.dart';
 import 'package:mxcome/com/mxcome/app/model/BaseModel.dart';
-import 'package:mxcome/com/mxcome/app/ui/shop/utils/ClipboardUtil.dart';
 import 'package:mxcome/com/mxcome/app/utils/HttpUtils.dart';
 import 'package:mxcome/com/mxcome/app/utils/ViewUtils.dart';
-import 'package:qr_flutter/qr_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:mxcome/com/mxcome/app/ui/shop/widget/CouponDrawerComponents.dart';
 
 class CouponDetailDrawer extends StatefulWidget {
   final String initialCouponId;
@@ -29,21 +28,30 @@ class _CouponDetailDrawerState extends State<CouponDetailDrawer> {
   dynamic _detail;
   List<dynamic> _couponList = [];
   List<dynamic> _shopList = [];
-  String _activeCouponId = '';
+  late final ValueNotifier<String> _activeCouponId;
   int _selectedStoreIndex = 0;
   bool _addressExpanded = false;
+  int _tabIndex = 0;
 
   @override
   void initState() {
     super.initState();
-    _activeCouponId = widget.initialCouponId;
-    _loadDetail(_activeCouponId);
+    _activeCouponId = ValueNotifier(widget.initialCouponId);
+    _loadDetail(_activeCouponId.value);
   }
 
-  Future<void> _loadDetail(String couponId) async {
-    setState(() {
-      _loading = true;
-    });
+  @override
+  void dispose() {
+    _activeCouponId.dispose();
+    super.dispose();
+  }
+
+  Future<void> _loadDetail(String couponId, {bool showLoading = true}) async {
+    if (showLoading) {
+      setState(() {
+        _loading = true;
+      });
+    }
     try {
       final rsp = await HttpUtils.post(IURLConstant.MALL_COUPON_DETAIL, {
         'couponId': couponId,
@@ -63,6 +71,7 @@ class _CouponDetailDrawerState extends State<CouponDetailDrawer> {
         final List<dynamic> fallbackShopList =
             (BaseModel.getDynamicList(couponTypes, 'shopList') ?? [])
                 .cast<dynamic>();
+        _activeCouponId.value = couponId;
         setState(() {
           _detail = data;
           _couponList = couponList.isNotEmpty ? couponList : fallbackCouponList;
@@ -93,12 +102,6 @@ class _CouponDetailDrawerState extends State<CouponDetailDrawer> {
       return '满 ฿${minPoint.toInt()} 减 ฿${amount.toInt()}';
     }
     return '฿${amount.toInt()} 代金券';
-  }
-
-  String _couponTypeText(dynamic coupon) {
-    double minPoint = BaseModel.getDouble(coupon, 'minPoint');
-    if (minPoint > 0) return '满减券';
-    return '代金券';
   }
 
   Future<void> _openNavigation() async {
@@ -134,18 +137,6 @@ class _CouponDetailDrawerState extends State<CouponDetailDrawer> {
     }
   }
 
-  Widget _buildHandle() {
-    return Container(
-      width: 50.w,
-      height: 8.w,
-      margin: EdgeInsets.only(top: 6.w, bottom: 6.w),
-      decoration: BoxDecoration(
-        color: IConstant.line_color,
-        borderRadius: BorderRadius.all(Radius.circular(30.w)),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return DraggableScrollableSheet(
@@ -160,7 +151,25 @@ class _CouponDetailDrawerState extends State<CouponDetailDrawer> {
           ),
           child: Column(
             children: [
-              _buildHandle(),
+              const CouponDrawerHandle(),
+              Padding(
+                padding: EdgeInsets.fromLTRB(16.w, 6.w, 16.w, 6.w),
+                child: CouponSegmentedSwitch(
+                  width: double.infinity,
+                  index: _tabIndex,
+                  labels: [
+                    LanguageConfig.get(
+                        LanguageConfigKeys.Shop_mine_use_coupons),
+                    LanguageConfig.get(LanguageConfigKeys.Shop_product_shop),
+                  ],
+                  onChanged: (i) {
+                    if (i == _tabIndex) return;
+                    setState(() {
+                      _tabIndex = i;
+                    });
+                  },
+                ),
+              ),
               Expanded(
                 child: _loading
                     ? Center(
@@ -178,10 +187,12 @@ class _CouponDetailDrawerState extends State<CouponDetailDrawer> {
                               controller: scrollController,
                               padding:
                                   EdgeInsets.fromLTRB(16.w, 8.w, 16.w, 12.w),
-                              child: _buildContent(),
+                              child: _tabIndex == 0
+                                  ? _buildContent()
+                                  : _buildShopTab(),
                             ),
                           ),
-                          _buildBottom(),
+                          if (_tabIndex == 0) _buildBottom(),
                         ],
                       ),
               ),
@@ -192,8 +203,50 @@ class _CouponDetailDrawerState extends State<CouponDetailDrawer> {
     );
   }
 
+  Widget _buildShopTab() {
+    final dynamic detail = _detail ?? {};
+    final dynamic shop = BaseModel.getDynamic(detail, 'shop') ?? {};
+    final dynamic initShop =
+        BaseModel.getDynamic(widget.initialItem, 'shop') ?? {};
+    final String logo = BaseModel.getString(shop, 'logo').isNotEmpty
+        ? BaseModel.getString(shop, 'logo')
+        : BaseModel.getString(initShop, 'logo');
+    final String name = BaseModel.getString(shop, 'name').isNotEmpty
+        ? BaseModel.getString(shop, 'name')
+        : BaseModel.getString(detail, 'name').isNotEmpty
+            ? BaseModel.getString(detail, 'name')
+            : BaseModel.getString(widget.initialItem, 'name');
+
+    final dynamic store = (_shopList.isNotEmpty &&
+            _selectedStoreIndex >= 0 &&
+            _selectedStoreIndex < _shopList.length)
+        ? _shopList[_selectedStoreIndex]
+        : {};
+    final String address = BaseModel.getString(store, 'address');
+    final String phone = BaseModel.getString(store, 'phone').isNotEmpty
+        ? BaseModel.getString(store, 'phone')
+        : BaseModel.getString(store, 'tel');
+
+    return CouponShopTabHeaderSection(
+      logoUrl: logo,
+      name: name,
+      address: address,
+      phone: phone,
+      onNavigateTap: _openNavigation,
+      couponList: _couponList,
+      activeCouponIdListenable: _activeCouponId,
+      onSelectCouponId: (id) {
+        if (id.isEmpty || id == _activeCouponId.value) return;
+        _activeCouponId.value = id;
+        _loadDetail(id, showLoading: false);
+      },
+    );
+  }
+
   Widget _buildContent() {
     final dynamic detail = _detail ?? {};
+    final dynamic couponTypes =
+        BaseModel.getDynamic(detail, 'couponTypes') ?? {};
     final dynamic shop = BaseModel.getDynamic(detail, 'shop') ?? {};
     final dynamic initShop =
         BaseModel.getDynamic(widget.initialItem, 'shop') ?? {};
@@ -203,180 +256,46 @@ class _CouponDetailDrawerState extends State<CouponDetailDrawer> {
     final String name = BaseModel.getString(detail, 'name').isNotEmpty
         ? BaseModel.getString(detail, 'name')
         : BaseModel.getString(widget.initialItem, 'name');
-    final String qrcode = BaseModel.getString(detail, 'qrcode');
-    final String code = BaseModel.getString(detail, 'code');
+    final String qrcode = BaseModel.getString(detail, 'qrcode').isNotEmpty
+        ? BaseModel.getString(detail, 'qrcode')
+        : (BaseModel.getString(couponTypes, 'qrcode').isNotEmpty
+            ? BaseModel.getString(couponTypes, 'qrcode')
+            : BaseModel.getString(couponTypes, 'qrCode'));
+    final String code = BaseModel.getString(detail, 'code').isNotEmpty
+        ? BaseModel.getString(detail, 'code')
+        : BaseModel.getString(couponTypes, 'code');
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Column(
-          children: [
-            Container(
-              width: 61.w,
-              height: 61.w,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: IConstant.grey_color.withOpacity(0.1),
-                image: logo.isNotEmpty
-                    ? DecorationImage(
-                        image: NetworkImage(logo),
-                        fit: BoxFit.cover,
-                      )
-                    : null,
-              ),
-              child: logo.isEmpty
-                  ? Icon(Icons.store, size: 28.w, color: IConstant.grey_color)
-                  : null,
-            ),
-            SizedBox(height: 8.w),
-            Text(
-              name,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                fontSize: 18.sp,
-                fontWeight: FontWeight.bold,
-                color: IConstant.title_color,
-              ),
-            ),
-            SizedBox(height: 8.w),
-            Text(
-              _couponAmount(detail),
-              style: TextStyle(
-                fontSize: 14.sp,
-                fontWeight: FontWeight.bold,
-                color: IConstant.main_color,
-              ),
-            ),
-          ],
+        CouponShopHeader(
+          logoUrl: logo,
+          title: name,
+          subtitle: _couponAmount(detail),
         ),
         SizedBox(height: 12.w),
-        Column(
-          children: [
-            Container(
-              width: 160.w,
-              height: 160.w,
-              padding: EdgeInsets.all(8.w),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12.w),
-                border: Border.all(width: 1.w, color: IConstant.line_color),
-              ),
-              child: qrcode.isNotEmpty
-                  ? QrImageView(
-                      data: qrcode,
-                      version: QrVersions.auto,
-                      size: 144.w,
-                    )
-                  : Center(
-                      child: Icon(
-                        Icons.qr_code_2,
-                        size: 40.w,
-                        color: IConstant.grey_color.withOpacity(0.5),
-                      ),
-                    ),
-            ),
-            SizedBox(height: 6.w),
-            if (code.isNotEmpty)
-              Text(
-                '券码 $code',
-                style: TextStyle(fontSize: 12.sp, color: IConstant.title_color),
-              ),
-            SizedBox(height: 4.w),
-            Text(
-              '买单时请向店员出示此券码核销',
-              style: TextStyle(fontSize: 12.sp, color: IConstant.grey_color),
-            ),
-          ],
+        CouponQrSection(
+          qrData: qrcode,
+          code: code,
+          tipText: '买单时请向店员出示此券码核销',
         ),
         SizedBox(height: 14.w),
-        if (_couponList.isNotEmpty) _buildCouponTypes(),
-      ],
-    );
-  }
-
-  Widget _buildCouponTypes() {
-    return SizedBox(
-      height: 92.w,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        itemCount: _couponList.length,
-        separatorBuilder: (_, __) => SizedBox(width: 10.w),
-        itemBuilder: (context, index) {
-          final item = _couponList[index];
-          final String id = BaseModel.getString(item, 'id');
-          final bool active = id == _activeCouponId;
-          final String endTime = BaseModel.getString(item, 'endTime');
-          final String endDate =
-              endTime.contains(' ') ? endTime.split(' ')[0] : endTime;
-          return InkWell(
-            onTap: () {
-              if (id.isEmpty || id == _activeCouponId) return;
-              setState(() {
-                _activeCouponId = id;
-              });
-              _loadDetail(id);
+        if (_couponList.isNotEmpty)
+          ValueListenableBuilder<String>(
+            valueListenable: _activeCouponId,
+            builder: (context, activeId, _) {
+              return CouponTypeSelector(
+                couponList: _couponList,
+                activeCouponId: activeId,
+                onSelect: (id) {
+                  if (id.isEmpty || id == _activeCouponId.value) return;
+                  _activeCouponId.value = id;
+                  _loadDetail(id, showLoading: false);
+                },
+              );
             },
-            borderRadius: BorderRadius.circular(12.w),
-            child: Container(
-              width: 170.w,
-              padding: EdgeInsets.all(10.w),
-              decoration: BoxDecoration(
-                color: active
-                    ? IConstant.main_color.withOpacity(0.08)
-                    : Colors.white,
-                borderRadius: BorderRadius.circular(12.w),
-                border: Border.all(
-                  width: 1.w,
-                  color: active ? IConstant.main_color : IConstant.line_color,
-                ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        _couponTypeText(item),
-                        style: TextStyle(
-                          fontSize: 12.sp,
-                          fontWeight: FontWeight.w600,
-                          color: IConstant.title_color,
-                        ),
-                      ),
-                      Text(
-                        '฿${BaseModel.getDouble(item, 'amount').toInt()}',
-                        style: TextStyle(
-                          fontSize: 12.sp,
-                          fontWeight: FontWeight.bold,
-                          color: IConstant.main_color,
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 6.w),
-                  Text(
-                    _couponAmount(item),
-                    style:
-                        TextStyle(fontSize: 12.sp, color: IConstant.main_color),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  SizedBox(height: 6.w),
-                  Text(
-                    '有效期 $endDate',
-                    style:
-                        TextStyle(fontSize: 11.sp, color: IConstant.grey_color),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
-              ),
-            ),
-          );
-        },
-      ),
+          ),
+      ],
     );
   }
 
@@ -396,103 +315,25 @@ class _CouponDetailDrawerState extends State<CouponDetailDrawer> {
         ),
         child: Column(
           children: [
-            Row(
-              children: [
-                Expanded(
-                  child: InkWell(
-                    onTap: () {
-                      setState(() {
-                        _addressExpanded = !_addressExpanded;
-                      });
-                    },
-                    child: Row(
-                      children: [
-                        Icon(Icons.location_on,
-                            size: 16.w, color: IConstant.main_color),
-                        SizedBox(width: 6.w),
-                        Expanded(
-                          child: Text(
-                            selectedAddress.isEmpty
-                                ? '请选择门店地址'
-                                : selectedAddress,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                                fontSize: 12.sp, color: IConstant.title_color),
-                          ),
-                        ),
-                        Icon(
-                          _addressExpanded
-                              ? Icons.keyboard_arrow_up
-                              : Icons.keyboard_arrow_down,
-                          size: 18.w,
-                          color: IConstant.grey_color,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                SizedBox(width: 10.w),
-                SizedBox(
-                  height: 28.w,
-                  child: OutlinedButton(
-                    style: OutlinedButton.styleFrom(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 12.w, vertical: 0),
-                      side: BorderSide(width: 1.w, color: IConstant.line_color),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20.w),
-                      ),
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        _addressExpanded = true;
-                      });
-                    },
-                    child: Text(
-                      '选择门店',
-                      style: TextStyle(
-                        fontSize: 12.sp,
-                        color: IConstant.title_color,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
+            CouponStoreAddressRow(
+              addressText:
+                  selectedAddress.isEmpty ? '请选择门店地址' : selectedAddress,
+              expanded: _addressExpanded,
+              onToggle: () {
+                setState(() {
+                  _addressExpanded = !_addressExpanded;
+                });
+              },
+              onSelectStore: () {
+                setState(() {
+                  _addressExpanded = true;
+                });
+              },
             ),
             if (_addressExpanded) SizedBox(height: 10.w),
             if (_addressExpanded) _buildStoreList(),
             SizedBox(height: 12.w),
-            SizedBox(
-              width: double.infinity,
-              height: 44.w,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: IConstant.main_color,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(24.w),
-                  ),
-                  elevation: 0,
-                ),
-                onPressed: _openNavigation,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.near_me, size: 18.w, color: Colors.white),
-                    SizedBox(width: 6.w),
-                    Text(
-                      '导航到店',
-                      style: TextStyle(
-                        fontSize: 14.sp,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
+            CouponPrimaryButton(text: '导航到店', onPressed: _openNavigation),
           ],
         ),
       ),
@@ -510,76 +351,15 @@ class _CouponDetailDrawerState extends State<CouponDetailDrawer> {
         ),
       );
     }
-    return Column(
-      children: List.generate(_shopList.length, (index) {
-        final store = _shopList[index];
-        final bool active = index == _selectedStoreIndex;
-        final String storeName = BaseModel.getString(store, 'name');
-        final String address = BaseModel.getString(store, 'address');
-        return Container(
-          margin: EdgeInsets.only(bottom: 8.w),
-          padding: EdgeInsets.all(10.w),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12.w),
-            border: Border.all(
-              width: 1.w,
-              color: active ? IConstant.main_color : IConstant.line_color,
-            ),
-          ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: InkWell(
-                  onTap: () {
-                    setState(() {
-                      _selectedStoreIndex = index;
-                      _addressExpanded = false;
-                    });
-                  },
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        storeName,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 12.sp,
-                          fontWeight: FontWeight.w600,
-                          color: IConstant.title_color,
-                        ),
-                      ),
-                      SizedBox(height: 4.w),
-                      Text(
-                        address,
-                        style: TextStyle(
-                            fontSize: 12.sp, color: IConstant.grey_color),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              SizedBox(width: 10.w),
-              TextButton(
-                onPressed: () {
-                  ClipboardUtil.setDataToast(address);
-                },
-                style: TextButton.styleFrom(
-                  padding: EdgeInsets.zero,
-                  minimumSize: Size.zero,
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                ),
-                child: Text(
-                  '复制地址',
-                  style:
-                      TextStyle(fontSize: 12.sp, color: IConstant.main_color),
-                ),
-              ),
-            ],
-          ),
-        );
-      }),
+    return CouponStoreList(
+      shopList: _shopList,
+      selectedIndex: _selectedStoreIndex,
+      onSelect: (index) {
+        setState(() {
+          _selectedStoreIndex = index;
+          _addressExpanded = false;
+        });
+      },
     );
   }
 }
