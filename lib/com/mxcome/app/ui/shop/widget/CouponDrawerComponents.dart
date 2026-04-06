@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mxcome/com/mxcome/app/IConstant.dart';
@@ -905,12 +905,19 @@ class CouponMapPickerDrawer extends StatelessWidget {
                     borderRadius: BorderRadius.circular(12.w),
                   ),
                   alignment: Alignment.center,
-                  child: SvgPicture.asset(
-                    iconAsset,
-                    width: 32.w,
-                    height: 32.w,
-                    fit: BoxFit.contain,
-                  ),
+                  child: iconAsset.endsWith('.svg')
+                      ? SvgPicture.asset(
+                          iconAsset,
+                          width: 32.w,
+                          height: 32.w,
+                          fit: BoxFit.contain,
+                        )
+                      : Image.asset(
+                          iconAsset,
+                          width: 32.w,
+                          height: 32.w,
+                          fit: BoxFit.contain,
+                        ),
                 ),
                 SizedBox(width: 12.w),
                 Expanded(
@@ -992,21 +999,21 @@ class CouponMapPickerDrawer extends StatelessWidget {
                             return buildOption(
                               name: '高德地图',
                               desc: 'Gaode Maps',
-                              iconAsset: 'assets/icons/map_gaode.svg',
+                              iconAsset: 'assets/icons/map_gaode.png',
                               app: CouponMapApp.amap,
                             );
                           case 2:
                             return buildOption(
                               name: '百度地图',
                               desc: 'Baidu Maps',
-                              iconAsset: 'assets/icons/map_baidu.svg',
+                              iconAsset: 'assets/icons/map_baidu.png',
                               app: CouponMapApp.baidu,
                             );
                           default:
                             return buildOption(
                               name: '腾讯地图',
                               desc: 'Tencent Maps',
-                              iconAsset: 'assets/icons/map_tencent.svg',
+                              iconAsset: 'assets/icons/map_tencent.png',
                               app: CouponMapApp.tencent,
                             );
                         }
