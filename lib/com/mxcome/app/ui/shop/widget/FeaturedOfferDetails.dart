@@ -21,16 +21,6 @@ class _FeaturedOfferDetailsState extends State<FeaturedOfferDetails> {
   // 模拟分类数据
   final List<dynamic> _categories = featuredPromotionCategories;
 
-  // 模拟数据 - 后续可以从 API 获取
-  final List<dynamic> _allPromotionItems = List.generate(
-      10,
-      (index) => {
-            'id': index,
-            'name': '优惠商品 ${index + 1}',
-            'discount': '满${(index + 1) * 100}减${(index + 1) * 10}',
-            'logo': 'https://via.placeholder.com/80',
-          });
-
   List<dynamic> _filteredItems = [];
 
   @override
@@ -57,10 +47,6 @@ class _FeaturedOfferDetailsState extends State<FeaturedOfferDetails> {
       }
     } catch (e) {
       debugPrint('加载优惠券失败: $e');
-      if (!mounted) return;
-      setState(() {
-        _filteredItems = List.from(_allPromotionItems);
-      });
     }
   }
 

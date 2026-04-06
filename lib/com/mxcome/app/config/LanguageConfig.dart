@@ -121,12 +121,6 @@ class LanguageConfig {
       LanguageConfigKeys.Shop_product_service: "Service", //服务
       LanguageConfigKeys.Featured_promotion_title: "Featured Deals", //精选优惠
       LanguageConfigKeys.Featured_promotion_view_all: "View All", //查看所有
-      LanguageConfigKeys.Featured_promotion_category_restaurant: "Influencer Restaurants", //网红餐厅
-      LanguageConfigKeys.Featured_promotion_category_hotel: "Hotels & Stays", //酒店住宿
-      LanguageConfigKeys.Featured_promotion_category_car: "Car & Pickup", //租车接机
-      LanguageConfigKeys.Featured_promotion_category_ticket: "Attraction Tickets", //景点门票
-      LanguageConfigKeys.Featured_promotion_category_popular_thai: "Popular Thai Products", //热门泰货
-      LanguageConfigKeys.Featured_promotion_category_leisure: "Leisure & Entertainment", //休闲娱乐
       LanguageConfigKeys.Shop_product_shop: "Shop", //店铺
       LanguageConfigKeys.Shop_product_consulting: "Consultation", //咨询
       LanguageConfigKeys.Shop_product_join: "Join", //加入
@@ -1253,12 +1247,6 @@ class LanguageConfig {
       LanguageConfigKeys.Shop_product_service: "การบริการ", //服务
       LanguageConfigKeys.Featured_promotion_title: "ข้อเสนอพิเศษ", //精选优惠
       LanguageConfigKeys.Featured_promotion_view_all: "ดูทั้งหมด", //查看所有
-      LanguageConfigKeys.Featured_promotion_category_restaurant: "ร้านดัง", //网红餐厅
-      LanguageConfigKeys.Featured_promotion_category_hotel: "โรงแรมที่พัก", //酒店住宿
-      LanguageConfigKeys.Featured_promotion_category_car: "เช่ารถรับส่ง", //租车接机
-      LanguageConfigKeys.Featured_promotion_category_ticket: "ตั๋วสถานที่ท่องเที่ยว", //景点门票
-      LanguageConfigKeys.Featured_promotion_category_popular_thai: "สินค้าไทยยอดนิยม", //热门泰货
-      LanguageConfigKeys.Featured_promotion_category_leisure: "พักผ่อนบันเทิง", //休闲娱乐
       LanguageConfigKeys.Shop_product_shop: "ร้านค้า", //店铺
       LanguageConfigKeys.Shop_product_consulting: "ให้คำปรึกษา", //咨询
       LanguageConfigKeys.Shop_product_join: "เข้าร่วม", //加入
@@ -2385,12 +2373,6 @@ class LanguageConfig {
       LanguageConfigKeys.Shop_product_service: "服务", //服务
       LanguageConfigKeys.Featured_promotion_title: "精选优惠", //精选优惠
       LanguageConfigKeys.Featured_promotion_view_all: "查看所有", //查看所有
-      LanguageConfigKeys.Featured_promotion_category_restaurant: "网红餐厅", //网红餐厅
-      LanguageConfigKeys.Featured_promotion_category_hotel: "酒店住宿", //酒店住宿
-      LanguageConfigKeys.Featured_promotion_category_car: "租车接机", //租车接机
-      LanguageConfigKeys.Featured_promotion_category_ticket: "景点门票", //景点门票
-      LanguageConfigKeys.Featured_promotion_category_popular_thai: "热门泰货", //热门泰货
-      LanguageConfigKeys.Featured_promotion_category_leisure: "休闲娱乐", //休闲娱乐
       LanguageConfigKeys.Shop_product_shop: "店铺", //店铺
       LanguageConfigKeys.Shop_product_consulting: "咨询", //咨询
       LanguageConfigKeys.Shop_product_join: "加入", //加入
@@ -3518,17 +3500,6 @@ class LanguageConfigKeys {
   static const Shop_product_service = "Shop_product_service";
   static const Featured_promotion_title = "Featured_promotion_title";
   static const Featured_promotion_view_all = "Featured_promotion_view_all";
-  static const Featured_promotion_category_restaurant =
-      "Featured_promotion_category_restaurant";
-  static const Featured_promotion_category_hotel =
-      "Featured_promotion_category_hotel";
-  static const Featured_promotion_category_car = "Featured_promotion_category_car";
-  static const Featured_promotion_category_ticket =
-      "Featured_promotion_category_ticket";
-  static const Featured_promotion_category_popular_thai =
-      "Featured_promotion_category_popular_thai";
-  static const Featured_promotion_category_leisure =
-      "Featured_promotion_category_leisure";
   static const Shop_product_shop = "Shop_product_shop";
   static const Shop_product_consulting = "Shop_product_consulting";
   static const Shop_product_join = "Shop_product_join";
