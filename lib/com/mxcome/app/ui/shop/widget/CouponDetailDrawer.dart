@@ -51,10 +51,22 @@ class _CouponDetailDrawerState extends State<CouponDetailDrawer> {
       if (!mounted) return;
       if (rsp.retCode == 200) {
         final data = rsp.data;
+        final dynamic couponTypes = BaseModel.getDynamic(data, 'couponTypes');
+        final List<dynamic> couponList =
+            (BaseModel.getDynamicList(data, 'couponList') ?? [])
+                .cast<dynamic>();
+        final List<dynamic> shopList =
+            (BaseModel.getDynamicList(data, 'shopList') ?? []).cast<dynamic>();
+        final List<dynamic> fallbackCouponList =
+            (BaseModel.getDynamicList(couponTypes, 'couponList') ?? [])
+                .cast<dynamic>();
+        final List<dynamic> fallbackShopList =
+            (BaseModel.getDynamicList(couponTypes, 'shopList') ?? [])
+                .cast<dynamic>();
         setState(() {
           _detail = data;
-          _couponList = BaseModel.getDynamicList(data, 'couponList') ?? [];
-          _shopList = BaseModel.getDynamicList(data, 'shopList') ?? [];
+          _couponList = couponList.isNotEmpty ? couponList : fallbackCouponList;
+          _shopList = shopList.isNotEmpty ? shopList : fallbackShopList;
           _selectedStoreIndex = _shopList.isNotEmpty ? 0 : -1;
           _loading = false;
         });

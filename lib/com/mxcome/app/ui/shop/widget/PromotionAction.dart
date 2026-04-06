@@ -245,9 +245,12 @@ class _PromotionActionState extends State<PromotionAction> {
             widget.onUseTap!(item);
             return;
           }
+          final dynamic coupon = BaseModel.getDynamic(item, 'coupon');
           final String couponId = BaseModel.getString(item, 'id').isNotEmpty
               ? BaseModel.getString(item, 'id')
-              : BaseModel.getString(item, 'couponId');
+              : (BaseModel.getString(item, 'couponId').isNotEmpty
+                  ? BaseModel.getString(item, 'couponId')
+                  : BaseModel.getString(coupon, 'id'));
           if (couponId.isEmpty) {
             if (widget.onPromotionTap != null) {
               widget.onPromotionTap!(item);
