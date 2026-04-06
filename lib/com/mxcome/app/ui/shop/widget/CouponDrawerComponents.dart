@@ -279,12 +279,12 @@ class CouponDrawerHandle extends StatelessWidget {
 
   const CouponDrawerHandle({
     super.key,
-    this.width = 50,
-    this.height = 8,
-    this.margin = const EdgeInsets.only(top: 6, bottom: 6),
+    this.width = 44,
+    this.height = 6,
+    this.margin = const EdgeInsets.only(top: 10, bottom: 10),
     Color? color,
     BorderRadius? borderRadius,
-  })  : color = color ?? IConstant.line_color,
+  })  : color = color ?? IConstant.grey_line_color,
         borderRadius =
             borderRadius ?? const BorderRadius.all(Radius.circular(30));
 
@@ -380,14 +380,31 @@ class CouponShopHeader extends StatelessWidget {
                   ? const SizedBox.shrink()
                   : InkWell(
                       onTap: onShareTap,
-                      borderRadius: BorderRadius.circular(18.w),
+                      borderRadius: BorderRadius.circular(12.w),
                       child: SizedBox(
                         width: 36.w,
                         height: 36.w,
                         child: Center(
-                          child: shareIcon ??
-                              Icon(Icons.ios_share,
-                                  size: 20.w, color: IConstant.title_color),
+                          child: Container(
+                            width: 36.w,
+                            height: 36.w,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(12.w),
+                              border: Border.all(
+                                width: 1.w,
+                                color: IConstant.grey_line_color,
+                              ),
+                            ),
+                            child: Center(
+                              child: shareIcon ??
+                                  Icon(
+                                    Icons.ios_share,
+                                    size: 20.w,
+                                    color: IConstant.title_color,
+                                  ),
+                            ),
+                          ),
                         ),
                       ),
                     ),
@@ -417,19 +434,18 @@ class CouponQrSection extends StatelessWidget {
     return Column(
       children: [
         Container(
-          width: 160.w,
-          height: 160.w,
-          padding: EdgeInsets.all(8.w),
+          width: 220.w,
+          height: 220.w,
+          padding: EdgeInsets.all(10.w),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(12.w),
-            border: Border.all(width: 1.w, color: IConstant.line_color),
           ),
           child: qrData.isNotEmpty
               ? QrImageView(
                   data: qrData,
                   version: QrVersions.auto,
-                  size: 144.w,
+                  size: 200.w,
                 )
               : Center(
                   child: Icon(
@@ -441,9 +457,17 @@ class CouponQrSection extends StatelessWidget {
         ),
         SizedBox(height: 6.w),
         if (code.isNotEmpty)
-          Text(
-            '券码 $code',
-            style: TextStyle(fontSize: 12.sp, color: IConstant.title_color),
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.w),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(8.w),
+              border: Border.all(width: 1.w, color: IConstant.grey_line_color),
+            ),
+            child: Text(
+              '券码: $code',
+              style: TextStyle(fontSize: 12.sp, color: IConstant.title_color),
+            ),
           ),
         SizedBox(height: 4.w),
         Text(
@@ -474,7 +498,7 @@ class CouponBenefitCard extends StatelessWidget {
     this.status = CouponBenefitStatus.unused,
     this.benefitType,
     this.onTap,
-    this.width = 170,
+    this.width = 140,
   });
 
   CouponBenefitType _inferType() {
@@ -503,15 +527,7 @@ class CouponBenefitCard extends StatelessWidget {
   }
 
   String _amountText() {
-    final type = _inferType();
-    if (type == CouponBenefitType.discount) {
-      final double discount = BaseModel.getDouble(coupon, 'discount');
-      if (discount > 0) return '${discount.toStringAsFixed(1)}折';
-    }
-    if (type == CouponBenefitType.freeShipping) {
-      return '免邮';
-    }
-    return '฿${BaseModel.getDouble(coupon, 'amount').toInt()}';
+    return '${IConstant.currency}${BaseModel.getDouble(coupon, 'amount').toInt()}';
   }
 
   String _benefitText() {
@@ -524,27 +540,23 @@ class CouponBenefitCard extends StatelessWidget {
     if (type == CouponBenefitType.cashVoucher) {
       return '฿${amount.toInt()} 代金券';
     }
-    if (type == CouponBenefitType.discount) {
-      final double discount = BaseModel.getDouble(coupon, 'discount');
-      if (discount > 0) return '${discount.toStringAsFixed(1)}折';
-    }
-    if (type == CouponBenefitType.freeShipping) return '免邮券';
     return '';
   }
 
   String _expireText() {
     final String endTime = BaseModel.getString(coupon, 'endTime');
+    if (endTime.isEmpty) return '';
+    final String normalized = endTime.replaceAll('T', ' ');
     final String endDate =
-        endTime.contains(' ') ? endTime.split(' ')[0] : endTime;
-    return endDate.isEmpty ? '' : '有效期 $endDate';
+        normalized.length >= 10 ? normalized.substring(0, 10) : normalized;
+    return '有效期 $endDate';
   }
 
   @override
   Widget build(BuildContext context) {
     final Color borderColor =
-        active ? IConstant.main_color : IConstant.line_color;
-    final Color bgColor =
-        active ? IConstant.main_color.withOpacity(0.08) : Colors.white;
+        active ? IConstant.main_color : Colors.transparent;
+
     final bool dimmed = status != CouponBenefitStatus.unused;
 
     return InkWell(
@@ -554,44 +566,58 @@ class CouponBenefitCard extends StatelessWidget {
         opacity: dimmed ? 0.55 : 1,
         child: Container(
           width: width.w,
-          padding: EdgeInsets.all(10.w),
+          padding: EdgeInsets.all(12.w),
           decoration: BoxDecoration(
-            color: bgColor,
+            color: IConstant.red_bg_color6,
             borderRadius: BorderRadius.circular(12.w),
             border: Border.all(width: 1.w, color: borderColor),
+            boxShadow: active
+                ? [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.06),
+                      blurRadius: 10,
+                      offset: const Offset(0, 2),
+                    ),
+                  ]
+                : null,
           ),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
                     _typeText(),
                     style: TextStyle(
-                      fontSize: 12.sp,
-                      fontWeight: FontWeight.w600,
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.bold,
                       color: IConstant.title_color,
                     ),
                   ),
+                  SizedBox(width: 8.w),
                   Text(
                     _amountText(),
                     style: TextStyle(
-                      fontSize: 12.sp,
+                      fontSize: 14.sp,
                       fontWeight: FontWeight.bold,
-                      color: IConstant.main_color,
+                      color: IConstant.title_color,
                     ),
                   ),
                 ],
               ),
-              SizedBox(height: 6.w),
+              SizedBox(height: 4.w),
               Text(
                 _benefitText(),
-                style: TextStyle(fontSize: 12.sp, color: IConstant.main_color),
+                style: TextStyle(
+                  fontSize: 12.sp,
+                  fontWeight: FontWeight.w600,
+                  color: IConstant.main_color,
+                ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
-              SizedBox(height: 6.w),
+              SizedBox(height: 4.w),
               Text(
                 _expireText(),
                 style: TextStyle(fontSize: 11.sp, color: IConstant.grey_color),
@@ -665,52 +691,54 @@ class CouponStoreAddressRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Expanded(
-          child: InkWell(
-            onTap: onToggle,
-            child: Row(
-              children: [
-                Icon(Icons.location_on,
-                    size: 16.w, color: IConstant.main_color),
-                SizedBox(width: 6.w),
-                Expanded(
-                  child: Text(
-                    addressText,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                        fontSize: 12.sp, color: IConstant.title_color),
-                  ),
-                ),
-                Icon(
-                  expanded
-                      ? Icons.keyboard_arrow_up
-                      : Icons.keyboard_arrow_down,
-                  size: 18.w,
-                  color: IConstant.grey_color,
-                ),
-              ],
-            ),
+        Text(
+          '选择门店',
+          style: TextStyle(
+            fontSize: 14.sp,
+            fontWeight: FontWeight.w600,
+            color: IConstant.title_color,
           ),
         ),
-        SizedBox(width: 10.w),
-        SizedBox(
-          height: 28.w,
-          child: OutlinedButton(
-            style: OutlinedButton.styleFrom(
-              padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 0),
-              side: BorderSide(width: 1.w, color: IConstant.line_color),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20.w),
-              ),
-            ),
-            onPressed: onSelectStore,
-            child: Text(
-              '选择门店',
-              style: TextStyle(
-                fontSize: 12.sp,
-                color: IConstant.title_color,
-                fontWeight: FontWeight.w500,
+        SizedBox(width: 12.w),
+        Expanded(
+          child: SizedBox(
+            height: 44.w,
+            child: InkWell(
+              onTap: onToggle,
+              borderRadius: BorderRadius.circular(14.w),
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 12.w),
+                decoration: BoxDecoration(
+                  color: IConstant.white_bg_color2,
+                  borderRadius: BorderRadius.circular(14.w),
+                  border: Border.all(width: 1.w, color: IConstant.line_color),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.location_on,
+                        size: 18.w, color: IConstant.title_color),
+                    SizedBox(width: 8.w),
+                    Expanded(
+                      child: Text(
+                        addressText,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 13.sp,
+                          color: IConstant.title_color,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                    Icon(
+                      expanded
+                          ? Icons.keyboard_arrow_up
+                          : Icons.keyboard_arrow_down,
+                      size: 18.w,
+                      color: IConstant.grey_color,
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -735,71 +763,75 @@ class CouponStoreList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: List.generate(shopList.length, (index) {
-        final store = shopList[index];
-        final bool active = index == selectedIndex;
-        final String storeName = BaseModel.getString(store, 'name');
-        final String address = BaseModel.getString(store, 'address');
-        return Container(
-          margin: EdgeInsets.only(bottom: 8.w),
-          padding: EdgeInsets.all(10.w),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12.w),
-            border: Border.all(
-              width: 1.w,
-              color: active ? IConstant.main_color : IConstant.line_color,
+    return SizedBox(
+      height: 220.w,
+      child: ListView.separated(
+        itemCount: shopList.length,
+        separatorBuilder: (_, __) => SizedBox(height: 8.w),
+        itemBuilder: (context, index) {
+          final store = shopList[index];
+          final bool active = index == selectedIndex;
+          final String storeName = BaseModel.getString(store, 'name');
+          final String address = BaseModel.getString(store, 'address');
+          return Container(
+            padding: EdgeInsets.all(10.w),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12.w),
+              border: Border.all(
+                width: 1.w,
+                color: active ? IConstant.main_color : IConstant.line_color,
+              ),
             ),
-          ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: InkWell(
-                  onTap: () => onSelect(index),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        storeName,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 12.sp,
-                          fontWeight: FontWeight.w600,
-                          color: IConstant.title_color,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: InkWell(
+                    onTap: () => onSelect(index),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          storeName,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 12.sp,
+                            fontWeight: FontWeight.w600,
+                            color: IConstant.title_color,
+                          ),
                         ),
-                      ),
-                      SizedBox(height: 4.w),
-                      Text(
-                        address,
-                        style: TextStyle(
-                            fontSize: 12.sp, color: IConstant.grey_color),
-                      ),
-                    ],
+                        SizedBox(height: 4.w),
+                        Text(
+                          address,
+                          style: TextStyle(
+                              fontSize: 12.sp, color: IConstant.grey_color),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-              SizedBox(width: 10.w),
-              TextButton(
-                onPressed: () {
-                  ClipboardUtil.setDataToast(address);
-                },
-                style: TextButton.styleFrom(
-                  padding: EdgeInsets.zero,
-                  minimumSize: Size.zero,
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                SizedBox(width: 10.w),
+                TextButton(
+                  onPressed: () {
+                    ClipboardUtil.setDataToast(address);
+                  },
+                  style: TextButton.styleFrom(
+                    padding: EdgeInsets.zero,
+                    minimumSize: Size.zero,
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                  child: Text(
+                    '复制地址',
+                    style:
+                        TextStyle(fontSize: 12.sp, color: IConstant.main_color),
+                  ),
                 ),
-                child: Text(
-                  '复制地址',
-                  style:
-                      TextStyle(fontSize: 12.sp, color: IConstant.main_color),
-                ),
-              ),
-            ],
-          ),
-        );
-      }),
+              ],
+            ),
+          );
+        },
+      ),
     );
   }
 }
@@ -809,24 +841,28 @@ class CouponPrimaryButton extends StatelessWidget {
   final String text;
   final VoidCallback onPressed;
   final Widget? icon;
+  final Color backgroundColor;
+  final Color textColor;
 
   const CouponPrimaryButton({
     super.key,
     required this.text,
     required this.onPressed,
     this.icon,
+    this.backgroundColor = IConstant.blue_color,
+    this.textColor = Colors.white,
   });
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       width: double.infinity,
-      height: 44.w,
+      height: 56.w,
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
-          backgroundColor: IConstant.main_color,
+          backgroundColor: backgroundColor,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(24.w),
+            borderRadius: BorderRadius.circular(28.w),
           ),
           elevation: 0,
         ),
@@ -834,14 +870,19 @@ class CouponPrimaryButton extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            icon ?? Icon(Icons.near_me, size: 18.w, color: Colors.white),
+            icon ??
+                Icon(
+                  Icons.near_me,
+                  size: 18.w,
+                  color: textColor,
+                ),
             SizedBox(width: 6.w),
             Text(
               text,
               style: TextStyle(
                 fontSize: 14.sp,
                 fontWeight: FontWeight.w600,
-                color: Colors.white,
+                color: textColor,
               ),
             ),
           ],

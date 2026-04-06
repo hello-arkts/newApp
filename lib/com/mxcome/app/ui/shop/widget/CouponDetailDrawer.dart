@@ -154,20 +154,23 @@ class _CouponDetailDrawerState extends State<CouponDetailDrawer> {
               const CouponDrawerHandle(),
               Padding(
                 padding: EdgeInsets.fromLTRB(16.w, 6.w, 16.w, 6.w),
-                child: CouponSegmentedSwitch(
-                  width: double.infinity,
-                  index: _tabIndex,
-                  labels: [
-                    LanguageConfig.get(
-                        LanguageConfigKeys.Shop_mine_use_coupons),
-                    LanguageConfig.get(LanguageConfigKeys.Shop_product_shop),
-                  ],
-                  onChanged: (i) {
-                    if (i == _tabIndex) return;
-                    setState(() {
-                      _tabIndex = i;
-                    });
-                  },
+                child: Align(
+                  alignment: Alignment.center,
+                  child: CouponSegmentedSwitch(
+                    width: 210,
+                    index: _tabIndex,
+                    labels: [
+                      LanguageConfig.get(
+                          LanguageConfigKeys.Shop_mine_use_coupons),
+                      LanguageConfig.get(LanguageConfigKeys.Shop_product_shop),
+                    ],
+                    onChanged: (i) {
+                      if (i == _tabIndex) return;
+                      setState(() {
+                        _tabIndex = i;
+                      });
+                    },
+                  ),
                 ),
               ),
               Expanded(
@@ -273,7 +276,7 @@ class _CouponDetailDrawerState extends State<CouponDetailDrawer> {
           title: name,
           subtitle: _couponAmount(detail),
         ),
-        SizedBox(height: 12.w),
+        SizedBox(height: 6.w),
         CouponQrSection(
           qrData: qrcode,
           code: code,
@@ -302,7 +305,10 @@ class _CouponDetailDrawerState extends State<CouponDetailDrawer> {
   Widget _buildBottom() {
     final String selectedAddress =
         (_shopList.isNotEmpty && _selectedStoreIndex >= 0)
-            ? BaseModel.getString(_shopList[_selectedStoreIndex], 'address')
+            ? BaseModel.getString(
+                _shopList[_selectedStoreIndex],
+                'address',
+              )
             : '';
     return SafeArea(
       top: false,
@@ -334,6 +340,20 @@ class _CouponDetailDrawerState extends State<CouponDetailDrawer> {
             if (_addressExpanded) _buildStoreList(),
             SizedBox(height: 12.w),
             CouponPrimaryButton(text: '导航到店', onPressed: _openNavigation),
+            SizedBox(height: 10.w),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.keyboard_arrow_up,
+                    size: 18.w, color: IConstant.grey_color),
+                SizedBox(width: 4.w),
+                Text(
+                  '上滑查看店铺',
+                  style:
+                      TextStyle(fontSize: 12.sp, color: IConstant.grey_color),
+                ),
+              ],
+            ),
           ],
         ),
       ),
