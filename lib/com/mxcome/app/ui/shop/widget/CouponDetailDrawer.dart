@@ -140,9 +140,9 @@ class _CouponDetailDrawerState extends State<CouponDetailDrawer> {
   @override
   Widget build(BuildContext context) {
     return DraggableScrollableSheet(
-      initialChildSize: 0.95,
+      initialChildSize: 0.93,
       minChildSize: 0.3,
-      maxChildSize: 0.95,
+      maxChildSize: 0.93,
       builder: (context, scrollController) {
         return Container(
           decoration: BoxDecoration(
@@ -151,7 +151,10 @@ class _CouponDetailDrawerState extends State<CouponDetailDrawer> {
           ),
           child: Column(
             children: [
-              const CouponDrawerHandle(),
+              GestureDetector(
+                onTap: () => Navigator.pop(context),
+                child: const CouponDrawerHandle(),
+              ),
               Padding(
                 padding: EdgeInsets.fromLTRB(16.w, 6.w, 16.w, 6.w),
                 child: Align(
@@ -187,7 +190,7 @@ class _CouponDetailDrawerState extends State<CouponDetailDrawer> {
                         children: [
                           Expanded(
                             child: SingleChildScrollView(
-                              controller: scrollController,
+                              // controller: scrollController,  //预留下滑属性
                               padding:
                                   EdgeInsets.fromLTRB(16.w, 8.w, 16.w, 12.w),
                               child: _tabIndex == 0
@@ -273,6 +276,13 @@ class _CouponDetailDrawerState extends State<CouponDetailDrawer> {
     final String code = BaseModel.getString(detail, 'code').isNotEmpty
         ? BaseModel.getString(detail, 'code')
         : BaseModel.getString(couponTypes, 'code');
+    final String selectedAddress =
+        (_shopList.isNotEmpty && _selectedStoreIndex >= 0)
+            ? BaseModel.getString(
+                _shopList[_selectedStoreIndex],
+                'address',
+              )
+            : '';
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -310,18 +320,30 @@ class _CouponDetailDrawerState extends State<CouponDetailDrawer> {
               );
             },
           ),
+        SizedBox(height: 12.w),
+        CouponStoreAddressRow(
+          addressText: selectedAddress.isEmpty ? '请选择门店地址' : selectedAddress,
+          expanded: _addressExpanded,
+          onToggle: () {
+            setState(() {
+              _addressExpanded = !_addressExpanded;
+            });
+          },
+          onSelectStore: () {
+            setState(() {
+              _addressExpanded = true;
+            });
+          },
+        ),
+        if (_addressExpanded) SizedBox(height: 10.w),
+        if (_addressExpanded) _buildStoreList(),
+        SizedBox(height: 6.w),
+        CouponPrimaryButton(text: '导航到店', onPressed: _openNavigation),
       ],
     );
   }
 
   Widget _buildBottom() {
-    final String selectedAddress =
-        (_shopList.isNotEmpty && _selectedStoreIndex >= 0)
-            ? BaseModel.getString(
-                _shopList[_selectedStoreIndex],
-                'address',
-              )
-            : '';
     return SafeArea(
       top: false,
       child: Container(
@@ -333,26 +355,6 @@ class _CouponDetailDrawerState extends State<CouponDetailDrawer> {
         ),
         child: Column(
           children: [
-            CouponStoreAddressRow(
-              addressText:
-                  selectedAddress.isEmpty ? '请选择门店地址' : selectedAddress,
-              expanded: _addressExpanded,
-              onToggle: () {
-                setState(() {
-                  _addressExpanded = !_addressExpanded;
-                });
-              },
-              onSelectStore: () {
-                setState(() {
-                  _addressExpanded = true;
-                });
-              },
-            ),
-            if (_addressExpanded) SizedBox(height: 10.w),
-            if (_addressExpanded) _buildStoreList(),
-            SizedBox(height: 6.w),
-            CouponPrimaryButton(text: '导航到店', onPressed: _openNavigation),
-            SizedBox(height: 12.w),
             Column(
               children: [
                 Icon(Icons.keyboard_arrow_up,
