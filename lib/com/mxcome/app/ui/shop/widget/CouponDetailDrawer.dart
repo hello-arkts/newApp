@@ -31,6 +31,7 @@ class _CouponDetailDrawerState extends State<CouponDetailDrawer> {
   late final ValueNotifier<String> _activeCouponId;
   int _selectedStoreIndex = 0;
   int _tabIndex = 0;
+  double _bottomDragDy = 0;
 
   @override
   void initState() {
@@ -192,6 +193,29 @@ class _CouponDetailDrawerState extends State<CouponDetailDrawer> {
     });
   }
 
+  bool _handleUseTabScrollNotification(ScrollNotification notification) {
+    if (_tabIndex != 0) return false;
+    if (notification is OverscrollNotification) {
+      final metrics = notification.metrics;
+      final bool atBottom = metrics.pixels >= metrics.maxScrollExtent;
+      if (atBottom && notification.overscroll > 10) {
+        setState(() {
+          _tabIndex = 1;
+        });
+      }
+    }
+    return false;
+  }
+
+  void _switchToShopTab() {
+    if (_tabIndex != 0) return;
+    if (_bottomDragDy < -40) {
+      setState(() {
+        _tabIndex = 1;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return DraggableScrollableSheet(
@@ -244,16 +268,27 @@ class _CouponDetailDrawerState extends State<CouponDetailDrawer> {
                     : Column(
                         children: [
                           Expanded(
-                            child: SingleChildScrollView(
-                              // controller: scrollController,  //预留下滑属性
-                              padding:
-                                  EdgeInsets.fromLTRB(16.w, 8.w, 16.w, 12.w),
-                              child: _tabIndex == 0
-                                  ? _buildContent()
-                                  : _buildShopTab(),
+                            child: Column(
+                              children: [
+                                Expanded(
+                                  child:
+                                      NotificationListener<ScrollNotification>(
+                                    onNotification:
+                                        _handleUseTabScrollNotification,
+                                    child: SingleChildScrollView(
+                                      controller: scrollController,
+                                      padding: EdgeInsets.fromLTRB(
+                                          16.w, 8.w, 16.w, 12.w),
+                                      child: _tabIndex == 0
+                                          ? _buildContent()
+                                          : _buildShopTab(),
+                                    ),
+                                  ),
+                                ),
+                                if (_tabIndex == 0) _buildBottom(),
+                              ],
                             ),
                           ),
-                          if (_tabIndex == 0) _buildBottom(),
                         ],
                       ),
               ),
@@ -389,30 +424,48 @@ class _CouponDetailDrawerState extends State<CouponDetailDrawer> {
   }
 
   Widget _buildBottom() {
-    return SafeArea(
-      top: false,
-      child: Container(
-        padding: EdgeInsets.fromLTRB(16.w, 10.w, 16.w, 12.w),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          border:
-              Border(top: BorderSide(width: 1.w, color: IConstant.line_color)),
-        ),
-        child: Column(
-          children: [
-            Column(
-              children: [
-                Icon(Icons.keyboard_arrow_up,
-                    size: 18.w, color: IConstant.grey_color),
-                SizedBox(height: 2.w),
-                Text(
-                  '上滑查看店铺',
-                  style:
-                      TextStyle(fontSize: 12.sp, color: IConstant.grey_color),
-                ),
-              ],
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onVerticalDragStart: (_) {
+        _bottomDragDy = 0;
+      },
+      onVerticalDragUpdate: (details) {
+        _bottomDragDy += details.delta.dy;
+      },
+      onVerticalDragEnd: (details) {
+        final double v = details.primaryVelocity ?? 0;
+        if (v < -500) {
+          _bottomDragDy = -999;
+        }
+        _switchToShopTab();
+      },
+      child: SafeArea(
+        top: false,
+        child: Container(
+          width: double.infinity,
+          padding: EdgeInsets.fromLTRB(16.w, 10.w, 16.w, 12.w),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            border: Border(
+              top: BorderSide(width: 1.w, color: IConstant.line_color),
             ),
-          ],
+          ),
+          child: Column(
+            children: [
+              Column(
+                children: [
+                  Icon(Icons.keyboard_arrow_up,
+                      size: 18.w, color: IConstant.grey_color),
+                  SizedBox(height: 2.w),
+                  Text(
+                    '上滑查看店铺',
+                    style:
+                        TextStyle(fontSize: 12.sp, color: IConstant.grey_color),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
