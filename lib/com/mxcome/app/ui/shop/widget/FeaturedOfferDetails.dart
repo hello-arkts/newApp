@@ -26,12 +26,14 @@ class _FeaturedOfferDetailsState extends State<FeaturedOfferDetails> {
   ];
 
   // 模拟数据 - 后续可以从 API 获取
-  final List<dynamic> _allPromotionItems = List.generate(10, (index) => {
-    'id': index,
-    'name': '优惠商品 ${index + 1}',
-    'discount': '满${(index + 1) * 100}减${(index + 1) * 10}',
-    'logo': 'https://via.placeholder.com/80',
-  });
+  final List<dynamic> _allPromotionItems = List.generate(
+      10,
+      (index) => {
+            'id': index,
+            'name': '优惠商品 ${index + 1}',
+            'discount': '满${(index + 1) * 100}减${(index + 1) * 10}',
+            'logo': 'https://via.placeholder.com/80',
+          });
 
   List<dynamic> _filteredItems = [];
 
@@ -70,9 +72,12 @@ class _FeaturedOfferDetailsState extends State<FeaturedOfferDetails> {
           ),
           // 商品列表
           Expanded(
-            child: AnimatedSwitcher(
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 10.w),
+              child: AnimatedSwitcher(
                 duration: const Duration(milliseconds: 300),
-                layoutBuilder: (Widget? currentChild, List<Widget> previousChildren) {
+                layoutBuilder:
+                    (Widget? currentChild, List<Widget> previousChildren) {
                   return Stack(
                     alignment: Alignment.topCenter,
                     children: <Widget>[
@@ -88,6 +93,7 @@ class _FeaturedOfferDetailsState extends State<FeaturedOfferDetails> {
                   scrollable: true,
                 ),
               ),
+            ),
           ),
         ],
       ),
