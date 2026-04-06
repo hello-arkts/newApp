@@ -68,7 +68,9 @@ class CouponSegmentedSwitch extends StatelessWidget {
       width: resolvedWidth,
       child: LayoutBuilder(
         builder: (context, constraints) {
-          final double itemWidth = constraints.maxWidth / labels.length;
+          final double totalPadding = padding.left.w + padding.right.w;
+          final double itemWidth =
+              (constraints.maxWidth - totalPadding) / labels.length;
           final TextStyle activeStyle = activeTextStyle ??
               TextStyle(
                 fontSize: 13.sp,
@@ -84,7 +86,8 @@ class CouponSegmentedSwitch extends StatelessWidget {
 
           return Container(
             height: height.w,
-            padding: EdgeInsets.all(padding.left.w),
+            padding: EdgeInsets.symmetric(
+                horizontal: padding.left.w, vertical: padding.top.w),
             decoration: BoxDecoration(
               color: backgroundColor,
               borderRadius: borderRadius,
