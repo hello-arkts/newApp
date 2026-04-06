@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mxcome/com/mxcome/app/IConstant.dart';
 import 'package:mxcome/com/mxcome/app/model/BaseModel.dart';
 import 'package:mxcome/com/mxcome/app/ui/shop/utils/ClipboardUtil.dart';
@@ -671,7 +672,7 @@ class CouponTypeSelector extends StatelessWidget {
   }
 }
 
-/// 底部地址栏（当前门店地址 + 展开/收起 + “选择门店”按钮）
+/// 地址栏组件
 class CouponStoreAddressRow extends StatelessWidget {
   final String addressText;
   final bool expanded;
@@ -744,6 +745,297 @@ class CouponStoreAddressRow extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+/// 地图选择器组件
+class CouponMapPickerDrawer extends StatelessWidget {
+  final String address;
+  final String lat;
+  final String lng;
+  final String tipText;
+  final double initialChildSize;
+  final double minChildSize;
+  final double maxChildSize;
+
+  const CouponMapPickerDrawer({
+    super.key,
+    required this.address,
+    required this.lat,
+    required this.lng,
+    this.tipText = '请在右上角点击浏览器打开',
+    this.initialChildSize = 0.8,
+    this.minChildSize = 0.3,
+    this.maxChildSize = 0.9,
+  });
+
+  static Future<bool> show(
+    BuildContext context, {
+    required String address,
+    required String lat,
+    required String lng,
+    String tipText = '请在右上角点击浏览器打开',
+  }) async {
+    final bool? ok = await showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) {
+        return CouponMapPickerDrawer(
+          address: address,
+          lat: lat,
+          lng: lng,
+          tipText: tipText,
+        );
+      },
+    );
+    return ok ?? false;
+  }
+
+  static Future<bool> _launchMap(
+    BuildContext context,
+    CouponMapApp app, {
+    required String address,
+    required String lat,
+    required String lng,
+  }) async {
+    final bool hasCoord = lat.isNotEmpty && lng.isNotEmpty;
+    final String name = address.isNotEmpty ? address : '目的地';
+    final TargetPlatform platform = Theme.of(context).platform;
+    final bool isIOS = platform == TargetPlatform.iOS;
+
+    Uri? uri;
+    if (kIsWeb || app == CouponMapApp.google) {
+      uri = Uri.parse(
+        hasCoord
+            ? 'https://www.google.com/maps/dir/?api=1&destination=$lat,$lng'
+            : 'https://www.google.com/maps/search/?api=1&query=${Uri.encodeComponent(address)}',
+      );
+    } else if (app == CouponMapApp.amap) {
+      if (hasCoord) {
+        uri = Uri.parse(
+          isIOS
+              ? 'iosamap://path?sourceApplication=mxcome&dlat=$lat&dlon=$lng&dname=${Uri.encodeComponent(name)}&dev=0&t=0'
+              : 'androidamap://route?sourceApplication=mxcome&dlat=$lat&dlon=$lng&dname=${Uri.encodeComponent(name)}&dev=0&t=0',
+        );
+      } else {
+        uri = Uri.parse(
+          isIOS
+              ? 'iosamap://poi?sourceApplication=mxcome&keywords=${Uri.encodeComponent(address)}'
+              : 'androidamap://poi?sourceApplication=mxcome&keywords=${Uri.encodeComponent(address)}',
+        );
+      }
+    } else if (app == CouponMapApp.tencent) {
+      if (hasCoord) {
+        uri = Uri.parse(
+          'qqmap://map/routeplan?type=drive&tocoord=$lat,$lng&to=${Uri.encodeComponent(name)}&referer=mxcome',
+        );
+      } else {
+        uri = Uri.parse(
+          'qqmap://map/search?keyword=${Uri.encodeComponent(address)}&referer=mxcome',
+        );
+      }
+    } else if (app == CouponMapApp.baidu) {
+      if (hasCoord) {
+        uri = Uri.parse(
+          'baidumap://map/direction?destination=latlng:$lat,$lng|name:${Uri.encodeComponent(name)}&mode=driving&src=mxcome',
+        );
+      } else {
+        uri = Uri.parse(
+          'baidumap://map/geocoder?address=${Uri.encodeComponent(address)}&src=mxcome',
+        );
+      }
+    }
+
+    if (uri != null && await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+      return true;
+    }
+
+    final Uri fallback = Uri.parse(
+      hasCoord
+          ? 'https://www.google.com/maps/dir/?api=1&destination=$lat,$lng'
+          : 'https://www.google.com/maps/search/?api=1&query=${Uri.encodeComponent(address)}',
+    );
+    if (await canLaunchUrl(fallback)) {
+      await launchUrl(fallback, mode: LaunchMode.externalApplication);
+      return true;
+    }
+    return false;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    Widget buildOption({
+      required String name,
+      required String desc,
+      required String iconAsset,
+      required CouponMapApp app,
+    }) {
+      return Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12.w),
+          onTap: () async {
+            final bool ok = await _launchMap(
+              context,
+              app,
+              address: address,
+              lat: lat,
+              lng: lng,
+            );
+            if (!context.mounted) return;
+            if (ok) {
+              Navigator.pop(context, true);
+            }
+          },
+          child: Container(
+            padding: EdgeInsets.all(16.w),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12.w),
+              border: Border.all(
+                width: 1.w,
+                color: IConstant.grey_line_color,
+              ),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 48.w,
+                  height: 48.w,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF5F5F5),
+                    borderRadius: BorderRadius.circular(12.w),
+                  ),
+                  alignment: Alignment.center,
+                  child: SvgPicture.asset(
+                    iconAsset,
+                    width: 32.w,
+                    height: 32.w,
+                    fit: BoxFit.contain,
+                  ),
+                ),
+                SizedBox(width: 12.w),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.w600,
+                          color: IConstant.title_color,
+                        ),
+                      ),
+                      SizedBox(height: 4.w),
+                      Text(
+                        desc,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 12.sp,
+                          color: IConstant.grey_color,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(width: 8.w),
+                Icon(Icons.arrow_forward_ios,
+                    size: 16.w, color: IConstant.grey_color),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
+    return DraggableScrollableSheet(
+      initialChildSize: initialChildSize,
+      minChildSize: minChildSize,
+      maxChildSize: maxChildSize,
+      expand: false,
+      builder: (context, controller) {
+        return SafeArea(
+          top: false,
+          child: Container(
+            decoration: BoxDecoration(
+              color: const Color(0xFFF9F5F6),
+              borderRadius: BorderRadius.vertical(top: Radius.circular(26.w)),
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.vertical(top: Radius.circular(26.w)),
+              child: Column(
+                children: [
+                  GestureDetector(
+                    onTap: () => Navigator.pop(context, false),
+                    child: const CouponDrawerHandle(),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.only(right: 20.w, bottom: 6.w),
+                    child: Align(
+                      alignment: Alignment.centerRight,
+                      child: Text(
+                        tipText,
+                        style: TextStyle(
+                          fontSize: 12.sp,
+                          color: IConstant.grey_color,
+                        ),
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: ListView.separated(
+                      controller: controller,
+                      padding: EdgeInsets.all(20.w),
+                      itemCount: 4,
+                      separatorBuilder: (_, __) => SizedBox(height: 12.w),
+                      itemBuilder: (context, index) {
+                        switch (index) {
+                          case 0:
+                            return buildOption(
+                              name: 'Google Maps',
+                              desc: 'Google 地图',
+                              iconAsset: 'assets/icons/map_google.svg',
+                              app: CouponMapApp.google,
+                            );
+                          case 1:
+                            return buildOption(
+                              name: '高德地图',
+                              desc: 'Gaode Maps',
+                              iconAsset: 'assets/icons/map_gaode.svg',
+                              app: CouponMapApp.amap,
+                            );
+                          case 2:
+                            return buildOption(
+                              name: '百度地图',
+                              desc: 'Baidu Maps',
+                              iconAsset: 'assets/icons/map_baidu.svg',
+                              app: CouponMapApp.baidu,
+                            );
+                          default:
+                            return buildOption(
+                              name: '腾讯地图',
+                              desc: 'Tencent Maps',
+                              iconAsset: 'assets/icons/map_tencent.svg',
+                              app: CouponMapApp.tencent,
+                            );
+                        }
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }
@@ -891,3 +1183,126 @@ class CouponPrimaryButton extends StatelessWidget {
     );
   }
 }
+
+/// 底部门店选择器组件
+class CouponStorePickerActionSection extends StatelessWidget {
+  final String addressText;
+  final List<dynamic> shopList;
+  final int selectedIndex;
+  final ValueChanged<int> onSelectIndex;
+  final VoidCallback? onNavigateTap;
+  final VoidCallback? onNoDataTap;
+  final double sheetMaxHeightFactor;
+
+  const CouponStorePickerActionSection({
+    super.key,
+    required this.addressText,
+    required this.shopList,
+    required this.selectedIndex,
+    required this.onSelectIndex,
+    this.onNavigateTap,
+    this.onNoDataTap,
+    this.sheetMaxHeightFactor = 0.6,
+  });
+
+  Future<void> _openStorePicker(BuildContext context) async {
+    if (shopList.isEmpty) {
+      onNoDataTap?.call();
+      return;
+    }
+
+    final int? pickedIndex = await showModalBottomSheet<int>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        final double maxHeight =
+            MediaQuery.of(context).size.height * sheetMaxHeightFactor;
+        return SafeArea(
+          top: false,
+          child: Container(
+            constraints: BoxConstraints(maxHeight: maxHeight),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(16.w)),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                GestureDetector(
+                  onTap: () => Navigator.pop(context),
+                  child: const CouponDrawerHandle(),
+                ),
+                Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.fromLTRB(16.w, 6.w, 16.w, 16.w),
+                    child: CouponStoreList(
+                      shopList: shopList,
+                      selectedIndex: selectedIndex,
+                      onSelect: (index) => Navigator.pop(context, index),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+
+    if (pickedIndex == null) return;
+    onSelectIndex(pickedIndex);
+  }
+
+  Future<void> _openMapPicker(BuildContext context) async {
+    if (shopList.isEmpty ||
+        selectedIndex < 0 ||
+        selectedIndex >= shopList.length) {
+      onNoDataTap?.call();
+      return;
+    }
+
+    final dynamic store = shopList[selectedIndex];
+    final String address = BaseModel.getString(store, 'address');
+    final String lat = BaseModel.getString(store, 'lat').isNotEmpty
+        ? BaseModel.getString(store, 'lat')
+        : BaseModel.getString(store, 'latitude');
+    final String lng = BaseModel.getString(store, 'lng').isNotEmpty
+        ? BaseModel.getString(store, 'lng')
+        : BaseModel.getString(store, 'longitude');
+
+    if (address.isEmpty && (lat.isEmpty || lng.isEmpty)) {
+      onNoDataTap?.call();
+      return;
+    }
+
+    await CouponMapPickerDrawer.show(
+      context,
+      address: address,
+      lat: lat,
+      lng: lng,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        CouponStoreAddressRow(
+          addressText: addressText,
+          expanded: false,
+          onToggle: () => _openStorePicker(context),
+          onSelectStore: () => _openStorePicker(context),
+        ),
+        SizedBox(height: 6.w),
+        CouponPrimaryButton(
+          text: '导航到店',
+          onPressed: onNavigateTap ?? () => _openMapPicker(context),
+        ),
+      ],
+    );
+  }
+}
+
+enum CouponMapApp { google, amap, tencent, baidu }

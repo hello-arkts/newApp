@@ -6,7 +6,6 @@ import 'package:mxcome/com/mxcome/app/config/LanguageConfig.dart';
 import 'package:mxcome/com/mxcome/app/model/BaseModel.dart';
 import 'package:mxcome/com/mxcome/app/utils/HttpUtils.dart';
 import 'package:mxcome/com/mxcome/app/utils/ViewUtils.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:mxcome/com/mxcome/app/ui/shop/widget/CouponDrawerComponents.dart';
 
 class CouponDetailDrawer extends StatefulWidget {
@@ -123,74 +122,18 @@ class _CouponDetailDrawerState extends State<CouponDetailDrawer> {
         ? BaseModel.getString(store, 'lng')
         : BaseModel.getString(store, 'longitude');
 
-    String url;
-    if (lat.isNotEmpty && lng.isNotEmpty) {
-      url = 'https://www.google.com/maps/dir/?api=1&destination=$lat,$lng';
-    } else if (address.isNotEmpty) {
-      url =
-          'https://www.google.com/maps/search/?api=1&query=${Uri.encodeComponent(address)}';
-    } else {
+    if (address.isEmpty && (lat.isEmpty || lng.isEmpty)) {
       ViewUtils.displayToast(
           LanguageConfig.get(LanguageConfigKeys.ViewUtils_no_data));
       return;
     }
 
-    final uri = Uri.parse(url);
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
-    }
-  }
-
-  Future<void> _showStorePicker() async {
-    if (_shopList.isEmpty) {
-      ViewUtils.displayToast(
-          LanguageConfig.get(LanguageConfigKeys.ViewUtils_no_data));
-      return;
-    }
-
-    final int? pickedIndex = await showModalBottomSheet<int>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) {
-        final double maxHeight = MediaQuery.of(context).size.height * 0.6;
-        return SafeArea(
-          top: false,
-          child: Container(
-            constraints: BoxConstraints(maxHeight: maxHeight),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.vertical(top: Radius.circular(16.w)),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                GestureDetector(
-                  onTap: () => Navigator.pop(context),
-                  child: const CouponDrawerHandle(),
-                ),
-                Expanded(
-                  child: Padding(
-                    padding: EdgeInsets.fromLTRB(16.w, 6.w, 16.w, 16.w),
-                    child: CouponStoreList(
-                      shopList: _shopList,
-                      selectedIndex: _selectedStoreIndex,
-                      onSelect: (index) => Navigator.pop(context, index),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
+    await CouponMapPickerDrawer.show(
+      context,
+      address: address,
+      lat: lat,
+      lng: lng,
     );
-
-    if (pickedIndex == null) return;
-    if (!mounted) return;
-    setState(() {
-      _selectedStoreIndex = pickedIndex;
-    });
   }
 
   bool _handleUseTabScrollNotification(ScrollNotification notification) {
@@ -411,14 +354,20 @@ class _CouponDetailDrawerState extends State<CouponDetailDrawer> {
             },
           ),
         SizedBox(height: 12.w),
-        CouponStoreAddressRow(
+        CouponStorePickerActionSection(
           addressText: selectedAddress.isEmpty ? '请选择门店地址' : selectedAddress,
-          expanded: false,
-          onToggle: _showStorePicker,
-          onSelectStore: _showStorePicker,
+          shopList: _shopList,
+          selectedIndex: _selectedStoreIndex,
+          onSelectIndex: (index) {
+            setState(() {
+              _selectedStoreIndex = index;
+            });
+          },
+          onNoDataTap: () {
+            ViewUtils.displayToast(
+                LanguageConfig.get(LanguageConfigKeys.ViewUtils_no_data));
+          },
         ),
-        SizedBox(height: 6.w),
-        CouponPrimaryButton(text: '导航到店', onPressed: _openNavigation),
       ],
     );
   }
