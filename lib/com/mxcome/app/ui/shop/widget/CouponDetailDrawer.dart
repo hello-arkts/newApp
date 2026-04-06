@@ -30,7 +30,6 @@ class _CouponDetailDrawerState extends State<CouponDetailDrawer> {
   List<dynamic> _shopList = [];
   late final ValueNotifier<String> _activeCouponId;
   int _selectedStoreIndex = 0;
-  bool _addressExpanded = false;
   int _tabIndex = 0;
 
   @override
@@ -73,9 +72,13 @@ class _CouponDetailDrawerState extends State<CouponDetailDrawer> {
                 .cast<dynamic>();
         _activeCouponId.value = couponId;
         setState(() {
+          final List<dynamic> resolvedShopList =
+              shopList.isNotEmpty ? shopList : fallbackShopList;
           _detail = data;
           _couponList = couponList.isNotEmpty ? couponList : fallbackCouponList;
-          _shopList = shopList.isNotEmpty ? shopList : fallbackShopList;
+          _shopList = List<dynamic>.generate(10, (_) => resolvedShopList)
+              .expand((e) => e)
+              .toList();
           _selectedStoreIndex = _shopList.isNotEmpty ? 0 : -1;
           _loading = false;
         });
@@ -135,6 +138,58 @@ class _CouponDetailDrawerState extends State<CouponDetailDrawer> {
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
     }
+  }
+
+  Future<void> _showStorePicker() async {
+    if (_shopList.isEmpty) {
+      ViewUtils.displayToast(
+          LanguageConfig.get(LanguageConfigKeys.ViewUtils_no_data));
+      return;
+    }
+
+    final int? pickedIndex = await showModalBottomSheet<int>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        final double maxHeight = MediaQuery.of(context).size.height * 0.6;
+        return SafeArea(
+          top: false,
+          child: Container(
+            constraints: BoxConstraints(maxHeight: maxHeight),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(16.w)),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                GestureDetector(
+                  onTap: () => Navigator.pop(context),
+                  child: const CouponDrawerHandle(),
+                ),
+                Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.fromLTRB(16.w, 6.w, 16.w, 16.w),
+                    child: CouponStoreList(
+                      shopList: _shopList,
+                      selectedIndex: _selectedStoreIndex,
+                      onSelect: (index) => Navigator.pop(context, index),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+
+    if (pickedIndex == null) return;
+    if (!mounted) return;
+    setState(() {
+      _selectedStoreIndex = pickedIndex;
+    });
   }
 
   @override
@@ -323,20 +378,10 @@ class _CouponDetailDrawerState extends State<CouponDetailDrawer> {
         SizedBox(height: 12.w),
         CouponStoreAddressRow(
           addressText: selectedAddress.isEmpty ? '请选择门店地址' : selectedAddress,
-          expanded: _addressExpanded,
-          onToggle: () {
-            setState(() {
-              _addressExpanded = !_addressExpanded;
-            });
-          },
-          onSelectStore: () {
-            setState(() {
-              _addressExpanded = true;
-            });
-          },
+          expanded: false,
+          onToggle: _showStorePicker,
+          onSelectStore: _showStorePicker,
         ),
-        if (_addressExpanded) SizedBox(height: 10.w),
-        if (_addressExpanded) _buildStoreList(),
         SizedBox(height: 6.w),
         CouponPrimaryButton(text: '导航到店', onPressed: _openNavigation),
       ],
@@ -370,29 +415,6 @@ class _CouponDetailDrawerState extends State<CouponDetailDrawer> {
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildStoreList() {
-    if (_shopList.isEmpty) {
-      return Container(
-        alignment: Alignment.centerLeft,
-        padding: EdgeInsets.symmetric(vertical: 6.w),
-        child: Text(
-          LanguageConfig.get(LanguageConfigKeys.ViewUtils_no_data),
-          style: TextStyle(fontSize: 12.sp, color: IConstant.grey_color),
-        ),
-      );
-    }
-    return CouponStoreList(
-      shopList: _shopList,
-      selectedIndex: _selectedStoreIndex,
-      onSelect: (index) {
-        setState(() {
-          _selectedStoreIndex = index;
-          _addressExpanded = false;
-        });
-      },
     );
   }
 }
