@@ -239,7 +239,13 @@ class _CouponDetailDrawerState extends State<CouponDetailDrawer> {
       couponList: _couponList,
       activeCouponIdListenable: _activeCouponId,
       onSelectCouponId: (id) {
-        if (id.isEmpty || id == _activeCouponId.value) return;
+        if (id.isEmpty) return;
+        if (_tabIndex != 0) {
+          setState(() {
+            _tabIndex = 0;
+          });
+        }
+        if (id == _activeCouponId.value) return;
         _activeCouponId.value = id;
         _loadDetail(id, showLoading: false);
       },
@@ -290,7 +296,14 @@ class _CouponDetailDrawerState extends State<CouponDetailDrawer> {
                 couponList: _couponList,
                 activeCouponId: activeId,
                 onSelect: (id) {
-                  if (id.isEmpty || id == _activeCouponId.value) return;
+                  if (id.isEmpty) return;
+                  // 切换回“使用优惠券”Tab
+                  if (_tabIndex != 0) {
+                    setState(() {
+                      _tabIndex = 0;
+                    });
+                  }
+                  if (id == _activeCouponId.value) return;
                   _activeCouponId.value = id;
                   _loadDetail(id, showLoading: false);
                 },

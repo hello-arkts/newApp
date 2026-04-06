@@ -661,7 +661,7 @@ class CouponTypeSelector extends StatelessWidget {
             coupon: item,
             active: active,
             onTap: () {
-              if (id.isEmpty || id == activeCouponId) return;
+              if (id.isEmpty) return;
               onSelect(id);
             },
           );
