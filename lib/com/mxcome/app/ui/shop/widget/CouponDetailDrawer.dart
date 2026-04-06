@@ -7,6 +7,8 @@ import 'package:mxcome/com/mxcome/app/model/BaseModel.dart';
 import 'package:mxcome/com/mxcome/app/utils/HttpUtils.dart';
 import 'package:mxcome/com/mxcome/app/utils/ViewUtils.dart';
 import 'package:mxcome/com/mxcome/app/ui/shop/widget/CouponDrawerComponents.dart';
+import 'package:mxcome/com/mxcome/app/ui/shop/widget/CouponDrawerTabSwitcher.dart';
+import 'package:mxcome/com/mxcome/app/ui/shop/featured/ShopFeaturedPage.dart';
 
 class CouponDetailDrawer extends StatefulWidget {
   final String initialCouponId;
@@ -193,25 +195,21 @@ class _CouponDetailDrawerState extends State<CouponDetailDrawer> {
                               const CircularProgressIndicator(strokeWidth: 2),
                         ),
                       )
-                    : Column(
-                        children: [
-                          Expanded(
-                            child: Column(
-                              children: [
-                                Expanded(
-                                  child: SingleChildScrollView(
-                                    padding: EdgeInsets.fromLTRB(
-                                        16.w, 8.w, 16.w, 12.w),
-                                    child: _tabIndex == 0
-                                        ? _buildContent()
-                                        : _buildShopTab(),
-                                  ),
-                                ),
-                                if (_tabIndex == 0) _buildBottom(),
-                              ],
+                    : CouponDrawerTabSwitcher(
+                        index: _tabIndex,
+                        useCouponBuilder: (_) => Column(
+                          children: [
+                            Expanded(
+                              child: SingleChildScrollView(
+                                padding:
+                                    EdgeInsets.fromLTRB(16.w, 8.w, 16.w, 12.w),
+                                child: _buildContent(),
+                              ),
                             ),
-                          ),
-                        ],
+                            _buildBottom(),
+                          ],
+                        ),
+                        shopBuilder: (_) => _buildShopTab(),
                       ),
               ),
             ],
@@ -245,25 +243,40 @@ class _CouponDetailDrawerState extends State<CouponDetailDrawer> {
         ? BaseModel.getString(store, 'phone')
         : BaseModel.getString(store, 'tel');
 
-    return CouponShopTabHeaderSection(
-      logoUrl: logo,
-      name: name,
-      address: address,
-      phone: phone,
-      onNavigateTap: _openNavigation,
-      couponList: _couponList,
-      activeCouponIdListenable: _activeCouponId,
-      onSelectCouponId: (id) {
-        if (id.isEmpty) return;
-        if (_tabIndex != 0) {
-          setState(() {
-            _tabIndex = 0;
-          });
-        }
-        if (id == _activeCouponId.value) return;
-        _activeCouponId.value = id;
-        _loadDetail(id, showLoading: false);
-      },
+    final int shopId = BaseModel.getInt(shop, 'id') != 0
+        ? BaseModel.getInt(shop, 'id')
+        : BaseModel.getInt(initShop, 'id') != 0
+            ? BaseModel.getInt(initShop, 'id')
+            : BaseModel.getInt(detail, 'shopId');
+
+    return Column(
+      children: [
+        Padding(
+          padding: EdgeInsets.fromLTRB(16.w, 8.w, 16.w, 0),
+          child: CouponShopTabHeaderSection(
+            logoUrl: logo,
+            name: name,
+            address: address,
+            phone: phone,
+            onNavigateTap: _openNavigation,
+            couponList: _couponList,
+            activeCouponIdListenable: _activeCouponId,
+            onSelectCouponId: (id) {
+              if (id.isEmpty) return;
+              if (_tabIndex != 0) {
+                setState(() {
+                  _tabIndex = 0;
+                });
+              }
+              if (id == _activeCouponId.value) return;
+              _activeCouponId.value = id;
+              _loadDetail(id, showLoading: false);
+            },
+          ),
+        ),
+        SizedBox(height: 12.w),
+        Expanded(child: ShopFeaturedModule(shopId: shopId)),
+      ],
     );
   }
 

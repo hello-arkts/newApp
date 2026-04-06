@@ -508,6 +508,13 @@ class IURLConstant {
 
   static const MALL_COUPON_LIST =
       "${BASE_URL}/mall-portal/member/coupon/coupon1List"; //优惠券列表（精选优惠）
+
   static const MALL_COUPON_DETAIL =
       "${BASE_URL}/mall-portal/member/coupon/coupon1Detail"; //优惠券详情（精选优惠）
+
+  static const MALL_COUPON_DETAIL_BY_ID_SHOP =
+      "${BASE_URL}/mall-portal/home/productByShopid"; // 店铺精选
+
+  static const MALL_PRODUCT_BY_SHOPID =
+      "${BASE_URL}/mall-portal/home/shopBrandByShopid"; // 店铺品牌详情
 }
