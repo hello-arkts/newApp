@@ -33,12 +33,12 @@ import '../utils/Util.dart';
 import '../widget/ClockComponent.dart';
 import '../widget/LoadImageView.dart';
 import '../widget/FeaturedPromotion.dart';
+import '../widget/PromotionHighlight.dart';
 import 'ProductHeaderBar.dart';
 import 'ProductTask.dart';
 import '../event/ScrollEvent.dart';
 
 class ProductSliver extends StatefulWidget {
-
   const ProductSliver({super.key});
 
   @override
@@ -46,7 +46,6 @@ class ProductSliver extends StatefulWidget {
 }
 
 class ProductSliverState extends BaseKeepAliveState<ProductSliver> {
-
   List<dynamic> activityList = [];
 
   List<String> activityMemberIds = [];
@@ -125,14 +124,14 @@ class ProductSliverState extends BaseKeepAliveState<ProductSliver> {
     });
     loadContentDatas();
   }
-  
+
   parserWebScanResult(Uri? uri) {
     try {
       if (uri == null) return;
       Map<String, dynamic> params = uri.queryParameters;
       if (params.isNotEmpty && params.keys.contains("pageName")) {
         String pageName = params["pageName"] ?? '';
-        if(pageName.isNotEmpty && pageName == "ProductDetail") {
+        if (pageName.isNotEmpty && pageName == "ProductDetail") {
           String productId = params["productId"] ?? '';
           nextPageState(ProductDetailPage(productId), false);
         }
@@ -152,14 +151,18 @@ class ProductSliverState extends BaseKeepAliveState<ProductSliver> {
       if (path.isNotEmpty && path.contains("bind")) {
         List<String> segments = uri.pathSegments;
         String superiorId = segments.last;
-        showPop(0.54 * Adapt.getWindowHeight(), BindSuperiorPage(superiorId: superiorId,));
+        showPop(
+            0.54 * Adapt.getWindowHeight(),
+            BindSuperiorPage(
+              superiorId: superiorId,
+            ));
       }
     } catch (e) {
       TextUtils.println(e);
     }
   }
 
-  refreshServiceTime() async{
+  refreshServiceTime() async {
     BaseRsp res = await HttpUtils.post(IURLConstant.MALL_GET_SERVICE_TIME, {});
     Logger.info(res);
     setState(() {
@@ -199,16 +202,14 @@ class ProductSliverState extends BaseKeepAliveState<ProductSliver> {
     }
     isLoading = true;
     List<String> activityIds = await AppUtils.getActivityMemberIds();
-    BaseRsp rsp = await HttpUtils.post(IURLConstant.MALL_ACTIVITY_LIST, {
-      "isReceive": "0",
-      "pageNum": "1",
-      "pageSize": "6"
-
-    });
+    BaseRsp rsp = await HttpUtils.post(IURLConstant.MALL_ACTIVITY_LIST,
+        {"isReceive": "0", "pageNum": "1", "pageSize": "6"});
     if (rsp.retCode == RspRetCode.SUCCESS) {
       setState(() {
         activityMemberIds = activityIds;
-        List<dynamic> list = BaseModel.isNotEmpty(rsp.data, "list") ? BaseModel.getDynamic(rsp.data, "list") : [];
+        List<dynamic> list = BaseModel.isNotEmpty(rsp.data, "list")
+            ? BaseModel.getDynamic(rsp.data, "list")
+            : [];
         datas = list;
       });
     }
@@ -221,12 +222,14 @@ class ProductSliverState extends BaseKeepAliveState<ProductSliver> {
     return EasyRefresh(
         triggerAxis: Axis.vertical,
         header: const MaterialHeader(color: IConstant.main_color),
-        footer: CupertinoFooter(emptyWidget: Container(
-            padding: EdgeInsets.all(10.w),
-            child: Text(LanguageConfig.get(LanguageConfigKeys.ViewUtils_no_more), style: TextStyle(fontSize: 13.sp, color: IConstant.text_color)),
-          )),
-        onLoad: ()=> onLoadMore(),
-        onRefresh: ()=> _onRefresh(),
+        footer: CupertinoFooter(
+            emptyWidget: Container(
+          padding: EdgeInsets.all(10.w),
+          child: Text(LanguageConfig.get(LanguageConfigKeys.ViewUtils_no_more),
+              style: TextStyle(fontSize: 13.sp, color: IConstant.text_color)),
+        )),
+        onLoad: () => onLoadMore(),
+        onRefresh: () => _onRefresh(),
         child: myCustomScrollView());
   }
 
@@ -237,82 +240,82 @@ class ProductSliverState extends BaseKeepAliveState<ProductSliver> {
     EventBusUtil.getInstance().emit(ActivityEvent());
     EventBusUtil.getInstance().emit(HomeEvent());
     EventBusUtil.getInstance().emit(BalanceEvent());
-    await Future.delayed(const Duration(milliseconds: 800),() {
-    });
+    await Future.delayed(const Duration(milliseconds: 800), () {});
   }
 
   CustomScrollView myCustomScrollView() {
     return CustomScrollView(
-      physics: const BouncingScrollPhysics(),
-      controller: _scrollController,
-      slivers: <Widget>[
-        ProductHeaderBar(true), // 任务头
-        // 任务列表
-        SliverList(
-            delegate:
-            SliverChildBuilderDelegate((BuildContext context, int index) {
-              return ProductTask();
-            }, childCount: 1)),
-        // 当活动为空时隐藏活动列表
-        if (datas.isNotEmpty) ...[
+        physics: const BouncingScrollPhysics(),
+        controller: _scrollController,
+        slivers: <Widget>[
+          ProductHeaderBar(true), // 任务头
+          // 任务列表
           SliverList(
-            delegate:
-            SliverChildBuilderDelegate((BuildContext context, int index) {
-              return buildActivity();
-            }, childCount: 1),
-          ),
-          SliverList(
-            delegate:
-            SliverChildBuilderDelegate((BuildContext context, int index) {
-              return buildActivityItem(index);
-            }, childCount: datas.length),
-          ),
-          SliverToBoxAdapter(
-            child: InkWell(
-              onTap: () {
-                nextPage(HotActivityPage(), false);
-              },
-              child: Container(
-                width: 340.w,
-                padding: EdgeInsets.symmetric(vertical: 6.w),
-                margin: EdgeInsets.only(bottom: 15.w, left: 18.w, right: 18.w),
-                clipBehavior: Clip.antiAlias,
-                decoration: ShapeDecoration(
-                  color: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    side: BorderSide(width: 1.w, color: const Color(0x8C292929)),
-                    borderRadius: BorderRadius.circular(25.r),
+              delegate:
+                  SliverChildBuilderDelegate((BuildContext context, int index) {
+            return ProductTask();
+          }, childCount: 1)),
+          // 当活动为空时隐藏活动列表
+          if (datas.isNotEmpty) ...[
+            SliverList(
+              delegate:
+                  SliverChildBuilderDelegate((BuildContext context, int index) {
+                return buildActivity();
+              }, childCount: 1),
+            ),
+            SliverList(
+              delegate:
+                  SliverChildBuilderDelegate((BuildContext context, int index) {
+                return buildActivityItem(index);
+              }, childCount: datas.length),
+            ),
+            SliverToBoxAdapter(
+              child: InkWell(
+                onTap: () {
+                  nextPage(HotActivityPage(), false);
+                },
+                child: Container(
+                  width: 340.w,
+                  padding: EdgeInsets.symmetric(vertical: 6.w),
+                  margin:
+                      EdgeInsets.only(bottom: 15.w, left: 18.w, right: 18.w),
+                  clipBehavior: Clip.antiAlias,
+                  decoration: ShapeDecoration(
+                    color: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      side: BorderSide(
+                          width: 1.w, color: const Color(0x8C292929)),
+                      borderRadius: BorderRadius.circular(25.r),
+                    ),
                   ),
-                ),
-                child: Text(
-                  LanguageConfig.get(LanguageConfigKeys.shop_home_load_more),
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                      color: IConstant.text_color,
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.bold
+                  child: Text(
+                    LanguageConfig.get(LanguageConfigKeys.shop_home_load_more),
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        color: IConstant.text_color,
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.bold),
                   ),
                 ),
               ),
             ),
+            if (datas.isEmpty)
+              SliverToBoxAdapter(
+                child: SizedBox(
+                  height: 140.w,
+                  child: buildHeader(),
+                ),
+              ),
+          ],
+          // 精选优惠组件
+          SliverToBoxAdapter(
+            child: _buildFeaturedPromotion(),
           ),
-          if (datas.isEmpty) SliverToBoxAdapter(
-            child: SizedBox(
-              height: 140.w,
-              child: buildHeader(),
-            ),
+          // KOL 分享
+          SliverToBoxAdapter(
+            child: buildKOLShare(),
           ),
-        ],
-        // 精选优惠组件
-        SliverToBoxAdapter(
-          child: _buildFeaturedPromotion(),
-        ),
-        // KOL 分享
-        SliverToBoxAdapter(
-          child: buildKOLShare(),
-        ),
-       ]
-    );
+        ]);
   }
 
   Widget buildActivity() {
@@ -323,17 +326,18 @@ class ProductSliverState extends BaseKeepAliveState<ProductSliver> {
       child: Container(
           margin: EdgeInsets.only(bottom: 10.w),
           padding: EdgeInsets.fromLTRB(12.w, 10.w, 12.w, 10.w),
-          child: Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Image.asset("assets/icons/hot.png", width: 18.w, height: 18.w),
-                SizedBox(width: 6.w),
-                Text(LanguageConfig.get(LanguageConfigKeys.Shop_product_hot_activity),
-                  style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.bold, color: IConstant.title_color),
-                ),
-                Icon(Icons.chevron_right, size: 22.w),
-              ])
-      ),
+          child: Row(mainAxisAlignment: MainAxisAlignment.start, children: [
+            Image.asset("assets/icons/hot.png", width: 18.w, height: 18.w),
+            SizedBox(width: 6.w),
+            Text(
+              LanguageConfig.get(LanguageConfigKeys.Shop_product_hot_activity),
+              style: TextStyle(
+                  fontSize: 15.sp,
+                  fontWeight: FontWeight.bold,
+                  color: IConstant.title_color),
+            ),
+            Icon(Icons.chevron_right, size: 22.w),
+          ])),
     );
   }
 
@@ -357,14 +361,18 @@ class ProductSliverState extends BaseKeepAliveState<ProductSliver> {
           ClipRRect(
             borderRadius: BorderRadius.vertical(top: Radius.circular(12.w)),
             child: InkWell(
-              onTap: () async{
+              onTap: () async {
                 //activityStart(activity, false);
                 gotoActivity(activity);
               },
-              child: LoadImageView(double.infinity, 92.w, BaseModel.getString(activity, "img"), alignment: Alignment.topCenter),
+              child: LoadImageView(
+                  double.infinity, 92.w, BaseModel.getString(activity, "img"),
+                  alignment: Alignment.topCenter),
             ),
           ),
-          SizedBox(height: 4.w,),
+          SizedBox(
+            height: 4.w,
+          ),
           // LinearProgressIndicator(
           //   value: getTimeDouble(activity),
           //   backgroundColor: IConstant.white_color,
@@ -372,29 +380,44 @@ class ProductSliverState extends BaseKeepAliveState<ProductSliver> {
           // ),
           Row(
             children: [
-              Expanded(flex: 4, child: InkWell(
-                onTap: () {
-                  nextPage(BrandShopPage(BaseModel.getString(activity, "shopId")), false);
-                },
-                child: Container(
-                  margin: EdgeInsets.fromLTRB(8.w, 4.w, 8.w, 4.w),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      ClipOval(child: LoadImageView(30.w, 30.w, BaseModel.getString(activity, "shopIcon"))),
-                      SizedBox(width: 6.w),
-                      Expanded(child: Text(BaseModel.getString(activity, "shopName"),
-                          maxLines: 1, overflow: TextOverflow.ellipsis,
-                          style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.bold, color: IConstant.title_color)))
-                    ],
-                  ),
-                ),
-              )),
+              Expanded(
+                  flex: 4,
+                  child: InkWell(
+                    onTap: () {
+                      nextPage(
+                          BrandShopPage(
+                              BaseModel.getString(activity, "shopId")),
+                          false);
+                    },
+                    child: Container(
+                      margin: EdgeInsets.fromLTRB(8.w, 4.w, 8.w, 4.w),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          ClipOval(
+                              child: LoadImageView(30.w, 30.w,
+                                  BaseModel.getString(activity, "shopIcon"))),
+                          SizedBox(width: 6.w),
+                          Expanded(
+                              child: Text(
+                                  BaseModel.getString(activity, "shopName"),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                      fontSize: 12.sp,
+                                      fontWeight: FontWeight.bold,
+                                      color: IConstant.title_color)))
+                        ],
+                      ),
+                    ),
+                  )),
               Expanded(flex: 5, child: buildStopTime(activity)),
-              Expanded(flex: 4, child: Container(
-                margin: EdgeInsets.fromLTRB(16.w, 6.w, 8.w, 8.w),
-                child: buildRightItem(activity),
-              ))
+              Expanded(
+                  flex: 4,
+                  child: Container(
+                    margin: EdgeInsets.fromLTRB(16.w, 6.w, 8.w, 8.w),
+                    child: buildRightItem(activity),
+                  ))
             ],
           )
         ],
@@ -402,18 +425,17 @@ class ProductSliverState extends BaseKeepAliveState<ProductSliver> {
     );
   }
 
-  gotoActivity(dynamic activity) async{
+  gotoActivity(dynamic activity) async {
     if (!await AppUtils.isLogined()) {
       toLogin((ctx) => {
-        setState(() {
-          finishContext(ctx);
-        })
-      });
-    }else {
+            setState(() {
+              finishContext(ctx);
+            })
+          });
+    } else {
       ViewUtils.show();
-      BaseRsp rsp = await HttpUtils.post(IURLConstant.MALL_ACTIVITY_MEMBER_INFO, {
-        "activityId": BaseModel.getString(activity, "id")
-      });
+      BaseRsp rsp = await HttpUtils.post(IURLConstant.MALL_ACTIVITY_MEMBER_INFO,
+          {"activityId": BaseModel.getString(activity, "id")});
       if (rsp.retCode == RspRetCode.SUCCESS) {
         gotoPage(activity, rsp.data, false);
       } else {
@@ -424,47 +446,61 @@ class ProductSliverState extends BaseKeepAliveState<ProductSliver> {
   }
 
   double getTimeDouble(dynamic item) {
-    DateTime createTime = DateTime.parse(BaseModel.getString(item, "createTime"));
+    DateTime createTime =
+        DateTime.parse(BaseModel.getString(item, "createTime"));
     DateTime endTime = DateTime.parse(BaseModel.getString(item, "endTime"));
-    int spaceTime = endTime.millisecondsSinceEpoch - createTime.millisecondsSinceEpoch;
-    int currentSpaceTime = endTime.millisecondsSinceEpoch - DateTime.now().millisecondsSinceEpoch;
+    int spaceTime =
+        endTime.millisecondsSinceEpoch - createTime.millisecondsSinceEpoch;
+    int currentSpaceTime =
+        endTime.millisecondsSinceEpoch - DateTime.now().millisecondsSinceEpoch;
     return (currentSpaceTime / spaceTime);
   }
 
   Widget buildRightItem(dynamic activity) {
     if (activityMemberIds.contains(BaseModel.getString(activity, "id"))) {
-      return InkWell(onTap: () {
-        //activityStart(activity, true);
-        gotoActivity(activity);
-      },
+      return InkWell(
+          onTap: () {
+            //activityStart(activity, true);
+            gotoActivity(activity);
+          },
           child: Container(
             padding: EdgeInsets.fromLTRB(8.w, 6.w, 10.w, 6.w),
             decoration: BoxDecoration(
                 color: IConstant.red_bg_color3,
-                borderRadius: BorderRadius.circular(20.w)
-            ),
-            child: Text(LanguageConfig.get(LanguageConfigKeys.Shop_pocket_participated), maxLines: 2, overflow: TextOverflow.ellipsis,
-                textAlign: TextAlign.center, style: TextStyle(fontSize: 11.sp, color: IConstant.main_color)),
+                borderRadius: BorderRadius.circular(20.w)),
+            child: Text(
+                LanguageConfig.get(LanguageConfigKeys.Shop_pocket_participated),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 11.sp, color: IConstant.main_color)),
           ));
     } else {
-      return InkWell(onTap: () {
-        gotoActivity(activity);
-      },
+      return InkWell(
+          onTap: () {
+            gotoActivity(activity);
+          },
           child: Container(
             padding: EdgeInsets.fromLTRB(10.w, 6.w, 10.w, 6.w),
             decoration: BoxDecoration(
                 color: IConstant.main_color,
-                borderRadius: BorderRadius.circular(20.w)
-            ),
-            child: Text(LanguageConfig.get(LanguageConfigKeys.Shop_pocket_join_now), maxLines: 2, overflow: TextOverflow.ellipsis,
-                textAlign: TextAlign.center, style: TextStyle(fontSize: 11.sp, color: IConstant.white_color)),
+                borderRadius: BorderRadius.circular(20.w)),
+            child: Text(
+                LanguageConfig.get(LanguageConfigKeys.Shop_pocket_join_now),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
+                style:
+                    TextStyle(fontSize: 11.sp, color: IConstant.white_color)),
           ));
     }
   }
 
   Widget buildStopTime(dynamic item) {
     String endTime = BaseModel.getString(item, "endTime");
-    return CountDownView(startTime: serviceTime, endTime: endTime,
+    return CountDownView(
+        startTime: serviceTime,
+        endTime: endTime,
         fontSize: 11.w,
         textColor: IConstant.main_color,
         prefix: LanguageConfig.get(LanguageConfigKeys.Shop_pocket_remain),
@@ -502,21 +538,27 @@ class ProductSliverState extends BaseKeepAliveState<ProductSliver> {
                 height: 20.w,
               ),
               SizedBox(width: 4.w),
-              Container(constraints: BoxConstraints(maxWidth: 180.w),
-                  child: Text(LanguageConfig.get(LanguageConfigKeys.Login_input_kol_share),
-                      style: TextStyle(fontSize: 13.sp, color: IConstant.text_color, fontWeight: FontWeight.bold))),
+              Container(
+                  constraints: BoxConstraints(maxWidth: 180.w),
+                  child: Text(
+                      LanguageConfig.get(
+                          LanguageConfigKeys.Login_input_kol_share),
+                      style: TextStyle(
+                          fontSize: 13.sp,
+                          color: IConstant.text_color,
+                          fontWeight: FontWeight.bold))),
             ],
           ),
           InkWell(
             onTap: () {
-              if(isLogin) {
+              if (isLogin) {
                 showPop(0.7 * Adapt.getWindowHeight(), MineLinkPage());
-              }else {
+              } else {
                 toLogin((ctx) => {
-                  setState(() {
-                    finishContext(ctx);
-                  })
-                });
+                      setState(() {
+                        finishContext(ctx);
+                      })
+                    });
               }
             },
             child: Container(
@@ -527,10 +569,9 @@ class ProductSliverState extends BaseKeepAliveState<ProductSliver> {
                         fit: BoxFit.fill,
                         image: Image.asset(
                           "assets/icons/ic_kol_add.png",
-                        ).image)
-                )
-            ),
-          )],
+                        ).image))),
+          )
+        ],
       ),
     );
   }
@@ -557,21 +598,27 @@ class ProductSliverState extends BaseKeepAliveState<ProductSliver> {
                 height: 20.w,
               ),
               SizedBox(width: 4.w),
-              Container(constraints: BoxConstraints(maxWidth: 180.w),
-                  child: Text(LanguageConfig.get(LanguageConfigKeys.Login_input_kol_recommend),
-                      style: TextStyle(fontSize: 13.sp, color: IConstant.text_color, fontWeight: FontWeight.bold))),
+              Container(
+                  constraints: BoxConstraints(maxWidth: 180.w),
+                  child: Text(
+                      LanguageConfig.get(
+                          LanguageConfigKeys.Login_input_kol_recommend),
+                      style: TextStyle(
+                          fontSize: 13.sp,
+                          color: IConstant.text_color,
+                          fontWeight: FontWeight.bold))),
             ],
           ),
           InkWell(
             onTap: () {
-              if(isLogin) {
+              if (isLogin) {
                 shareWeb();
-              }else {
+              } else {
                 toLogin((ctx) => {
-                  setState(() {
-                    finishContext(ctx);
-                  })
-                });
+                      setState(() {
+                        finishContext(ctx);
+                      })
+                    });
               }
             },
             child: Container(
@@ -582,10 +629,9 @@ class ProductSliverState extends BaseKeepAliveState<ProductSliver> {
                         fit: BoxFit.fill,
                         image: Image.asset(
                           "assets/icons/ic_kol_share.png",
-                        ).image)
-                )
-            ),
-          )],
+                        ).image))),
+          )
+        ],
       ),
     );
   }
@@ -600,14 +646,7 @@ class ProductSliverState extends BaseKeepAliveState<ProductSliver> {
   Future<void> loadPromotionCategories() async {
     // 这里使用硬编码的分类数据，实际应该从接口获取
     setState(() {
-      promotionCategories = [
-        {"id": "1", "name": "网红餐厅", "chName": "网红餐厅"},
-        {"id": "2", "name": "酒店住宿", "chName": "酒店住宿"},
-        {"id": "3", "name": "租车接机", "chName": "租车接机"},
-        {"id": "4", "name": "景点门票", "chName": "景点门票"},
-        {"id": "5", "name": "热门泰货", "chName": "热门泰货"},
-        {"id": "6", "name": "休闲娱乐", "chName": "休闲娱乐"},
-      ];
+      promotionCategories = featuredPromotionCategories;
     });
     // 加载第一个分类的优惠券
     if (promotionCategories.isNotEmpty) {

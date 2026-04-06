@@ -69,7 +69,8 @@ class _CouponDetailDrawerState extends State<CouponDetailDrawer> {
       setState(() {
         _loading = false;
       });
-      ViewUtils.displayToast(LanguageConfig.get(LanguageConfigKeys.ViewUtils_retry));
+      ViewUtils.displayToast(
+          LanguageConfig.get(LanguageConfigKeys.ViewUtils_retry));
     }
   }
 
@@ -182,7 +183,8 @@ class _CouponDetailDrawerState extends State<CouponDetailDrawer> {
   Widget _buildContent() {
     final dynamic detail = _detail ?? {};
     final dynamic shop = BaseModel.getDynamic(detail, 'shop') ?? {};
-    final dynamic initShop = BaseModel.getDynamic(widget.initialItem, 'shop') ?? {};
+    final dynamic initShop =
+        BaseModel.getDynamic(widget.initialItem, 'shop') ?? {};
     final String logo = BaseModel.getString(shop, 'logo').isNotEmpty
         ? BaseModel.getString(shop, 'logo')
         : BaseModel.getString(initShop, 'logo');
@@ -344,14 +346,16 @@ class _CouponDetailDrawerState extends State<CouponDetailDrawer> {
                   SizedBox(height: 6.w),
                   Text(
                     _couponAmount(item),
-                    style: TextStyle(fontSize: 12.sp, color: IConstant.main_color),
+                    style:
+                        TextStyle(fontSize: 12.sp, color: IConstant.main_color),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                   SizedBox(height: 6.w),
                   Text(
                     '有效期 $endDate',
-                    style: TextStyle(fontSize: 11.sp, color: IConstant.grey_color),
+                    style:
+                        TextStyle(fontSize: 11.sp, color: IConstant.grey_color),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -375,39 +379,75 @@ class _CouponDetailDrawerState extends State<CouponDetailDrawer> {
         padding: EdgeInsets.fromLTRB(16.w, 10.w, 16.w, 12.w),
         decoration: BoxDecoration(
           color: Colors.white,
-          border: Border(top: BorderSide(width: 1.w, color: IConstant.line_color)),
+          border:
+              Border(top: BorderSide(width: 1.w, color: IConstant.line_color)),
         ),
         child: Column(
           children: [
-            InkWell(
-              onTap: () {
-                setState(() {
-                  _addressExpanded = !_addressExpanded;
-                });
-              },
-              child: Row(
-                children: [
-                  Icon(Icons.location_on,
-                      size: 16.w, color: IConstant.main_color),
-                  SizedBox(width: 6.w),
-                  Expanded(
-                    child: Text(
-                      selectedAddress.isEmpty ? '请选择门店地址' : selectedAddress,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style:
-                          TextStyle(fontSize: 12.sp, color: IConstant.title_color),
+            Row(
+              children: [
+                Expanded(
+                  child: InkWell(
+                    onTap: () {
+                      setState(() {
+                        _addressExpanded = !_addressExpanded;
+                      });
+                    },
+                    child: Row(
+                      children: [
+                        Icon(Icons.location_on,
+                            size: 16.w, color: IConstant.main_color),
+                        SizedBox(width: 6.w),
+                        Expanded(
+                          child: Text(
+                            selectedAddress.isEmpty
+                                ? '请选择门店地址'
+                                : selectedAddress,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                                fontSize: 12.sp, color: IConstant.title_color),
+                          ),
+                        ),
+                        Icon(
+                          _addressExpanded
+                              ? Icons.keyboard_arrow_up
+                              : Icons.keyboard_arrow_down,
+                          size: 18.w,
+                          color: IConstant.grey_color,
+                        ),
+                      ],
                     ),
                   ),
-                  Icon(
-                    _addressExpanded
-                        ? Icons.keyboard_arrow_up
-                        : Icons.keyboard_arrow_down,
-                    size: 18.w,
-                    color: IConstant.grey_color,
+                ),
+                SizedBox(width: 10.w),
+                SizedBox(
+                  height: 28.w,
+                  child: OutlinedButton(
+                    style: OutlinedButton.styleFrom(
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 12.w, vertical: 0),
+                      side: BorderSide(width: 1.w, color: IConstant.line_color),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20.w),
+                      ),
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _addressExpanded = true;
+                      });
+                    },
+                    child: Text(
+                      '选择门店',
+                      style: TextStyle(
+                        fontSize: 12.sp,
+                        color: IConstant.title_color,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
             if (_addressExpanded) SizedBox(height: 10.w),
             if (_addressExpanded) _buildStoreList(),
@@ -501,7 +541,8 @@ class _CouponDetailDrawerState extends State<CouponDetailDrawer> {
                       SizedBox(height: 4.w),
                       Text(
                         address,
-                        style: TextStyle(fontSize: 12.sp, color: IConstant.grey_color),
+                        style: TextStyle(
+                            fontSize: 12.sp, color: IConstant.grey_color),
                       ),
                     ],
                   ),
@@ -519,7 +560,8 @@ class _CouponDetailDrawerState extends State<CouponDetailDrawer> {
                 ),
                 child: Text(
                   '复制地址',
-                  style: TextStyle(fontSize: 12.sp, color: IConstant.main_color),
+                  style:
+                      TextStyle(fontSize: 12.sp, color: IConstant.main_color),
                 ),
               ),
             ],
@@ -529,4 +571,3 @@ class _CouponDetailDrawerState extends State<CouponDetailDrawer> {
     );
   }
 }
-
