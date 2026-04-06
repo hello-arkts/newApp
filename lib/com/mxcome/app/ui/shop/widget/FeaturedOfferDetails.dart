@@ -71,21 +71,23 @@ class _FeaturedOfferDetailsState extends State<FeaturedOfferDetails> {
           // 商品列表
           Expanded(
             child: AnimatedSwitcher(
-              duration: const Duration(milliseconds: 300),
-              layoutBuilder: (Widget? currentChild, List<Widget> previousChildren) {
-                return Stack(
-                  alignment: Alignment.topCenter,
-                  children: <Widget>[
-                    ...previousChildren,
-                    if (currentChild != null) currentChild,
-                  ],
-                );
-              },
-              child: PromotionAction(
-                key: ValueKey(_activeIndex),
-                promotionItems: _filteredItems,
+                duration: const Duration(milliseconds: 300),
+                layoutBuilder: (Widget? currentChild, List<Widget> previousChildren) {
+                  return Stack(
+                    alignment: Alignment.topCenter,
+                    children: <Widget>[
+                      ...previousChildren,
+                      if (currentChild != null) currentChild,
+                    ],
+                  );
+                },
+                child: PromotionAction(
+                  key: ValueKey(_activeIndex),
+                  promotionItems: _filteredItems,
+                  maxItems: null,
+                  scrollable: true,
+                ),
               ),
-            ),
           ),
         ],
       ),

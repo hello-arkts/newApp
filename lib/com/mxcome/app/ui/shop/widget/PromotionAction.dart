@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'dart:math' as math;
 import 'package:mxcome/com/mxcome/app/IConstant.dart';
 import 'package:mxcome/com/mxcome/app/model/BaseModel.dart';
-import '../utils/FormatUtil.dart';
 
 /// 精选优惠 - 优惠操作组件
 /// 对应红色标记区域 2：展示优惠操作按钮或交互元素
@@ -21,12 +21,20 @@ class PromotionAction extends StatefulWidget {
   /// 商品卡片的高度
   final double cardHeight;
 
+  /// 最多显示多少个商品；为 null 时显示全部
+  final int? maxItems;
+
+  /// 是否允许组件内部滚动
+  final bool scrollable;
+
   const PromotionAction({
     Key? key,
     required this.promotionItems,
     this.onPromotionTap,
     this.columnsCount = 2,
     this.cardHeight = 220,
+    this.maxItems = 4,
+    this.scrollable = false,
   }) : super(key: key);
 
   @override
@@ -40,24 +48,35 @@ class _PromotionActionState extends State<PromotionAction> {
       return _buildEmptyState();
     }
 
+    final int itemCount = widget.maxItems == null
+        ? widget.promotionItems.length
+        : math.min(widget.promotionItems.length, widget.maxItems!);
+
+    final EdgeInsets containerPadding =
+        widget.scrollable ? EdgeInsets.zero : EdgeInsets.all(6.w);
+    final EdgeInsets gridPadding =
+        widget.scrollable ? EdgeInsets.fromLTRB(6.w, 10.h, 6.w, 10.h) : EdgeInsets.zero;
+
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12.r),
       ),
-      padding: EdgeInsets.all(6.w),
+      padding: containerPadding,
       child: GridView.builder(
-        padding: EdgeInsets.zero,
-        primary: false,
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
+        padding: gridPadding,
+        primary: widget.scrollable,
+        shrinkWrap: !widget.scrollable,
+        physics: widget.scrollable
+            ? const BouncingScrollPhysics()
+            : const NeverScrollableScrollPhysics(),
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: widget.columnsCount,
           mainAxisExtent: 132.h,
           mainAxisSpacing: 12.w,
           crossAxisSpacing: 12.w,
         ),
-        itemCount: widget.promotionItems.length > 4 ? 4 : widget.promotionItems.length,
+        itemCount: itemCount,
         itemBuilder: (BuildContext context, int index) {
           return _buildPromotionItem(index);
         },
@@ -105,7 +124,6 @@ class _PromotionActionState extends State<PromotionAction> {
     final item = widget.promotionItems[index];
     final String name = BaseModel.getString(item, "name");
     final String logo = BaseModel.getString(item['shop'], "logo");
-    final String pic = BaseModel.getString(item, "pic");
     final String promotionAmount = _getPromotionAmount(item);
 
     return GestureDetector(
