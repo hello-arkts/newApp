@@ -11,4 +11,9 @@ class ShopFeaturedServer {
   static shopBrandByShopidUrl(data) {
     return HttpUtils.post(IURLConstant.MALL_PRODUCT_BY_SHOPID, data);
   }
+
+  // 获取商超列表
+  static shopListUrl() {
+    return HttpUtils.post(IURLConstant.MALL_SHOP_LIST_BY_ID_SHOP, {});
+  }
 }

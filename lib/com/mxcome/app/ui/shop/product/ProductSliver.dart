@@ -26,17 +26,16 @@ import '../../../model/BaseModel.dart';
 import '../../../utils/AppUtils.dart';
 import '../brand/BrandShopPage.dart';
 import '../event/ActivityEvent.dart';
-import '../event/LoginSuccessEvent.dart';
 import '../mine/invite/MineLinkPage.dart';
 import '../utils/EventBusUtil.dart';
 import '../utils/Util.dart';
-import '../widget/ClockComponent.dart';
 import '../widget/LoadImageView.dart';
 import '../widget/FeaturedPromotion.dart';
 import '../widget/PromotionHighlight.dart';
 import 'ProductHeaderBar.dart';
 import 'ProductTask.dart';
 import '../event/ScrollEvent.dart';
+import 'package:mxcome/com/mxcome/app/ui/shop/featured/ShopFeaturedScroller.dart';
 
 class ProductSliver extends StatefulWidget {
   const ProductSliver({super.key});
@@ -67,6 +66,11 @@ class ProductSliverState extends BaseKeepAliveState<ProductSliver> {
   List<dynamic> promotionCategories = []; // 分类列表
   List<dynamic> promotionItems = []; // 优惠券列表
   int _selectedCategoryIndex = 0; // 当前选中的分类索引
+  int _promotionPageNum = 1;
+  int _promotionPageSize = 10;
+  bool _promotionHasMore = true;
+  bool _promotionIsLoading = false;
+  dynamic _currentPromotionCategory;
 
   @override
   void initState() {
@@ -88,6 +92,7 @@ class ProductSliverState extends BaseKeepAliveState<ProductSliver> {
           EventBusUtil.getInstance().emit(ScrollEvent(ScrollDirection.up));
         }
       }
+
       _lastScrollOffset = currentOffset;
     });
     // 加载精选优惠数据
@@ -228,7 +233,7 @@ class ProductSliverState extends BaseKeepAliveState<ProductSliver> {
           child: Text(LanguageConfig.get(LanguageConfigKeys.ViewUtils_no_more),
               style: TextStyle(fontSize: 13.sp, color: IConstant.text_color)),
         )),
-        onLoad: () => onLoadMore(),
+        onLoad: () => _onLoadMore(),
         onRefresh: () => _onRefresh(),
         child: myCustomScrollView());
   }
@@ -237,10 +242,29 @@ class ProductSliverState extends BaseKeepAliveState<ProductSliver> {
     isLoading = false;
     page = 1;
     count = 0;
+
+    // 刷新精选优惠数据
+    if (_currentPromotionCategory != null) {
+      await loadPromotionItems(_currentPromotionCategory, isLoadMore: false);
+    } else {
+      await loadPromotionCategories();
+    }
+
     EventBusUtil.getInstance().emit(ActivityEvent());
     EventBusUtil.getInstance().emit(HomeEvent());
     EventBusUtil.getInstance().emit(BalanceEvent());
     await Future.delayed(const Duration(milliseconds: 800), () {});
+  }
+
+  Future<IndicatorResult> _onLoadMore() async {
+    if (_currentPromotionCategory != null && _promotionHasMore) {
+      await loadPromotionItems(_currentPromotionCategory, isLoadMore: true);
+      if (!_promotionHasMore) {
+        return IndicatorResult.noMore;
+      }
+      return IndicatorResult.success;
+    }
+    return IndicatorResult.noMore;
   }
 
   CustomScrollView myCustomScrollView() {
@@ -255,6 +279,10 @@ class ProductSliverState extends BaseKeepAliveState<ProductSliver> {
                   SliverChildBuilderDelegate((BuildContext context, int index) {
             return ProductTask();
           }, childCount: 1)),
+          // 横向店铺列表
+          SliverToBoxAdapter(
+            child: _buildShopFeaturedScroller(),
+          ),
           // 当活动为空时隐藏活动列表
           if (datas.isNotEmpty) ...[
             SliverList(
@@ -655,21 +683,51 @@ class ProductSliverState extends BaseKeepAliveState<ProductSliver> {
   }
 
   /// 加载指定分类的优惠券数据
-  Future<void> loadPromotionItems(dynamic category) async {
+  Future<void> loadPromotionItems(dynamic category,
+      {bool isLoadMore = false}) async {
+    if (_promotionIsLoading) return;
+
+    if (!isLoadMore) {
+      _promotionPageNum = 1;
+      _promotionHasMore = true;
+      _currentPromotionCategory = category;
+      setState(() {
+        promotionItems = [];
+      });
+    }
+
+    if (!_promotionHasMore) return;
+
+    _promotionIsLoading = true;
     try {
       String categoryId = BaseModel.getString(category, 'id');
       var rsp = await HttpUtils.post(IURLConstant.MALL_COUPON_LIST, {
         'type': categoryId,
-        'pageNum': '1',
-        'pageSize': '999',
+        'pageNum': _promotionPageNum.toString(),
+        'pageSize': _promotionPageSize.toString(),
       });
       if (rsp.retCode == 200) {
+        List<dynamic> newItems =
+            BaseModel.getDynamicList(rsp.data, 'list') ?? [];
+
         setState(() {
-          promotionItems = BaseModel.getDynamicList(rsp.data, 'list') ?? [];
+          if (isLoadMore) {
+            promotionItems.addAll(newItems);
+          } else {
+            promotionItems = newItems;
+          }
+
+          if (newItems.length < _promotionPageSize) {
+            _promotionHasMore = false;
+          } else {
+            _promotionPageNum++;
+          }
         });
       }
     } catch (e) {
       print('加载优惠券失败: $e');
+    } finally {
+      _promotionIsLoading = false;
     }
   }
 
@@ -687,5 +745,10 @@ class ProductSliverState extends BaseKeepAliveState<ProductSliver> {
         print('点击商品：${item}');
       },
     );
+  }
+
+  // 精选店铺组件
+  Widget _buildShopFeaturedScroller() {
+    return const ShopFeaturedScroller();
   }
 }

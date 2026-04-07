@@ -124,7 +124,8 @@ class _FeaturedPromotionState extends State<FeaturedPromotion> {
           child: Row(
             children: [
               Text(
-                LanguageConfig.get(LanguageConfigKeys.Featured_promotion_view_all),
+                LanguageConfig.get(
+                    LanguageConfigKeys.Featured_promotion_view_all),
                 style: TextStyle(
                   fontSize: 13.sp,
                   color: IConstant.text_color,

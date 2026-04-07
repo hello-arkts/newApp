@@ -517,4 +517,7 @@ class IURLConstant {
 
   static const MALL_PRODUCT_BY_SHOPID =
       "${BASE_URL}/mall-portal/home/shopBrandByShopid"; // 店铺品牌详情
+
+  static const MALL_SHOP_LIST_BY_ID_SHOP =
+      "${BASE_URL}/mall-portal/home/shopList"; // 商超列表
 }
