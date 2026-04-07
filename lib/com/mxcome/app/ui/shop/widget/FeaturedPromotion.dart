@@ -85,6 +85,8 @@ class _FeaturedPromotionState extends State<FeaturedPromotion> {
           PromotionAction(
             promotionItems: widget.promotionItems,
             onPromotionTap: widget.onPromotionTap,
+            maxItems: null,
+            scrollable: true,
           ),
         ],
       ),

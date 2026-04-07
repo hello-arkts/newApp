@@ -62,30 +62,31 @@ class _PromotionActionState extends State<PromotionAction> {
         ? EdgeInsets.fromLTRB(6.w, 10.h, 6.w, 10.h)
         : EdgeInsets.zero;
 
+    final Widget gridView = GridView.builder(
+      padding: gridPadding,
+      primary: false,
+      shrinkWrap: true, // 强制让 GridView 计算内容高度
+      physics:
+          const NeverScrollableScrollPhysics(), // 禁用内部滚动，让外层的 CustomScrollView 接管滑动事件
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: widget.columnsCount,
+        mainAxisExtent: 132.h,
+        mainAxisSpacing: 12.w,
+        crossAxisSpacing: 12.w,
+      ),
+      itemCount: itemCount,
+      itemBuilder: (BuildContext context, int index) {
+        return _buildPromotionItem(index);
+      },
+    );
+
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12.r),
       ),
       padding: containerPadding,
-      child: GridView.builder(
-        padding: gridPadding,
-        primary: widget.scrollable,
-        shrinkWrap: !widget.scrollable,
-        physics: widget.scrollable
-            ? const BouncingScrollPhysics()
-            : const NeverScrollableScrollPhysics(),
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: widget.columnsCount,
-          mainAxisExtent: 132.h,
-          mainAxisSpacing: 12.w,
-          crossAxisSpacing: 12.w,
-        ),
-        itemCount: itemCount,
-        itemBuilder: (BuildContext context, int index) {
-          return _buildPromotionItem(index);
-        },
-      ),
+      child: gridView,
     );
   }
 

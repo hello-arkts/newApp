@@ -327,13 +327,6 @@ class ProductSliverState extends BaseKeepAliveState<ProductSliver> {
                 ),
               ),
             ),
-            if (datas.isEmpty)
-              SliverToBoxAdapter(
-                child: SizedBox(
-                  height: 140.w,
-                  child: buildHeader(),
-                ),
-              ),
           ],
           // 精选优惠组件
           SliverToBoxAdapter(
