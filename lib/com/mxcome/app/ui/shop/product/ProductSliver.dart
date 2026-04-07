@@ -61,6 +61,7 @@ class ProductSliverState extends BaseKeepAliveState<ProductSliver> {
   late ScrollController _scrollController;
   double _lastScrollOffset = 0;
   bool _isAtBottom = false;
+  bool _isBouncing = false; // 回弹锁：防止回弹过程中误触发
 
   // 精选优惠相关数据
   List<dynamic> promotionCategories = []; // 分类列表
@@ -77,17 +78,48 @@ class ProductSliverState extends BaseKeepAliveState<ProductSliver> {
     super.initState();
     _scrollController = ScrollController();
     _scrollController.addListener(() {
-      double currentOffset = _scrollController.offset;
-      double maxScroll = _scrollController.position.maxScrollExtent;
+      final pos = _scrollController.position;
+      double currentOffset = pos.pixels;
+      double maxExtent = pos.maxScrollExtent;
+
+      // 回弹保护：到达底部附近后进入回弹锁定状态
+      // 只有当用户明确往上滑离底部一定距离后才解锁
+      if (currentOffset >= maxExtent) {
+        // 触底了，进入回弹锁定
+        _isBouncing = true;
+        _lastScrollOffset = currentOffset;
+        return;
+      }
+
+      if (_isBouncing) {
+        // 正在回弹中，判断是否是真正的用户下滑还是物理回弹
+        // 回弹后 offset 会回到 maxExtent 附近，只有用户继续往下拉才解锁
+        if (currentOffset < maxExtent - 5) {
+          // 已经离开底部区域，但需要判断方向
+          // 如果 offset 在减小（回弹或用户下滑），先更新 _lastScrollOffset 但不触发事件
+          _isBouncing = false;
+          _lastScrollOffset = currentOffset;
+          // 不触发任何事件，等下一次滚动再正常判断
+          return;
+        } else {
+          // 还在底部附近晃动，继续锁定
+          _lastScrollOffset = currentOffset;
+          return;
+        }
+      }
+
+      // 忽略顶部弹性越界
+      if (pos.pixels < pos.minScrollExtent) return;
 
       if (currentOffset > _lastScrollOffset && currentOffset > 50) {
-        _isAtBottom = false;
-        EventBusUtil.getInstance().emit(ScrollEvent(ScrollDirection.down));
-      } else if (currentOffset < _lastScrollOffset) {
-        if (currentOffset >= maxScroll - 10) {
+        // 上滑（内容往上移动）→ 隐藏广告
+        if (!_isAtBottom) {
           _isAtBottom = true;
+          EventBusUtil.getInstance().emit(ScrollEvent(ScrollDirection.down));
         }
-        if (_isAtBottom && currentOffset < maxScroll - 10) {
+      } else if (currentOffset < _lastScrollOffset) {
+        // 下滑（内容往下移动）→ 显示广告
+        if (_isAtBottom) {
           _isAtBottom = false;
           EventBusUtil.getInstance().emit(ScrollEvent(ScrollDirection.up));
         }
