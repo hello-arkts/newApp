@@ -256,31 +256,18 @@ class ProductSliverState extends BaseKeepAliveState<ProductSliver> {
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            Color(0xFFFFAD73),
-            Color(0xFFFBF9ED),
-          ],
-        ),
-      ),
-      child: EasyRefresh(
-          triggerAxis: Axis.vertical,
-          header: const MaterialHeader(color: IConstant.main_color),
-          footer: CupertinoFooter(
-              emptyWidget: Container(
-            padding: EdgeInsets.all(10.w),
-            child: Text(
-                LanguageConfig.get(LanguageConfigKeys.ViewUtils_no_more),
-                style: TextStyle(fontSize: 13.sp, color: IConstant.text_color)),
-          )),
-          onLoad: () => _onLoadMore(),
-          onRefresh: () => _onRefresh(),
-          child: myCustomScrollView()),
-    );
+    return EasyRefresh(
+        triggerAxis: Axis.vertical,
+        header: const MaterialHeader(color: IConstant.main_color),
+        footer: CupertinoFooter(
+            emptyWidget: Container(
+          padding: EdgeInsets.all(10.w),
+          child: Text(LanguageConfig.get(LanguageConfigKeys.ViewUtils_no_more),
+              style: TextStyle(fontSize: 13.sp, color: IConstant.text_color)),
+        )),
+        onLoad: () => _onLoadMore(),
+        onRefresh: () => _onRefresh(),
+        child: myCustomScrollView());
   }
 
   Future<void> _onRefresh() async {

@@ -77,9 +77,12 @@ class PromotionHighlight extends StatelessWidget {
 
   /// 构建单行滚动模式
   Widget _buildRowMode() {
+    // 增加高度和内边距，防止阴影被裁切
     return SizedBox(
-      height: cardHeight.h,
+      height: cardHeight.h + 12.w, // 预留阴影空间
       child: ListView.builder(
+        padding: EdgeInsets.symmetric(
+            vertical: 6.w, horizontal: 2.w), // 留出上下阴影的 padding
         scrollDirection: Axis.horizontal,
         itemCount: categories.length,
         itemBuilder: (BuildContext context, int index) {
@@ -132,12 +135,18 @@ class PromotionHighlight extends StatelessWidget {
             ? EdgeInsets.symmetric(horizontal: 14.w)
             : EdgeInsets.zero,
         decoration: BoxDecoration(
-          color: _getCategoryBgColor(index),
+          color: Colors.white,
           borderRadius: BorderRadius.circular(20.r),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 6,
+              offset: const Offset(0, 2),
+            ),
+          ],
           border: index == activeIndex
-              ? Border.all(
-                  color: IConstant.main_color.withOpacity(0.3), width: 1.w)
-              : null,
+              ? Border.all(color: IConstant.main_color, width: 1.w)
+              : Border.all(color: Colors.transparent, width: 1.w),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -188,12 +197,15 @@ class PromotionHighlight extends StatelessWidget {
       icon,
       width: 20.w,
       height: 20.w,
+      color: index == activeIndex ? IConstant.main_color : null,
       errorBuilder: (context, error, stackTrace) {
         // 如果图片加载失败，使用默认图标
         return Icon(
           _getDefaultIcon(index),
           size: 20.w,
-          color: index == 0 ? IConstant.main_color : IConstant.text_color,
+          color: index == activeIndex
+              ? IConstant.main_color
+              : IConstant.text_color,
         );
       },
     );
