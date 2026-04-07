@@ -82,7 +82,7 @@ class _PromotionActionState extends State<PromotionAction> {
 
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        // color: Colors.white,
         borderRadius: BorderRadius.circular(12.r),
       ),
       padding: containerPadding,

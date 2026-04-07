@@ -87,10 +87,8 @@ class _ShopFeaturedScrollerState extends State<ShopFeaturedScroller> {
     }
 
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.w),
-      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.w),
+      padding: EdgeInsets.only(left: 8.w, right: 8.w, top: 16.w, bottom: 0),
       decoration: BoxDecoration(
-        color: Colors.white,
         borderRadius: BorderRadius.circular(16.w),
         boxShadow: [
           BoxShadow(
@@ -147,7 +145,7 @@ class _ShopFeaturedScrollerState extends State<ShopFeaturedScroller> {
         }
       },
       child: Container(
-        height: 56.w,
+        height: 40.w,
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(8.w),
@@ -155,14 +153,17 @@ class _ShopFeaturedScrollerState extends State<ShopFeaturedScroller> {
         ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(8.w),
-          child: logoUrl.isNotEmpty
-              ? CachedNetworkImage(
-                  imageUrl: logoUrl,
-                  fit: BoxFit.contain,
-                  errorWidget: (context, url, error) =>
-                      const Icon(Icons.store, color: Colors.grey),
-                )
-              : const Icon(Icons.store, color: Colors.grey),
+          child: Padding(
+            padding: EdgeInsets.symmetric(vertical: 4.w),
+            child: logoUrl.isNotEmpty
+                ? CachedNetworkImage(
+                    imageUrl: logoUrl,
+                    fit: BoxFit.contain,
+                    errorWidget: (context, url, error) =>
+                        const Icon(Icons.store, color: Colors.grey),
+                  )
+                : const Icon(Icons.store, color: Colors.grey),
+          ),
         ),
       ),
     );

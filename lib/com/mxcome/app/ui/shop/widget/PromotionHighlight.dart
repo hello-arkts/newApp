@@ -68,7 +68,7 @@ class PromotionHighlight extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12.r),
-        color: Colors.white,
+        // color: Colors.white,
       ),
       padding: EdgeInsets.all(2.w),
       child: mode == 'row' ? _buildRowMode() : _buildGridMode(),
