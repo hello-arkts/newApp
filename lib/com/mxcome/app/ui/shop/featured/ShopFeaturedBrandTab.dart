@@ -5,6 +5,8 @@ import 'package:mxcome/com/mxcome/app/model/BaseRsp.dart';
 import 'package:mxcome/com/mxcome/app/model/ShopFeaturedServer.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
+import 'package:mxcome/com/mxcome/app/config/LanguageConfig.dart';
+
 class ShopFeaturedBrandTab extends StatefulWidget {
   final int shopId;
 
@@ -74,12 +76,13 @@ class _ShopFeaturedBrandTabState extends State<ShopFeaturedBrandTab> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text('加载品牌数据失败',
+            Text(LanguageConfig.get(LanguageConfigKeys.Shop_brand_load_failed),
                 style: TextStyle(color: IConstant.grey_color, fontSize: 14.sp)),
             SizedBox(height: 10.h),
             ElevatedButton(
               onPressed: _fetchBrandData,
-              child: const Text('点击重试'),
+              child: Text(LanguageConfig.get(
+                  LanguageConfigKeys.Shop_brand_click_retry)),
             )
           ],
         ),

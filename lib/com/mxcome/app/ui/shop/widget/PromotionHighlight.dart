@@ -241,13 +241,13 @@ class PromotionHighlight extends StatelessWidget {
 
   /// 获取分类名称
   String _getCategoryName(dynamic category, int index) {
-    const names = [
-      '网红餐厅',
-      '酒店住宿',
-      '租车接机',
-      '景点门票',
-      '热门泰货',
-      '休闲娱乐',
+    const keys = [
+      LanguageConfigKeys.Featured_promotion_category_restaurant,
+      LanguageConfigKeys.Featured_promotion_category_hotel,
+      LanguageConfigKeys.Featured_promotion_category_car,
+      LanguageConfigKeys.Featured_promotion_category_ticket,
+      LanguageConfigKeys.Featured_promotion_category_popular_thai,
+      LanguageConfigKeys.Featured_promotion_category_leisure,
     ];
 
     // 如果有传入的 category 数据，优先使用
@@ -258,13 +258,16 @@ class PromotionHighlight extends StatelessWidget {
       }
       String? chName = category['chName'];
       if (chName != null && chName.isNotEmpty) {
-        return chName;
+        return chName; // Here we might want to still use chName if it's from backend, but normally i18nKey is provided
       }
     } catch (e) {
       // 忽略错误
     }
 
-    return index < names.length ? names[index] : '分类';
+    return index < keys.length
+        ? LanguageConfig.get(keys[index])
+        : LanguageConfig.get(
+            LanguageConfigKeys.Promotion_highlight_category_fallback);
   }
 
   /// 获取分类背景颜色

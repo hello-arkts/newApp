@@ -1622,6 +1622,33 @@ class LanguageConfig {
           "Officially Recommended by Thai Government", //泰国政府官方推荐
       LanguageConfigKeys.Gov_recommend_subtitle:
           "Ministry of Tourism and Sports, Ministry of Culture, Tourism Authority of Thailand", //体育旅游部, 文化部, 国家旅游局
+      LanguageConfigKeys.Featured_promotion_empty: "No featured deals",
+      LanguageConfigKeys.Featured_promotion_discount_full: "฿%s off on ฿%s",
+      LanguageConfigKeys.Featured_promotion_voucher: "฿%s Voucher",
+      LanguageConfigKeys.Featured_promotion_use_now: "Use Now",
+      LanguageConfigKeys.Featured_promotion_discount: "Discount",
+      LanguageConfigKeys.Coupon_detail_show_code_tip:
+          "Please show this code to the staff when paying",
+      LanguageConfigKeys.Coupon_detail_select_address:
+          "Please select a store address",
+      LanguageConfigKeys.Coupon_detail_swipe_up_shop: "Swipe up to view shop",
+      LanguageConfigKeys.Coupon_type_full_reduction: "Full Reduction",
+      LanguageConfigKeys.Coupon_type_discount_coupon: "Discount Coupon",
+      LanguageConfigKeys.Coupon_type_free_shipping: "Free Shipping",
+      LanguageConfigKeys.Coupon_type_voucher: "Voucher",
+      LanguageConfigKeys.Coupon_validity_period: "Valid until %s",
+      LanguageConfigKeys.Coupon_select_store: "Select Store",
+      LanguageConfigKeys.Coupon_destination: "Destination",
+      LanguageConfigKeys.Map_google: "Google Maps",
+      LanguageConfigKeys.Map_gaode: "Amap",
+      LanguageConfigKeys.Map_baidu: "Baidu Maps",
+      LanguageConfigKeys.Map_tencent: "Tencent Maps",
+      LanguageConfigKeys.Coupon_copy_address: "Copy Address",
+      LanguageConfigKeys.Coupon_navigate_to_store: "Navigate to Store",
+      LanguageConfigKeys.Coupon_code_prefix: "Code: %s",
+      LanguageConfigKeys.Shop_brand_load_failed: "Failed to load brand data",
+      LanguageConfigKeys.Shop_brand_click_retry: "Click to retry",
+      LanguageConfigKeys.Promotion_highlight_category_fallback: "Category",
     },
 
     //泰语
@@ -3231,6 +3258,34 @@ class LanguageConfig {
       LanguageConfigKeys.Gov_recommend_title: "แนะนำโดยรัฐบาลไทย", //泰国政府官方推荐
       LanguageConfigKeys.Gov_recommend_subtitle:
           "กระทรวงการท่องเที่ยวและกีฬา, กระทรวงวัฒนธรรม, การท่องเที่ยวแห่งประเทศไทย", //体育旅游部, 文化部, 国家旅游局
+      LanguageConfigKeys.Featured_promotion_empty: "ไม่มีโปรโมชั่นแนะนำ",
+      LanguageConfigKeys.Featured_promotion_discount_full:
+          "ลด ฿%s เมื่อซื้อครบ ฿%s",
+      LanguageConfigKeys.Featured_promotion_voucher: "คูปอง ฿%s",
+      LanguageConfigKeys.Featured_promotion_use_now: "ใช้ตอนนี้",
+      LanguageConfigKeys.Featured_promotion_discount: "ส่วนลด",
+      LanguageConfigKeys.Coupon_detail_show_code_tip:
+          "โปรดแสดงรหัสนี้แก่พนักงานเมื่อชำระเงิน",
+      LanguageConfigKeys.Coupon_detail_select_address:
+          "กรุณาเลือกที่อยู่ร้านค้า",
+      LanguageConfigKeys.Coupon_detail_swipe_up_shop: "ปัดขึ้นเพื่อดูร้านค้า",
+      LanguageConfigKeys.Coupon_type_full_reduction: "ลดเต็มจำนวน",
+      LanguageConfigKeys.Coupon_type_discount_coupon: "คูปองส่วนลด",
+      LanguageConfigKeys.Coupon_type_free_shipping: "ส่งฟรี",
+      LanguageConfigKeys.Coupon_type_voucher: "คูปองเงินสด",
+      LanguageConfigKeys.Coupon_validity_period: "ใช้ได้ถึง %s",
+      LanguageConfigKeys.Coupon_select_store: "เลือกร้านค้า",
+      LanguageConfigKeys.Coupon_destination: "จุดหมายปลายทาง",
+      LanguageConfigKeys.Map_google: "Google Maps",
+      LanguageConfigKeys.Map_gaode: "Amap",
+      LanguageConfigKeys.Map_baidu: "Baidu Maps",
+      LanguageConfigKeys.Map_tencent: "Tencent Maps",
+      LanguageConfigKeys.Coupon_copy_address: "คัดลอกที่อยู่",
+      LanguageConfigKeys.Coupon_navigate_to_store: "นำทางไปร้านค้า",
+      LanguageConfigKeys.Coupon_code_prefix: "รหัส: %s",
+      LanguageConfigKeys.Shop_brand_load_failed: "โหลดข้อมูลแบรนด์ล้มเหลว",
+      LanguageConfigKeys.Shop_brand_click_retry: "คลิกเพื่อลองใหม่",
+      LanguageConfigKeys.Promotion_highlight_category_fallback: "หมวดหมู่",
     },
 
     //简体中文
@@ -4565,6 +4620,31 @@ class LanguageConfig {
       LanguageConfigKeys.Gov_recommend_title: "泰国政府官方推荐", //泰国政府官方推荐
       LanguageConfigKeys.Gov_recommend_subtitle:
           "体育旅游部, 文化部, 国家旅游局", //体育旅游部, 文化部, 国家旅游局
+      LanguageConfigKeys.Featured_promotion_empty: "暂无精选优惠",
+      LanguageConfigKeys.Featured_promotion_discount_full: "满 ฿%s 减 ฿%s",
+      LanguageConfigKeys.Featured_promotion_voucher: "฿%s 代金券",
+      LanguageConfigKeys.Featured_promotion_use_now: "立即使用",
+      LanguageConfigKeys.Featured_promotion_discount: "优惠",
+      LanguageConfigKeys.Coupon_detail_show_code_tip: "买单时请向店员出示此券码核销",
+      LanguageConfigKeys.Coupon_detail_select_address: "请选择门店地址",
+      LanguageConfigKeys.Coupon_detail_swipe_up_shop: "上滑查看店铺",
+      LanguageConfigKeys.Coupon_type_full_reduction: "满减券",
+      LanguageConfigKeys.Coupon_type_discount_coupon: "折扣券",
+      LanguageConfigKeys.Coupon_type_free_shipping: "免邮券",
+      LanguageConfigKeys.Coupon_type_voucher: "代金券",
+      LanguageConfigKeys.Coupon_validity_period: "有效期 %s",
+      LanguageConfigKeys.Coupon_select_store: "选择门店",
+      LanguageConfigKeys.Coupon_destination: "目的地",
+      LanguageConfigKeys.Map_google: "Google 地图",
+      LanguageConfigKeys.Map_gaode: "高德地图",
+      LanguageConfigKeys.Map_baidu: "百度地图",
+      LanguageConfigKeys.Map_tencent: "腾讯地图",
+      LanguageConfigKeys.Coupon_copy_address: "复制地址",
+      LanguageConfigKeys.Coupon_navigate_to_store: "导航到店",
+      LanguageConfigKeys.Coupon_code_prefix: "券码: %s",
+      LanguageConfigKeys.Shop_brand_load_failed: "加载品牌数据失败",
+      LanguageConfigKeys.Shop_brand_click_retry: "点击重试",
+      LanguageConfigKeys.Promotion_highlight_category_fallback: "分类",
     },
   };
 }
@@ -4689,6 +4769,31 @@ class LanguageConfigKeys {
       "Featured_promotion_category_ticket";
   static const Featured_promotion_category_popular_thai =
       "Featured_promotion_category_popular_thai";
+  static const Featured_promotion_empty = "Featured_promotion_empty";
+  static const Featured_promotion_discount_full =
+      "Featured_promotion_discount_full";
+  static const Featured_promotion_voucher = "Featured_promotion_voucher";
+  static const Featured_promotion_use_now = "Featured_promotion_use_now";
+  static const Featured_promotion_discount = "Featured_promotion_discount";
+  static const Coupon_detail_show_code_tip = "Coupon_detail_show_code_tip";
+  static const Coupon_detail_select_address = "Coupon_detail_select_address";
+  static const Coupon_detail_swipe_up_shop = "Coupon_detail_swipe_up_shop";
+  static const Coupon_type_full_reduction = "Coupon_type_full_reduction";
+  static const Coupon_type_discount_coupon = "Coupon_type_discount_coupon";
+  static const Coupon_type_free_shipping = "Coupon_type_free_shipping";
+  static const Coupon_type_voucher = "Coupon_type_voucher";
+  static const Coupon_validity_period = "Coupon_validity_period";
+  static const Coupon_select_store = "Coupon_select_store";
+  static const Coupon_destination = "Coupon_destination";
+  static const Map_google = "Map_google";
+  static const Map_gaode = "Map_gaode";
+  static const Map_baidu = "Map_baidu";
+  static const Map_tencent = "Map_tencent";
+  static const Coupon_copy_address = "Coupon_copy_address";
+  static const Coupon_navigate_to_store = "Coupon_navigate_to_store";
+  static const Coupon_code_prefix = "Coupon_code_prefix";
+  static const Shop_brand_load_failed = "Shop_brand_load_failed";
+  static const Shop_brand_click_retry = "Shop_brand_click_retry";
   static const Featured_promotion_category_leisure =
       "Featured_promotion_category_leisure";
   static const Shop_product_shop = "Shop_product_shop";
@@ -5900,6 +6005,8 @@ class LanguageConfigKeys {
   // 泰国政府推荐占位框
   static const Gov_recommend_title = "Gov_recommend_title";
   static const Gov_recommend_subtitle = "Gov_recommend_subtitle";
+  static const Promotion_highlight_category_fallback =
+      "Promotion_highlight_category_fallback";
 }
 
 class LanguageType {

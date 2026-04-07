@@ -8,6 +8,9 @@ import 'package:mxcome/com/mxcome/app/ui/shop/utils/ClipboardUtil.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import 'package:sprintf/sprintf.dart';
+import 'package:mxcome/com/mxcome/app/config/LanguageConfig.dart';
+
 /// 优惠券展示类型（用于券卡片/券类型选择）
 enum CouponBenefitType {
   fullReduction,
@@ -468,7 +471,8 @@ class CouponQrSection extends StatelessWidget {
               border: Border.all(width: 1.w, color: IConstant.grey_line_color),
             ),
             child: Text(
-              '券码: $code',
+              sprintf(LanguageConfig.get(LanguageConfigKeys.Coupon_code_prefix),
+                  [code]),
               style: TextStyle(fontSize: 12.sp, color: IConstant.title_color),
             ),
           ),
@@ -519,13 +523,15 @@ class CouponBenefitCard extends StatelessWidget {
     final type = _inferType();
     switch (type) {
       case CouponBenefitType.fullReduction:
-        return '满减券';
+        return LanguageConfig.get(
+            LanguageConfigKeys.Coupon_type_full_reduction);
       case CouponBenefitType.discount:
-        return '折扣券';
+        return LanguageConfig.get(
+            LanguageConfigKeys.Coupon_type_discount_coupon);
       case CouponBenefitType.freeShipping:
-        return '免邮券';
+        return LanguageConfig.get(LanguageConfigKeys.Coupon_type_free_shipping);
       case CouponBenefitType.cashVoucher:
-        return '代金券';
+        return LanguageConfig.get(LanguageConfigKeys.Coupon_type_voucher);
     }
   }
 
@@ -538,10 +544,15 @@ class CouponBenefitCard extends StatelessWidget {
     final double minPoint = BaseModel.getDouble(coupon, 'minPoint');
     final double amount = BaseModel.getDouble(coupon, 'amount');
     if (type == CouponBenefitType.fullReduction && minPoint > 0) {
-      return '满 ฿${minPoint.toInt()} 减 ฿${amount.toInt()}';
+      return sprintf(
+          LanguageConfig.get(
+              LanguageConfigKeys.Featured_promotion_discount_full),
+          [minPoint.toInt(), amount.toInt()]);
     }
     if (type == CouponBenefitType.cashVoucher) {
-      return '฿${amount.toInt()} 代金券';
+      return sprintf(
+          LanguageConfig.get(LanguageConfigKeys.Featured_promotion_voucher),
+          [amount.toInt()]);
     }
     return '';
   }
@@ -552,7 +563,9 @@ class CouponBenefitCard extends StatelessWidget {
     final String normalized = endTime.replaceAll('T', ' ');
     final String endDate =
         normalized.length >= 10 ? normalized.substring(0, 10) : normalized;
-    return '有效期 $endDate';
+    return sprintf(
+        LanguageConfig.get(LanguageConfigKeys.Coupon_validity_period),
+        [endDate]);
   }
 
   @override
@@ -695,7 +708,7 @@ class CouponStoreAddressRow extends StatelessWidget {
     return Row(
       children: [
         Text(
-          '选择门店',
+          LanguageConfig.get(LanguageConfigKeys.Coupon_select_store),
           style: TextStyle(
             fontSize: 14.sp,
             fontWeight: FontWeight.w600,
@@ -799,7 +812,9 @@ class CouponMapPickerDrawer extends StatelessWidget {
     required String lng,
   }) async {
     final bool hasCoord = lat.isNotEmpty && lng.isNotEmpty;
-    final String name = address.isNotEmpty ? address : '目的地';
+    final String name = address.isNotEmpty
+        ? address
+        : LanguageConfig.get(LanguageConfigKeys.Coupon_destination);
     final TargetPlatform platform = Theme.of(context).platform;
     final bool isIOS = platform == TargetPlatform.iOS;
 
@@ -994,28 +1009,35 @@ class CouponMapPickerDrawer extends StatelessWidget {
                           case 0:
                             return buildOption(
                               name: 'Google Maps',
-                              desc: 'Google 地图',
+                              desc: LanguageConfig.get(
+                                  LanguageConfigKeys.Map_google),
                               iconAsset: 'assets/icons/map_google.svg',
                               app: CouponMapApp.google,
                             );
                           case 1:
                             return buildOption(
-                              name: '高德地图',
-                              desc: 'Gaode Maps',
+                              name: LanguageConfig.get(
+                                  LanguageConfigKeys.Map_gaode),
+                              desc: LanguageConfig.get(
+                                  LanguageConfigKeys.Map_gaode),
                               iconAsset: 'assets/icons/map_gaode.png',
                               app: CouponMapApp.amap,
                             );
                           case 2:
                             return buildOption(
-                              name: '百度地图',
-                              desc: 'Baidu Maps',
+                              name: LanguageConfig.get(
+                                  LanguageConfigKeys.Map_baidu),
+                              desc: LanguageConfig.get(
+                                  LanguageConfigKeys.Map_baidu),
                               iconAsset: 'assets/icons/map_baidu.png',
                               app: CouponMapApp.baidu,
                             );
                           default:
                             return buildOption(
-                              name: '腾讯地图',
-                              desc: 'Tencent Maps',
+                              name: LanguageConfig.get(
+                                  LanguageConfigKeys.Map_tencent),
+                              desc: LanguageConfig.get(
+                                  LanguageConfigKeys.Map_tencent),
                               iconAsset: 'assets/icons/map_tencent.png',
                               app: CouponMapApp.tencent,
                             );
@@ -1107,7 +1129,7 @@ class CouponStoreList extends StatelessWidget {
                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   ),
                   child: Text(
-                    '复制地址',
+                    LanguageConfig.get(LanguageConfigKeys.Coupon_copy_address),
                     style:
                         TextStyle(fontSize: 12.sp, color: IConstant.main_color),
                   ),
@@ -1290,7 +1312,7 @@ class CouponStorePickerActionSection extends StatelessWidget {
         ),
         SizedBox(height: 6.w),
         CouponPrimaryButton(
-          text: '导航到店',
+          text: LanguageConfig.get(LanguageConfigKeys.Coupon_navigate_to_store),
           onPressed: onNavigateTap ?? () => _openMapPicker(context),
         ),
       ],

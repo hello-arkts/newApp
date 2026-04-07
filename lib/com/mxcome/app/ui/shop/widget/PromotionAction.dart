@@ -5,6 +5,9 @@ import 'package:mxcome/com/mxcome/app/IConstant.dart';
 import 'package:mxcome/com/mxcome/app/model/BaseModel.dart';
 import 'package:mxcome/com/mxcome/app/ui/shop/widget/CouponDetailDrawer.dart';
 
+import 'package:mxcome/com/mxcome/app/config/LanguageConfig.dart';
+import 'package:sprintf/sprintf.dart';
+
 /// 精选优惠 - 优惠操作组件
 /// 对应红色标记区域 2：展示优惠操作按钮或交互元素
 /// 独立可复用，具有清晰的接口和样式隔离
@@ -109,7 +112,7 @@ class _PromotionActionState extends State<PromotionAction> {
             ),
             SizedBox(height: 12.h),
             Text(
-              '暂无精选优惠',
+              LanguageConfig.get(LanguageConfigKeys.Featured_promotion_empty),
               style: TextStyle(
                 fontSize: 14.sp,
                 color: IConstant.grey_color,
@@ -227,12 +230,17 @@ class _PromotionActionState extends State<PromotionAction> {
 
       // 显示满减信息
       if (minPoint > 0) {
-        return '满 ฿${minPoint.toInt()} 减 ฿${amount.toInt()}';
+        return sprintf(
+            LanguageConfig.get(
+                LanguageConfigKeys.Featured_promotion_discount_full),
+            [minPoint.toInt(), amount.toInt()]);
       } else {
-        return '฿${amount.toInt()} 代金券';
+        return sprintf(
+            LanguageConfig.get(LanguageConfigKeys.Featured_promotion_voucher),
+            [amount.toInt()]);
       }
     } catch (e) {
-      return '优惠';
+      return LanguageConfig.get(LanguageConfigKeys.Featured_promotion_discount);
     }
   }
 
@@ -283,7 +291,7 @@ class _PromotionActionState extends State<PromotionAction> {
             ),
           ),
           child: Text(
-            '立即使用',
+            LanguageConfig.get(LanguageConfigKeys.Featured_promotion_use_now),
             style: TextStyle(
               fontSize: 10.sp,
               color: IConstant.title_color,

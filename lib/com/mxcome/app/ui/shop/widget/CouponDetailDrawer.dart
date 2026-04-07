@@ -10,6 +10,9 @@ import 'package:mxcome/com/mxcome/app/ui/shop/widget/CouponDrawerComponents.dart
 import 'package:mxcome/com/mxcome/app/ui/shop/widget/CouponDrawerTabSwitcher.dart';
 import 'package:mxcome/com/mxcome/app/ui/shop/featured/ShopFeaturedPage.dart';
 
+import 'package:sprintf/sprintf.dart';
+import 'package:mxcome/com/mxcome/app/config/LanguageConfig.dart';
+
 class CouponDetailDrawer extends StatefulWidget {
   final String initialCouponId;
   final dynamic initialItem;
@@ -104,9 +107,14 @@ class _CouponDetailDrawerState extends State<CouponDetailDrawer> {
     double minPoint = BaseModel.getDouble(coupon, 'minPoint');
     double amount = BaseModel.getDouble(coupon, 'amount');
     if (minPoint > 0) {
-      return '满 ฿${minPoint.toInt()} 减 ฿${amount.toInt()}';
+      return sprintf(
+          LanguageConfig.get(
+              LanguageConfigKeys.Featured_promotion_discount_full),
+          [minPoint.toInt(), amount.toInt()]);
     }
-    return '฿${amount.toInt()} 代金券';
+    return sprintf(
+        LanguageConfig.get(LanguageConfigKeys.Featured_promotion_voucher),
+        [amount.toInt()]);
   }
 
   Future<void> _openNavigation() async {
@@ -320,7 +328,8 @@ class _CouponDetailDrawerState extends State<CouponDetailDrawer> {
         CouponQrSection(
           qrData: qrcode,
           code: code,
-          tipText: '买单时请向店员出示此券码核销',
+          tipText: LanguageConfig.get(
+              LanguageConfigKeys.Coupon_detail_show_code_tip),
         ),
         SizedBox(height: 14.w),
         if (_couponList.isNotEmpty)
@@ -347,7 +356,10 @@ class _CouponDetailDrawerState extends State<CouponDetailDrawer> {
           ),
         SizedBox(height: 12.w),
         CouponStorePickerActionSection(
-          addressText: selectedAddress.isEmpty ? '请选择门店地址' : selectedAddress,
+          addressText: selectedAddress.isEmpty
+              ? LanguageConfig.get(
+                  LanguageConfigKeys.Coupon_detail_select_address)
+              : selectedAddress,
           shopList: _shopList,
           selectedIndex: _selectedStoreIndex,
           onSelectIndex: (index) {
@@ -398,7 +410,8 @@ class _CouponDetailDrawerState extends State<CouponDetailDrawer> {
                   Icon(Icons.keyboard_arrow_up,
                       size: 18.w, color: IConstant.grey_color),
                   Text(
-                    '上滑查看店铺',
+                    LanguageConfig.get(
+                        LanguageConfigKeys.Coupon_detail_swipe_up_shop),
                     style:
                         TextStyle(fontSize: 12.sp, color: IConstant.grey_color),
                   ),
