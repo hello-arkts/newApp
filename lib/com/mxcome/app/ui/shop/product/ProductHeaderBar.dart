@@ -215,7 +215,7 @@ class _ProductHeaderBarState extends BaseKeepAliveState<ProductHeaderBar> {
                 // TODO: 添加链接点击逻辑
               },
               child: Image.asset(
-                "assets/icons/ic_kol_link.png",
+                "assets/icons/ic_kol_link1.png",
                 width: 22.w,
                 height: 22.w,
                 color: IConstant.title_color,

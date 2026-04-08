@@ -399,10 +399,19 @@ class MainPageState extends BaseKeepAliveState<MainPage> {
       bottomNavigationBar: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
-        height: isBottomBarVisible ? 59.h : 0,
+        height: isBottomBarVisible ? 59.w : 0,
         clipBehavior: Clip.hardEdge,
-        decoration: const BoxDecoration(
-          color: Color(0xFFF5F5F5),
+        decoration: BoxDecoration(
+          color: const Color(0xFFF5F5F5),
+          boxShadow: isBottomBarVisible
+              ? [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 10,
+                    offset: const Offset(0, -2), // 负数的 y 值让阴影向上方发散
+                  )
+                ]
+              : null,
         ),
         child: const Wrap(
           children: [GovRecommendBar()],
