@@ -825,6 +825,10 @@ class CouponMapPickerDrawer extends StatelessWidget {
             ? 'https://www.google.com/maps/dir/?api=1&destination=$lat,$lng'
             : 'https://www.google.com/maps/search/?api=1&query=${Uri.encodeComponent(address)}',
       );
+      if (isIOS && app == CouponMapApp.google) {
+        uri = Uri.parse(
+            'comgooglemaps://?daddr=$lat,$lng&directionsmode=driving');
+      }
     } else if (app == CouponMapApp.amap) {
       if (hasCoord) {
         uri = Uri.parse(
@@ -866,11 +870,28 @@ class CouponMapPickerDrawer extends StatelessWidget {
       return true;
     }
 
-    final Uri fallback = Uri.parse(
-      hasCoord
-          ? 'https://www.google.com/maps/dir/?api=1&destination=$lat,$lng'
-          : 'https://www.google.com/maps/search/?api=1&query=${Uri.encodeComponent(address)}',
-    );
+    // 如果设备上没有安装目标地图App，或者打不开Scheme，则使用网页版地图作为回退
+    Uri fallback;
+    if (app == CouponMapApp.amap) {
+      fallback = Uri.parse(hasCoord
+          ? 'https://uri.amap.com/marker?position=$lng,$lat&name=${Uri.encodeComponent(name)}'
+          : 'https://uri.amap.com/search?keyword=${Uri.encodeComponent(name)}');
+    } else if (app == CouponMapApp.baidu) {
+      fallback = Uri.parse(hasCoord
+          ? 'https://api.map.baidu.com/marker?location=$lat,$lng&title=${Uri.encodeComponent(name)}&content=${Uri.encodeComponent(name)}&output=html'
+          : 'https://api.map.baidu.com/geocoder?address=${Uri.encodeComponent(name)}&output=html');
+    } else if (app == CouponMapApp.tencent) {
+      fallback = Uri.parse(hasCoord
+          ? 'https://apis.map.qq.com/uri/v1/marker?marker=coord:$lat,$lng;title:${Uri.encodeComponent(name)}&referer=mxcome'
+          : 'https://apis.map.qq.com/uri/v1/search?keyword=${Uri.encodeComponent(name)}&referer=mxcome');
+    } else {
+      fallback = Uri.parse(
+        hasCoord
+            ? 'https://www.google.com/maps/dir/?api=1&destination=$lat,$lng'
+            : 'https://www.google.com/maps/search/?api=1&query=${Uri.encodeComponent(name)}',
+      );
+    }
+
     if (await canLaunchUrl(fallback)) {
       await launchUrl(fallback, mode: LaunchMode.externalApplication);
       return true;
