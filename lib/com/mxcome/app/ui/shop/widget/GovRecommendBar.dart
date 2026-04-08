@@ -27,51 +27,47 @@ class GovRecommendBar extends StatelessWidget {
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween, // 均匀分布，把剩余空间放在中间
           children: [
-            Expanded(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    LanguageConfig.get(LanguageConfigKeys.Gov_recommend_title),
-                    style: TextStyle(
-                      fontSize: 13.sp, // 稍微缩小字体适应固定高度
-                      fontWeight: FontWeight.w600,
-                      color: const Color(0xFF1A1A1A),
-                      height: 1.2,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  LanguageConfig.get(LanguageConfigKeys.Gov_recommend_title),
+                  style: TextStyle(
+                    fontSize: 13.sp, // 稍微缩小字体适应固定高度
+                    fontWeight: FontWeight.w600,
+                    color: const Color(0xFF1A1A1A),
+                    height: 1.2,
                   ),
-                  SizedBox(height: 2.h),
-                  Text(
-                    LanguageConfig.get(LanguageConfigKeys.Gov_recommend_subtitle),
-                    style: TextStyle(
-                      fontSize: 10.sp,
-                      fontWeight: FontWeight.w400,
-                      color: const Color(0xFF999999),
-                      height: 1.2,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                SizedBox(height: 2.h),
+                Text(
+                  LanguageConfig.get(LanguageConfigKeys.Gov_recommend_subtitle),
+                  style: TextStyle(
+                    fontSize: 10.sp,
+                    fontWeight: FontWeight.w400,
+                    color: const Color(0xFF999999),
+                    height: 1.2,
                   ),
-                ],
-              ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
             ),
-            SizedBox(width: 8.w),
-            Flexible(
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  _buildGovIcon('assets/icons/gov_icon_1.png', 0),
-                  SizedBox(width: 6.w),
-                  _buildGovIcon('assets/icons/gov_icon_2.png', 1),
-                  SizedBox(width: 6.w),
-                  _buildGovIcon('assets/icons/gov_icon_3.png', 2),
-                ],
-              ),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _buildGovIcon('assets/icons/gov_iconLog_1.png', 0),
+                SizedBox(width: 6.w),
+                _buildGovIcon('assets/icons/gov_iconLog_2.png', 1),
+                SizedBox(width: 6.w),
+                _buildGovIcon('assets/icons/gov_iconLog_3.png', 2),
+              ],
             ),
           ],
         ),
@@ -80,24 +76,19 @@ class GovRecommendBar extends StatelessWidget {
   }
 
   Widget _buildGovIcon(String assetPath, int index) {
-    final double size = 32.r; // 图标略缩小，适配 59.h
+    final double size = 32.r;
     return Container(
       width: size,
       height: size,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: const Color(0xFFF5F5F5),
-        border: Border.all(
-          color: const Color(0xFFE8E8E8),
-          width: 1,
-        ),
       ),
       child: ClipOval(
         child: Image.asset(
           assetPath,
           width: size,
           height: size,
-          fit: BoxFit.cover,
+          fit: BoxFit.contain,
           errorBuilder: (context, error, stackTrace) {
             return SizedBox(
               width: size,

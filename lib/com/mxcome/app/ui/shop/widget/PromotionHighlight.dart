@@ -197,7 +197,6 @@ class PromotionHighlight extends StatelessWidget {
       icon,
       width: 20.w,
       height: 20.w,
-      color: index == activeIndex ? IConstant.main_color : null,
       errorBuilder: (context, error, stackTrace) {
         // 如果图片加载失败，使用默认图标
         return Icon(
@@ -214,12 +213,12 @@ class PromotionHighlight extends StatelessWidget {
   /// 获取分类图标路径
   String _getCategoryIcon(int index) {
     const icons = [
-      'assets/icons/category_restaurant.png',
-      'assets/icons/category_hotel.png',
-      'assets/icons/category_car.png',
-      'assets/icons/category_ticket.png',
-      'assets/icons/category_popular.png',
-      'assets/icons/category_leisure.png',
+      'assets/icons/category_restaurant1.png',
+      'assets/icons/category_hotel1.png',
+      'assets/icons/category_car1.png',
+      'assets/icons/category_ticket1.png',
+      'assets/icons/category_popular1.png',
+      'assets/icons/category_leisure1.png',
     ];
     return index < icons.length
         ? icons[index]

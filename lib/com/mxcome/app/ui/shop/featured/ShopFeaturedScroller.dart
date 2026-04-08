@@ -145,10 +145,10 @@ class _ShopFeaturedScrollerState extends State<ShopFeaturedScroller> {
         }
       },
       child: Container(
-        height: 40.w,
+        height: 50.w,
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(8.w),
+          borderRadius: BorderRadius.circular(16.w),
           border: Border.all(color: const Color(0xFFF0F0F0), width: 1),
         ),
         child: ClipRRect(
