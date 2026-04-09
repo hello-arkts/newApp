@@ -17,6 +17,7 @@ import '../../../config/LanguageConfig.dart';
 import '../../../model/BaseModel.dart';
 import '../../../utils/Adapt.dart';
 import '../../../utils/AppUtils.dart';
+import '../../../config/StaticDataConfig.dart';
 import '../../../utils/ViewUtils.dart';
 import '../../web3/WalletCreatePage.dart';
 import '../../web3/WalletManagerPage.dart';
@@ -93,19 +94,37 @@ class ProductAdvertiseState extends BaseKeepAliveState<ProductAdvertise> {
               itemCount: advertiseList.length,
               // pagination: SwiperPagination(),
             )),
-        SizedBox(
-          height: 100.w,
-          child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              itemCount: widget.categoryList.length,
-              physics: const ClampingScrollPhysics(),
-              padding: EdgeInsets.symmetric(horizontal: 10.w),
-              itemBuilder: (context, index) {
-                return buildListItem(index);
-              },
-              separatorBuilder: (BuildContext context, int index) {
-                return SizedBox(width: 15.w);
-              }),
+        // SizedBox(
+        //   height: 100.w,
+        //   child: ListView.separated(
+        //       scrollDirection: Axis.horizontal,
+        //       itemCount: widget.categoryList.length,
+        //       physics: const ClampingScrollPhysics(),
+        //       padding: EdgeInsets.symmetric(horizontal: 10.w),
+        //       itemBuilder: (context, index) {
+        //         return buildListItem(index);
+        //       },
+        //       separatorBuilder: (BuildContext context, int index) {
+        //         return SizedBox(width: 15.w);
+        //       }),
+        // ),
+        Container(
+          width: double.infinity,
+          margin: EdgeInsets.fromLTRB(16.w, 0, 16.w, 8.w), // 增加底部的外边距，为阴影腾出空间
+          padding: EdgeInsets.fromLTRB(10.w, 15.w, 10.w, 10.w),
+          decoration: BoxDecoration(
+            color: Colors.white, // 背景色
+            borderRadius: BorderRadius.circular(16.r), // 圆角16
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.06), // 浅灰色的阴影
+                blurRadius: 8, // 阴影模糊半径
+                spreadRadius: 1, // 阴影扩散范围
+                offset: const Offset(0, 0.4), // 向下偏移
+              ),
+            ],
+          ),
+          child: buildNewGridMenu(),
         ),
       ],
     );
@@ -158,6 +177,78 @@ class ProductAdvertiseState extends BaseKeepAliveState<ProductAdvertise> {
         ),
       );
     }
+  }
+
+  // 新版六宫格菜单
+  Widget buildNewGridMenu() {
+    // 如果有接口数据，优先使用接口数据
+    final List<Map<String, String>> menus =
+        StaticDataConfig.productAdvertiseMenus;
+
+    double itemHeight = 85.w;
+    double gridHeight = itemHeight * 2 + 10.w;
+
+    return SizedBox(
+        height: gridHeight,
+        child: GridView.builder(
+          padding: EdgeInsets.zero,
+          scrollDirection: Axis.horizontal, // 改为横向滚动
+          physics: const ClampingScrollPhysics(), // 允许内部滚动
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2, // 横向滚动时，crossAxisCount 表示行数（2行）
+            mainAxisSpacing: 0, // 由于是横向，mainAxisSpacing 变成了列与列之间的间距
+            crossAxisSpacing: 10.w, // crossAxisSpacing 变成了行与行之间的间距
+            childAspectRatio: itemHeight /
+                (MediaQuery.of(context).size.width /
+                    3.5), // 调整横向滚动时的宽高比，以保证每列宽度合适
+          ),
+          itemCount: menus.length,
+          itemBuilder: (context, index) {
+            return InkWell(
+              onTap: () {
+                // 点击跳转逻辑，这里暂时保留原来的逻辑结构
+                if (index == 3) {
+                  nextPage(CategoryPage(getId(index)), false);
+                } else if (index == 5) {
+                  nextPage(ConsumptionRebatePage(), false);
+                } else {
+                  // web3Wallet() 或其他
+                }
+              },
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Image.asset(
+                    menus[index]["icon"]!,
+                    width: 32.w,
+                    height: 32.w,
+                    fit: BoxFit.contain,
+                  ),
+                  SizedBox(height: 8.w),
+                  Text(
+                    menus[index]["title"]!,
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.bold,
+                      color: const Color(0xFF333333),
+                    ),
+                  ),
+                  SizedBox(height: 4.w),
+                  Text(
+                    menus[index]["subtitle"]!,
+                    style: TextStyle(
+                      fontSize: 10.sp,
+                      color: menus[index].containsKey("subtitleColor") &&
+                              menus[index]["subtitleColor"] == "red"
+                          ? Colors.red
+                          : const Color(0xFF999999),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        ));
   }
 
   web3WalletBg() {
