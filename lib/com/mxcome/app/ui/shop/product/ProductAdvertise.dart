@@ -24,7 +24,6 @@ import 'MonthlyBenefitsPage.dart';
 import 'SuperWednesdayPage.dart';
 
 class ProductAdvertise extends StatefulWidget {
-
   dynamic advertiseList;
 
   dynamic categoryList;
@@ -38,7 +37,6 @@ class ProductAdvertise extends StatefulWidget {
 }
 
 class ProductAdvertiseState extends BaseKeepAliveState<ProductAdvertise> {
-
   List<dynamic> advertiseList = [];
 
   dynamic userInfo;
@@ -87,7 +85,9 @@ class ProductAdvertiseState extends BaseKeepAliveState<ProductAdvertise> {
                   onTap: () {
                     gotoWhere(index);
                   },
-                  child: LoadImageView(double.infinity, double.infinity, BaseModel.getString(advertiseList[index], "pic"), fit: BoxFit.cover),
+                  child: LoadImageView(double.infinity, double.infinity,
+                      BaseModel.getString(advertiseList[index], "pic"),
+                      fit: BoxFit.cover),
                 );
               },
               itemCount: advertiseList.length,
@@ -102,16 +102,18 @@ class ProductAdvertiseState extends BaseKeepAliveState<ProductAdvertise> {
               padding: EdgeInsets.symmetric(horizontal: 10.w),
               itemBuilder: (context, index) {
                 return buildListItem(index);
-              }, separatorBuilder: (BuildContext context, int index) {
-            return SizedBox(width: 15.w);
-          }),
+              },
+              separatorBuilder: (BuildContext context, int index) {
+                return SizedBox(width: 15.w);
+              }),
         ),
       ],
     );
   }
 
   Widget buildListItem(int index) {
-    if(index == 0) {
+    if (index == 0) {
+      // web钱包
       return InkWell(
         onTap: () {
           web3Wallet();
@@ -121,13 +123,12 @@ class ProductAdvertiseState extends BaseKeepAliveState<ProductAdvertise> {
           height: 100.w,
           decoration: BoxDecoration(
               image: DecorationImage(
-                  fit: BoxFit.cover,
-                  image: Image.asset(web3WalletBg()).image),
-              borderRadius: BorderRadius.all(Radius.circular(10.r))
-          ),
+                  fit: BoxFit.cover, image: Image.asset(web3WalletBg()).image),
+              borderRadius: BorderRadius.all(Radius.circular(10.r))),
         ),
       );
     } else if (index == 1) {
+      // 品牌店铺
       return InkWell(
         onTap: () {
           nextPage(CategoryPage(getId(index)), false);
@@ -137,13 +138,12 @@ class ProductAdvertiseState extends BaseKeepAliveState<ProductAdvertise> {
           height: 100.w,
           decoration: BoxDecoration(
               image: DecorationImage(
-                  fit: BoxFit.cover,
-                  image: Image.asset(getIPBg()).image),
-              borderRadius: BorderRadius.all(Radius.circular(10.r))
-          ),
+                  fit: BoxFit.cover, image: Image.asset(getIPBg()).image),
+              borderRadius: BorderRadius.all(Radius.circular(10.r))),
         ),
       );
     } else {
+      // 消费返点
       return InkWell(
         onTap: () {
           nextPage(ConsumptionRebatePage(), false);
@@ -153,17 +153,15 @@ class ProductAdvertiseState extends BaseKeepAliveState<ProductAdvertise> {
           height: 100.w,
           decoration: BoxDecoration(
               image: DecorationImage(
-                  fit: BoxFit.cover,
-                  image: Image.asset(getRebaseBg()).image),
-              borderRadius: BorderRadius.all(Radius.circular(10.r))
-          ),
+                  fit: BoxFit.cover, image: Image.asset(getRebaseBg()).image),
+              borderRadius: BorderRadius.all(Radius.circular(10.r))),
         ),
       );
     }
   }
 
   web3WalletBg() {
-    switch(LanguagePage.language) {
+    switch (LanguagePage.language) {
       case 'TH':
         return 'assets/icons/web3_bg_th.png';
       case 'ZH':
@@ -176,7 +174,7 @@ class ProductAdvertiseState extends BaseKeepAliveState<ProductAdvertise> {
   }
 
   getIPBg() {
-    switch(LanguagePage.language) {
+    switch (LanguagePage.language) {
       case 'TH':
         return 'assets/icons/ip_bg_th.png';
       case 'ZH':
@@ -189,7 +187,7 @@ class ProductAdvertiseState extends BaseKeepAliveState<ProductAdvertise> {
   }
 
   getRebaseBg() {
-    switch(LanguagePage.language) {
+    switch (LanguagePage.language) {
       case 'TH':
         return 'assets/icons/rebase_bg_th.png';
       case 'ZH':
@@ -207,11 +205,11 @@ class ProductAdvertiseState extends BaseKeepAliveState<ProductAdvertise> {
       nextPage(SuperWednesdayPage(), false);
     } else {
       toLogin((ctx) => {
-        setState(() {
-          finishContext(ctx);
-          nextPage(SuperWednesdayPage(), false);
-        })
-      });
+            setState(() {
+              finishContext(ctx);
+              nextPage(SuperWednesdayPage(), false);
+            })
+          });
     }
   }
 
@@ -219,21 +217,23 @@ class ProductAdvertiseState extends BaseKeepAliveState<ProductAdvertise> {
     bool isLogin = await AppUtils.isLogined();
     if (isLogin) {
       if (BaseModel.isEmpty(userInfo, "email")) {
-        showPop(0.5 * Adapt.getWindowHeight(), WalletCreatePage(), topColor: IConstant.web3_create_bg_color);
+        showPop(0.5 * Adapt.getWindowHeight(), WalletCreatePage(),
+            topColor: IConstant.web3_create_bg_color);
       } else {
         nextPage(WalletManagerPage(), false);
       }
     } else {
       toLogin((ctx) => {
-        setState(() {
-          finishContext(ctx);
-          if (BaseModel.isEmpty(userInfo, "email")) {
-            showPop(0.5 * Adapt.getWindowHeight(), WalletCreatePage(), topColor: IConstant.web3_create_bg_color);
-          } else {
-            nextPage(WalletManagerPage(), false);
-          }
-        })
-      });
+            setState(() {
+              finishContext(ctx);
+              if (BaseModel.isEmpty(userInfo, "email")) {
+                showPop(0.5 * Adapt.getWindowHeight(), WalletCreatePage(),
+                    topColor: IConstant.web3_create_bg_color);
+              } else {
+                nextPage(WalletManagerPage(), false);
+              }
+            })
+          });
     }
   }
 
@@ -241,14 +241,17 @@ class ProductAdvertiseState extends BaseKeepAliveState<ProductAdvertise> {
     bool isLogin = await AppUtils.isLogined();
     if (isLogin) {
       ViewUtils.show();
-      BaseRsp rsp = await HttpUtils.post(IURLConstant.MALL_GET_SYSTEM_SETTINGS, {});
-      String headDevelopmentOpen = BaseModel.getString(rsp.data, "headDevelopmentOpen");
+      BaseRsp rsp =
+          await HttpUtils.post(IURLConstant.MALL_GET_SYSTEM_SETTINGS, {});
+      String headDevelopmentOpen =
+          BaseModel.getString(rsp.data, "headDevelopmentOpen");
       if (rsp.retCode == RspRetCode.SUCCESS) {
         bool isOpenRebate = (headDevelopmentOpen == "1");
         if (isOpenRebate) {
           nextPage(ConsumptionRebatePage(), false);
         } else {
-          ViewUtils.displayToast(LanguageConfig.get(LanguageConfigKeys.shop_home_rebate_close_tip));
+          ViewUtils.displayToast(LanguageConfig.get(
+              LanguageConfigKeys.shop_home_rebate_close_tip));
         }
       } else {
         ViewUtils.displayToast(rsp.msg);
@@ -256,10 +259,10 @@ class ProductAdvertiseState extends BaseKeepAliveState<ProductAdvertise> {
       ViewUtils.dismiss();
     } else {
       toLogin((ctx) => {
-        setState(() {
-          finishContext(ctx);
-        })
-      });
+            setState(() {
+              finishContext(ctx);
+            })
+          });
     }
   }
 
@@ -267,7 +270,7 @@ class ProductAdvertiseState extends BaseKeepAliveState<ProductAdvertise> {
     nextPage(MonthlyBenefitsPage(), false);
   }
 
-  String getName(int index){
+  String getName(int index) {
     if (widget.categoryList.length > index) {
       if (LanguagePage.language == "ZH") {
         return BaseModel.getString(widget.categoryList[index], "chName");
@@ -281,7 +284,7 @@ class ProductAdvertiseState extends BaseKeepAliveState<ProductAdvertise> {
     }
   }
 
-  String getId(int index){
+  String getId(int index) {
     if (widget.categoryList.length > index) {
       return BaseModel.getString(widget.categoryList[index], "id");
     } else {
@@ -302,7 +305,8 @@ class ProductAdvertiseState extends BaseKeepAliveState<ProductAdvertise> {
     int relationType = BaseModel.getInt(item, "relationType");
     String url = BaseModel.getString(item, "url");
     url = index == 0 ? "mxcome://app/lottery" : url;
-    if (relationType == 1) { //活动广告
+    if (relationType == 1) {
+      //活动广告
       int relationId = BaseModel.getInt(item, "relationId");
       List<dynamic> dataList = await AppUtils.getActivityData();
       dynamic activityModel;
@@ -316,12 +320,15 @@ class ProductAdvertiseState extends BaseKeepAliveState<ProductAdvertise> {
       if (activityModel != null) {
         activityIsLogin(activityModel);
       } else {
-        ViewUtils.displayToast(LanguageConfig.get(LanguageConfigKeys.Shop_activity_not_exist));
+        ViewUtils.displayToast(
+            LanguageConfig.get(LanguageConfigKeys.Shop_activity_not_exist));
       }
-    } else if (url.startsWith("mxcome://app/")) { //普通广告
-       launchUrlString(url);
-    } else { //普通广告
-       nextPage(WebPage(BaseModel.getString(item, "url")), false);
+    } else if (url.startsWith("mxcome://app/")) {
+      //普通广告
+      launchUrlString(url);
+    } else {
+      //普通广告
+      nextPage(WebPage(BaseModel.getString(item, "url")), false);
     }
   }
 
@@ -330,12 +337,11 @@ class ProductAdvertiseState extends BaseKeepAliveState<ProductAdvertise> {
       activityStart(activity, false);
     } else {
       toLogin((ctx) => {
-        setState(() {
-          finishContext(ctx);
-          activityStart(activity, false);
-        })
-      });
+            setState(() {
+              finishContext(ctx);
+              activityStart(activity, false);
+            })
+          });
     }
   }
-
 }
