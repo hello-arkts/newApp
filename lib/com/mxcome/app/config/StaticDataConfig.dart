@@ -5,34 +5,42 @@ class StaticDataConfig {
   static List<Map<String, String>> get productAdvertiseMenus => [
         {
           "icon": "assets/icons/lalu_pantas.png",
-          "title": "快速通关",
-          "subtitle": "入境申 & VIP过关",
+          "title": LanguageConfig.get(LanguageConfigKeys.Shop_menu_fast_pass),
+          "subtitle":
+              LanguageConfig.get(LanguageConfigKeys.Shop_menu_fast_pass_sub),
           "subtitleColor": "red",
         },
         {
           "icon": "assets/icons/airport_car_hire.png",
-          "title": "租车接机",
-          "subtitle": "超优惠",
+          "title": LanguageConfig.get(LanguageConfigKeys.Shop_menu_car_rental),
+          "subtitle":
+              LanguageConfig.get(LanguageConfigKeys.Shop_menu_car_rental_sub),
         },
         {
           "icon": "assets/icons/kad_telekom_malaysia.png",
-          "title": "泰国电信卡",
-          "subtitle": "实体卡 & eSIM",
+          "title": LanguageConfig.get(LanguageConfigKeys.Shop_menu_thai_sim),
+          "subtitle":
+              LanguageConfig.get(LanguageConfigKeys.Shop_menu_thai_sim_sub),
         },
         {
           "icon": "assets/icons/store_brand.png",
-          "title": "品牌店铺",
-          "subtitle": "正品空运 3 天到家",
+          "title": LanguageConfig.get(LanguageConfigKeys.Shop_menu_brand_store),
+          "subtitle":
+              LanguageConfig.get(LanguageConfigKeys.Shop_menu_brand_store_sub),
         },
         {
           "icon": "assets/icons/pesta_pengembara.png",
-          "title": "派对旅行",
-          "subtitle": "精选行程 0购物",
+          "title":
+              LanguageConfig.get(LanguageConfigKeys.Shop_menu_party_travel),
+          "subtitle":
+              LanguageConfig.get(LanguageConfigKeys.Shop_menu_party_travel_sub),
         },
         {
           "icon": "assets/icons/consumer_rebate.png",
-          "title": "消费返利",
-          "subtitle": "赚钱神器",
+          "title":
+              LanguageConfig.get(LanguageConfigKeys.Shop_menu_consumer_rebate),
+          "subtitle": LanguageConfig.get(
+              LanguageConfigKeys.Shop_menu_consumer_rebate_sub),
         },
       ];
 }

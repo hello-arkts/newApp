@@ -17,6 +17,20 @@ class LanguageConfig {
   static const Map<String, Map<String, String>> _map = {
     //英语
     LanguageType.EN: {
+      LanguageConfigKeys.Shop_menu_fast_pass: "Fast Pass",
+      LanguageConfigKeys.Shop_menu_fast_pass_sub: "Entry App & VIP Pass",
+      LanguageConfigKeys.Shop_menu_car_rental: "Car Rental",
+      LanguageConfigKeys.Shop_menu_car_rental_sub: "Super Discount",
+      LanguageConfigKeys.Shop_menu_thai_sim: "Thai SIM Card",
+      LanguageConfigKeys.Shop_menu_thai_sim_sub: "Physical SIM & eSIM",
+      LanguageConfigKeys.Shop_menu_brand_store: "Brand Store",
+      LanguageConfigKeys.Shop_menu_brand_store_sub:
+          "Authentic, 3 Days Delivery",
+      LanguageConfigKeys.Shop_menu_party_travel: "Party Travel",
+      LanguageConfigKeys.Shop_menu_party_travel_sub:
+          "Selected Tour, 0 Shopping",
+      LanguageConfigKeys.Shop_menu_consumer_rebate: "Consumer Rebate",
+      LanguageConfigKeys.Shop_menu_consumer_rebate_sub: "Money Making Tool",
       LanguageConfigKeys.app_name: "MXCOME",
       LanguageConfigKeys.language: "Choose Language", //语言
       LanguageConfigKeys.search: "Search", //搜索
@@ -1653,6 +1667,21 @@ class LanguageConfig {
 
     //泰语
     LanguageType.TH: {
+      LanguageConfigKeys.Shop_menu_fast_pass: "ผ่านด่านรวดเร็ว",
+      LanguageConfigKeys.Shop_menu_fast_pass_sub:
+          "ยื่นเข้าเมือง & VIP ผ่านด่าน",
+      LanguageConfigKeys.Shop_menu_car_rental: "เช่ารถรับส่งสนามบิน",
+      LanguageConfigKeys.Shop_menu_car_rental_sub: "ส่วนลดสุดพิเศษ",
+      LanguageConfigKeys.Shop_menu_thai_sim: "ซิมการ์ดไทย",
+      LanguageConfigKeys.Shop_menu_thai_sim_sub: "ซิมจริง & eSIM",
+      LanguageConfigKeys.Shop_menu_brand_store: "ร้านค้าแบรนด์",
+      LanguageConfigKeys.Shop_menu_brand_store_sub:
+          "ของแท้ส่งทางอากาศถึงบ้านใน 3 วัน",
+      LanguageConfigKeys.Shop_menu_party_travel: "ทัวร์ปาร์ตี้",
+      LanguageConfigKeys.Shop_menu_party_travel_sub:
+          "ทัวร์คัดสรร 0 การช้อปปิ้ง",
+      LanguageConfigKeys.Shop_menu_consumer_rebate: "เงินคืนจากการบริโภค",
+      LanguageConfigKeys.Shop_menu_consumer_rebate_sub: "เครื่องมือทำเงิน",
       LanguageConfigKeys.app_name: "MXCOME",
       LanguageConfigKeys.language: "ภาษา", //语言
       LanguageConfigKeys.search: "ค้นหา", //搜索
@@ -3290,6 +3319,18 @@ class LanguageConfig {
 
     //简体中文
     LanguageType.ZH: {
+      LanguageConfigKeys.Shop_menu_fast_pass: "快速通关",
+      LanguageConfigKeys.Shop_menu_fast_pass_sub: "入境申 & VIP过关",
+      LanguageConfigKeys.Shop_menu_car_rental: "租车接机",
+      LanguageConfigKeys.Shop_menu_car_rental_sub: "超优惠",
+      LanguageConfigKeys.Shop_menu_thai_sim: "泰国电信卡",
+      LanguageConfigKeys.Shop_menu_thai_sim_sub: "实体卡 & eSIM",
+      LanguageConfigKeys.Shop_menu_brand_store: "品牌店铺",
+      LanguageConfigKeys.Shop_menu_brand_store_sub: "正品空运 3 天到家",
+      LanguageConfigKeys.Shop_menu_party_travel: "派对旅行",
+      LanguageConfigKeys.Shop_menu_party_travel_sub: "精选行程 0购物",
+      LanguageConfigKeys.Shop_menu_consumer_rebate: "消费返利",
+      LanguageConfigKeys.Shop_menu_consumer_rebate_sub: "赚钱神器",
       LanguageConfigKeys.app_name: "MXCOME", //MXCOME
       LanguageConfigKeys.language: "语言", //语言
       LanguageConfigKeys.search: "搜索", //搜索
@@ -4650,6 +4691,18 @@ class LanguageConfig {
 }
 
 class LanguageConfigKeys {
+  static const Shop_menu_fast_pass = "Shop_menu_fast_pass";
+  static const Shop_menu_fast_pass_sub = "Shop_menu_fast_pass_sub";
+  static const Shop_menu_car_rental = "Shop_menu_car_rental";
+  static const Shop_menu_car_rental_sub = "Shop_menu_car_rental_sub";
+  static const Shop_menu_thai_sim = "Shop_menu_thai_sim";
+  static const Shop_menu_thai_sim_sub = "Shop_menu_thai_sim_sub";
+  static const Shop_menu_brand_store = "Shop_menu_brand_store";
+  static const Shop_menu_brand_store_sub = "Shop_menu_brand_store_sub";
+  static const Shop_menu_party_travel = "Shop_menu_party_travel";
+  static const Shop_menu_party_travel_sub = "Shop_menu_party_travel_sub";
+  static const Shop_menu_consumer_rebate = "Shop_menu_consumer_rebate";
+  static const Shop_menu_consumer_rebate_sub = "Shop_menu_consumer_rebate_sub";
   static const app_name = "app_name";
   static const language = "language";
   static const search = "search";
