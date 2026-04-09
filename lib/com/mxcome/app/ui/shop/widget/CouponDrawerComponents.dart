@@ -240,8 +240,12 @@ class CouponShopTabHeaderSection extends StatelessWidget {
                 width: 36.w,
                 height: 36.w,
                 child: Center(
-                  child: Icon(Icons.call,
-                      size: 18.w, color: IConstant.title_color),
+                  child: Image.asset(
+                    'assets/icons/bx_num.png',
+                    width: 23.w,
+                    height: 23.w,
+                    fit: BoxFit.contain,
+                  ),
                 ),
               ),
             ),
@@ -252,8 +256,12 @@ class CouponShopTabHeaderSection extends StatelessWidget {
                 width: 36.w,
                 height: 36.w,
                 child: Center(
-                  child: Icon(Icons.place,
-                      size: 18.w, color: IConstant.title_color),
+                  child: Image.asset(
+                    'assets/icons/bx_map.png',
+                    width: 24.w,
+                    height: 24.w,
+                    fit: BoxFit.contain,
+                  ),
                 ),
               ),
             ),
@@ -1265,17 +1273,31 @@ class CouponStorePickerActionSection extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                GestureDetector(
-                  onTap: () => Navigator.pop(context),
-                  child: const CouponDrawerHandle(),
-                ),
                 Expanded(
                   child: Padding(
-                    padding: EdgeInsets.fromLTRB(16.w, 6.w, 16.w, 16.w),
-                    child: CouponStoreList(
-                      shopList: shopList,
-                      selectedIndex: selectedIndex,
-                      onSelect: (index) => Navigator.pop(context, index),
+                    padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 16.w),
+                    child: Column(
+                      children: [
+                        Center(
+                          child: GestureDetector(
+                            behavior: HitTestBehavior.opaque,
+                            onTap: () => Navigator.pop(context),
+                            child: Container(
+                              width: double.infinity,
+                              alignment: Alignment.center,
+                              child: const CouponDrawerHandle(),
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 6.w),
+                        Expanded(
+                          child: CouponStoreList(
+                            shopList: shopList,
+                            selectedIndex: selectedIndex,
+                            onSelect: (index) => Navigator.pop(context, index),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),

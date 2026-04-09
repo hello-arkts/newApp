@@ -81,9 +81,7 @@ class _CouponDetailDrawerState extends State<CouponDetailDrawer> {
               shopList.isNotEmpty ? shopList : fallbackShopList;
           _detail = data;
           _couponList = couponList.isNotEmpty ? couponList : fallbackCouponList;
-          _shopList = List<dynamic>.generate(10, (_) => resolvedShopList)
-              .expand((e) => e)
-              .toList();
+          _shopList = resolvedShopList;
           _selectedStoreIndex = _shopList.isNotEmpty ? 0 : -1;
           _loading = false;
         });
@@ -123,26 +121,68 @@ class _CouponDetailDrawerState extends State<CouponDetailDrawer> {
           LanguageConfig.get(LanguageConfigKeys.ViewUtils_no_data));
       return;
     }
-    final store = _shopList[_selectedStoreIndex];
-    final String address = BaseModel.getString(store, 'address');
-    final String lat = BaseModel.getString(store, 'lat').isNotEmpty
-        ? BaseModel.getString(store, 'lat')
-        : BaseModel.getString(store, 'latitude');
-    final String lng = BaseModel.getString(store, 'lng').isNotEmpty
-        ? BaseModel.getString(store, 'lng')
-        : BaseModel.getString(store, 'longitude');
 
-    if (address.isEmpty && (lat.isEmpty || lng.isEmpty)) {
-      ViewUtils.displayToast(
-          LanguageConfig.get(LanguageConfigKeys.ViewUtils_no_data));
-      return;
-    }
+    // 弹出一个包含 CouponStorePickerActionSection 的底部抽屉
+    await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            final store = _shopList[_selectedStoreIndex];
+            final String address = BaseModel.getString(store, 'address');
 
-    await CouponMapPickerDrawer.show(
-      context,
-      address: address,
-      lat: lat,
-      lng: lng,
+            return SafeArea(
+              top: false,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius:
+                      BorderRadius.vertical(top: Radius.circular(16.w)),
+                ),
+                padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 32.w),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Center(
+                      child: GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: () => Navigator.pop(context),
+                        child: Container(
+                          width: double.infinity,
+                          alignment: Alignment.center,
+                          child: const CouponDrawerHandle(),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 6.w),
+                    CouponStorePickerActionSection(
+                      addressText: address,
+                      shopList: _shopList,
+                      selectedIndex: _selectedStoreIndex,
+                      onSelectIndex: (int index) {
+                        // 更新弹窗内部状态
+                        setModalState(() {
+                          _selectedStoreIndex = index;
+                        });
+                        // 同时更新外部父组件的状态
+                        setState(() {
+                          _selectedStoreIndex = index;
+                        });
+                      },
+                      onNoDataTap: () {
+                        ViewUtils.displayToast(LanguageConfig.get(
+                            LanguageConfigKeys.ViewUtils_no_data));
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
     );
   }
 
