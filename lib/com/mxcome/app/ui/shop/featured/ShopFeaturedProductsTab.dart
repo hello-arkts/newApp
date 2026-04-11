@@ -9,6 +9,7 @@ import 'package:mxcome/com/mxcome/app/utils/ViewUtils.dart';
 
 import '../widget/LoadImageView.dart';
 import '../widget/PriceText.dart';
+import '../detail/ProductDetailPage.dart';
 
 class ShopFeaturedProductsTab extends StatefulWidget {
   final int shopId;
@@ -146,7 +147,7 @@ class _ShopFeaturedProductsTabState extends State<ShopFeaturedProductsTab> {
       body = CustomScrollView(
         slivers: [
           SliverPadding(
-            padding: EdgeInsets.only(bottom: 16.w),
+            padding: EdgeInsets.only(left: 12.w, right: 12.w, bottom: 16.w),
             sliver: SliverGrid(
               delegate: SliverChildBuilderDelegate(
                 (context, index) =>
@@ -195,96 +196,111 @@ class _ShopFeaturedProductCard extends StatelessWidget {
     final double price = BaseModel.getDouble(item, 'price'); // 真实价格，红色
     final double originalPrice =
         BaseModel.getDouble(item, 'originalPrice'); // 原价，灰色
+    final String productId = BaseModel.getString(item, 'id'); // 商品ID
 
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14.w),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          AspectRatio(
-            aspectRatio: 1,
-            child: LoadImageView(double.infinity, double.infinity, pic),
-          ),
-          Expanded(
-            child: Padding(
-              padding: EdgeInsets.fromLTRB(10.w, 10.w, 10.w, 10.w),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    name,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 13.sp,
-                      fontWeight: FontWeight.w600,
-                      color: IConstant.title_color,
+    return GestureDetector(
+      onTap: () {
+        if (productId.isNotEmpty) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ProductDetailPage(productId),
+            ),
+          );
+        }
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(14.w),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            AspectRatio(
+              aspectRatio: 1,
+              child: LoadImageView(double.infinity, double.infinity, pic),
+            ),
+            Expanded(
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(10.w, 10.w, 10.w, 10.w),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      name,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 13.sp,
+                        fontWeight: FontWeight.w600,
+                        color: IConstant.title_color,
+                      ),
                     ),
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Expanded(
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Flexible(
-                                  child: FittedBox(
-                                    fit: BoxFit.scaleDown,
-                                    alignment: Alignment.centerLeft,
-                                    child: PriceText(
-                                      price,
-                                      fontSize: 15.sp,
-                                      fontWeight: FontWeight.bold,
-                                      color: const Color(0xFFFF4D4F),
-                                    ),
-                                  ),
-                                ),
-                                if (originalPrice > 0 && originalPrice != price)
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Expanded(
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
                                   Flexible(
-                                    child: Padding(
-                                      padding: EdgeInsets.only(bottom: 2.w),
-                                      child: Text(
-                                        '฿${originalPrice.toStringAsFixed(0)}',
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: TextStyle(
-                                          fontSize: 12.sp,
-                                          color: IConstant.grey_color,
-                                          decoration:
-                                              TextDecoration.lineThrough,
-                                        ),
+                                    child: FittedBox(
+                                      fit: BoxFit.scaleDown,
+                                      alignment: Alignment.centerLeft,
+                                      child: PriceText(
+                                        price,
+                                        fontSize: 15.sp,
+                                        fontWeight: FontWeight.bold,
+                                        color: const Color(0xFFFF4D4F),
                                       ),
                                     ),
                                   ),
-                              ],
+                                  if (originalPrice > 0 &&
+                                      originalPrice != price)
+                                    Flexible(
+                                      child: Padding(
+                                        padding: EdgeInsets.only(bottom: 2.w),
+                                        child: Text(
+                                          '฿${originalPrice.toStringAsFixed(0)}',
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: TextStyle(
+                                            fontSize: 12.sp,
+                                            color: IConstant.grey_color,
+                                            decoration:
+                                                TextDecoration.lineThrough,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ],
+                          ],
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

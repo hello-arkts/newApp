@@ -10,6 +10,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import 'package:sprintf/sprintf.dart';
 import 'package:mxcome/com/mxcome/app/config/LanguageConfig.dart';
+import 'package:mxcome/com/mxcome/app/ui/shop/brand/BrandShopPage.dart';
 
 /// 优惠券展示类型（用于券卡片/券类型选择）
 enum CouponBenefitType {
@@ -154,6 +155,7 @@ class CouponShopTabHeaderSection extends StatelessWidget {
   final String name;
   final String address;
   final String phone;
+  final int shopId;
   final VoidCallback onNavigateTap;
   final List<dynamic> couponList;
   final ValueListenable<String> activeCouponIdListenable;
@@ -165,6 +167,7 @@ class CouponShopTabHeaderSection extends StatelessWidget {
     required this.name,
     required this.address,
     required this.phone,
+    required this.shopId,
     required this.onNavigateTap,
     required this.couponList,
     required this.activeCouponIdListenable,
@@ -200,14 +203,40 @@ class CouponShopTabHeaderSection extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    name,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 16.sp,
-                      fontWeight: FontWeight.bold,
-                      color: IConstant.title_color,
+                  GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: () {
+                      if (shopId > 0) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                BrandShopPage(shopId.toString()),
+                          ),
+                        );
+                      }
+                    },
+                    child: Row(
+                      children: [
+                        Flexible(
+                          child: Text(
+                            name,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 16.sp,
+                              fontWeight: FontWeight.bold,
+                              color: IConstant.title_color,
+                            ),
+                          ),
+                        ),
+                        SizedBox(width: 4.w),
+                        Icon(
+                          Icons.chevron_right_rounded,
+                          size: 20.w,
+                          color: IConstant.grey_color,
+                        ),
+                      ],
                     ),
                   ),
                   SizedBox(height: 4.w),

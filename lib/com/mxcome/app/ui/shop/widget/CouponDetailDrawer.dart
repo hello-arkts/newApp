@@ -306,6 +306,7 @@ class _CouponDetailDrawerState extends State<CouponDetailDrawer> {
             name: name,
             address: address,
             phone: phone,
+            shopId: shopId,
             onNavigateTap: _openNavigation,
             couponList: _couponList,
             activeCouponIdListenable: _activeCouponId,
