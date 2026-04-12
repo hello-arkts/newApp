@@ -72,9 +72,9 @@ class _ShopFeaturedScrollerState extends State<ShopFeaturedScroller> {
           borderRadius: BorderRadius.circular(16.w),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.04),
-              blurRadius: 10,
-              offset: const Offset(0, 2),
+              color: Colors.black.withOpacity(0.02),
+              blurRadius: 4,
+              offset: const Offset(0, 1),
             ),
           ],
         ),
@@ -92,9 +92,9 @@ class _ShopFeaturedScrollerState extends State<ShopFeaturedScroller> {
         borderRadius: BorderRadius.circular(16.w),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
+            color: Colors.black.withOpacity(0.01),
+            blurRadius: 4,
+            offset: const Offset(0, 0.1),
           ),
         ],
       ),
