@@ -296,8 +296,9 @@ class CouponShopTabHeaderSection extends StatelessWidget {
             ),
           ],
         ),
-        SizedBox(height: 12.w),
-        if (couponList.isNotEmpty)
+        // 优惠券选择器
+        if (couponList.isNotEmpty) ...[
+          SizedBox(height: 12.w),
           ValueListenableBuilder<String>(
             valueListenable: activeCouponIdListenable,
             builder: (context, activeId, _) {
@@ -308,6 +309,7 @@ class CouponShopTabHeaderSection extends StatelessWidget {
               );
             },
           ),
+        ]
       ],
     );
   }

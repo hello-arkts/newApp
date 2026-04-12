@@ -8,6 +8,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mxcome/com/mxcome/app/IConstant.dart';
 import 'package:mxcome/com/mxcome/app/ui/shop/brand/BrandShopPage.dart';
 import 'package:mxcome/com/mxcome/app/ui/shop/cart/CartPage.dart';
+import 'package:mxcome/com/mxcome/app/ui/shop/widget/CouponDrawerComponents.dart';
 import 'package:mxcome/com/mxcome/app/ui/shop/detail/ProductProtocolPage.dart';
 import 'package:mxcome/com/mxcome/app/ui/shop/event/CartEvent.dart';
 import 'package:mxcome/com/mxcome/app/ui/shop/event/HomeEvent.dart';
@@ -43,7 +44,6 @@ import 'ProductInfo.dart';
 import 'ProductParamPage.dart';
 
 class ProductDetailPage extends StatefulWidget {
-
   String productId;
 
   String pocketCode;
@@ -52,7 +52,8 @@ class ProductDetailPage extends StatefulWidget {
 
   bool isLottery;
 
-  ProductDetailPage(this.productId, { this.pocketCode = "", this.activityId = "", this.isLottery = false });
+  ProductDetailPage(this.productId,
+      {this.pocketCode = "", this.activityId = "", this.isLottery = false});
 
   @override
   State<StatefulWidget> createState() {
@@ -62,7 +63,6 @@ class ProductDetailPage extends StatefulWidget {
 
 class ProductDetailPageState extends BaseKeepAliveState<ProductDetailPage>
     with SingleTickerProviderStateMixin {
-
   String loading = LanguageConfig.get(LanguageConfigKeys.Loading);
 
   final titles = [
@@ -91,7 +91,7 @@ class ProductDetailPageState extends BaseKeepAliveState<ProductDetailPage>
 
   List<dynamic> _productAttributeValueList = [];
 
-  List<dynamic> _skuStockList= [];
+  List<dynamic> _skuStockList = [];
 
   List<SkuModel> skuList = [];
 
@@ -135,11 +135,15 @@ class ProductDetailPageState extends BaseKeepAliveState<ProductDetailPage>
       //   toolbarOpacity = 0.0;
       //   setState(() {});
       // }
-      if(childScrollController.position.userScrollDirection == ScrollDirection.forward && !isShowToolbar) {
+      if (childScrollController.position.userScrollDirection ==
+              ScrollDirection.forward &&
+          !isShowToolbar) {
         isShowToolbar = true;
         toolbarOpacity = 1.0;
         setState(() {});
-      }else if(childScrollController.position.userScrollDirection == ScrollDirection.reverse && isShowToolbar){
+      } else if (childScrollController.position.userScrollDirection ==
+              ScrollDirection.reverse &&
+          isShowToolbar) {
         isShowToolbar = false;
         toolbarOpacity = 0.0;
         setState(() {});
@@ -154,11 +158,15 @@ class ProductDetailPageState extends BaseKeepAliveState<ProductDetailPage>
       final size = productInfoKey.currentContext!.size ?? Size.zero;
       productInfoHeight = size.height;
     });
-    productDetailEvent = EventBusUtil.getInstance().on<ProductDetailEvent>((event) {
+    productDetailEvent =
+        EventBusUtil.getInstance().on<ProductDetailEvent>((event) {
       if (event.optionStatus == OptionStatus.spec) {
         openBottomSheet(context, 0);
       } else if (event.optionStatus == OptionStatus.param) {
-        showPop(0.7 * Adapt.getWindowHeight(), ProductParamPage(_productAttributeList, _productAttributeValueList));
+        showPop(
+            0.7 * Adapt.getWindowHeight(),
+            ProductParamPage(
+                _productAttributeList, _productAttributeValueList));
       } else if (event.optionStatus == OptionStatus.isTaskProd) {
         setState(() {
           isTaskProd = true;
@@ -166,7 +174,7 @@ class ProductDetailPageState extends BaseKeepAliveState<ProductDetailPage>
       }
     });
     cartEvent = EventBusUtil.getInstance().on<CartEvent>((event) {
-      if (event.cartType == CartType.complete){
+      if (event.cartType == CartType.complete) {
         loadCartNum();
       }
     });
@@ -199,20 +207,28 @@ class ProductDetailPageState extends BaseKeepAliveState<ProductDetailPage>
 
   @override
   Future<void> loadContentDatas() async {
-    BaseRsp rsp = await HttpUtils.post("${IURLConstant.MALL_PRODUCT_DETAIL}$productId", {"id": productId});
+    BaseRsp rsp = await HttpUtils.post(
+        "${IURLConstant.MALL_PRODUCT_DETAIL}$productId", {"id": productId});
     if (rsp.retCode == RspRetCode.SUCCESS) {
       setState(() {
         _product = rsp.data;
         // _isNeedAgree = BaseModel.getInt(rsp.data, "isNeedAgree");
         _skuStockList = BaseModel.getDynamic(rsp.data, "skuStockList");
-        _productAttributeList = BaseModel.isNotEmpty(rsp.data, "productAttributeList") ? BaseModel.getDynamic(rsp.data, "productAttributeList") : [];
-        _productAttributeValueList =  BaseModel.isNotEmpty(rsp.data, "productAttributeValueList") ? BaseModel.getDynamic(rsp.data, "productAttributeValueList") : [];
+        _productAttributeList =
+            BaseModel.isNotEmpty(rsp.data, "productAttributeList")
+                ? BaseModel.getDynamic(rsp.data, "productAttributeList")
+                : [];
+        _productAttributeValueList =
+            BaseModel.isNotEmpty(rsp.data, "productAttributeValueList")
+                ? BaseModel.getDynamic(rsp.data, "productAttributeValueList")
+                : [];
       });
     } else {
       ViewUtils.displayToast(rsp.msg);
     }
     loadCartNum();
-    detailReadCount = await AppUtils.getReadCount(IConstant.activity_detail_count);
+    detailReadCount =
+        await AppUtils.getReadCount(IConstant.activity_detail_count);
   }
 
   Future<void> loadCartNum() async {
@@ -243,38 +259,170 @@ class ProductDetailPageState extends BaseKeepAliveState<ProductDetailPage>
   @override
   Widget build(BuildContext context) {
     super.build(context);
+
+    // 解析店铺相关数据，根据真实 JSON 结构，店铺信息在 "brand" 对象里，外层可能还有 "shopName", "shopIcon"
+    final dynamic brandData =
+        _product != null ? BaseModel.getDynamic(_product, 'brand') ?? {} : {};
+
+    // 如果 brand 里没有，尝试从外层直接拿
+    final String shopLogo = BaseModel.getString(brandData, 'logo').isNotEmpty
+        ? BaseModel.getString(brandData, 'logo')
+        : BaseModel.getString(_product ?? {}, 'shopIcon');
+
+    final String shopName = BaseModel.getString(brandData, 'name').isNotEmpty
+        ? BaseModel.getString(brandData, 'name')
+        : BaseModel.getString(_product ?? {}, 'shopName');
+
+    // 从详情里的属性拿地址（或者使用 useAddress/productAddress）
+    final String shopAddress =
+        BaseModel.getString(_product ?? {}, 'productAddress').isNotEmpty
+            ? BaseModel.getString(_product ?? {}, 'productAddress')
+            : BaseModel.getString(_product ?? {}, 'useAddress');
+
+    final String shopPhone = BaseModel.getString(brandData, 'phone');
+
+    // 使用 brand 的 shopId 或者外层的 shopId
+    final int shopId = BaseModel.getInt(brandData, 'shopId') > 0
+        ? BaseModel.getInt(brandData, 'shopId')
+        : BaseModel.getInt(_product ?? {}, 'shopId');
+
+    // 构造 shopList 数据用于抽屉地图选择器，这里商品详情通常只有一个所属店铺
+    final List<dynamic> shopList =
+        _product != null && brandData.isNotEmpty ? [brandData] : [];
+
     return Scaffold(
       backgroundColor: IConstant.white_color,
       appBar: buildAppBar(),
       body: Stack(
         alignment: Alignment.topCenter,
         children: [
-          SingleChildScrollView(
-            controller: childScrollController,
-            child: Column(
-              children: [
+          Column(
+            children: [
+              // 店铺头部信息组件固定在顶部，不随内容滚动
+              if (_product != null && shopId > 0)
                 Container(
-                    key: productInfoKey,
-                    child: _product == null ?
-                    SizedBox(height: MediaQuery.of(context).size.height - 200, child: ViewUtils.buildLoading())
-                        : ProductInfo(_product, activityId: widget.activityId, showParameter: _productAttributeList.isNotEmpty,),
+                  color: IConstant.white_color, // 保持白色背景
+                  padding: EdgeInsets.fromLTRB(16.w, 10.w, 16.w, 10.w),
+                  child: CouponShopTabHeaderSection(
+                    logoUrl: shopLogo,
+                    name: shopName,
+                    address: shopAddress,
+                    phone: shopPhone,
+                    shopId: shopId,
+                    onNavigateTap: () async {
+                      if (shopList.isEmpty) {
+                        ViewUtils.displayToast(LanguageConfig.get(
+                            LanguageConfigKeys.ViewUtils_no_data));
+                        return;
+                      }
+
+                      // 弹出一个包含 CouponStorePickerActionSection 的底部抽屉，跟 CouponDetailDrawer 一致
+                      await showModalBottomSheet(
+                        context: context,
+                        isScrollControlled: true,
+                        backgroundColor: Colors.transparent,
+                        builder: (BuildContext context) {
+                          return StatefulBuilder(
+                            builder: (context, setModalState) {
+                              final store = shopList[0];
+                              final String address =
+                                  BaseModel.getString(store, 'address');
+
+                              return SafeArea(
+                                top: false,
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.vertical(
+                                        top: Radius.circular(16.w)),
+                                  ),
+                                  padding:
+                                      EdgeInsets.fromLTRB(16.w, 0, 16.w, 32.w),
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Center(
+                                        child: GestureDetector(
+                                          behavior: HitTestBehavior.opaque,
+                                          onTap: () => Navigator.pop(context),
+                                          child: Container(
+                                            width: double.infinity,
+                                            alignment: Alignment.center,
+                                            child: const CouponDrawerHandle(),
+                                          ),
+                                        ),
+                                      ),
+                                      SizedBox(height: 6.w),
+                                      CouponStorePickerActionSection(
+                                        addressText: address,
+                                        shopList: shopList,
+                                        selectedIndex: 0,
+                                        onSelectIndex: (int index) {
+                                          // 详情页通常只有一家店，不做切换处理
+                                        },
+                                        onNoDataTap: () {
+                                          ViewUtils.displayToast(
+                                              LanguageConfig.get(
+                                                  LanguageConfigKeys
+                                                      .ViewUtils_no_data));
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
+                          );
+                        },
+                      );
+                    },
+                    couponList: const [],
+                    activeCouponIdListenable: ValueNotifier(''),
+                    onSelectCouponId: (_) {},
+                  ),
                 ),
-                Container(
-                    key: UniqueKey(),
-                    padding: EdgeInsets.symmetric(horizontal: 16.w),
-                    child: _product == null ? const SizedBox() : ProductHtml(_product)
+              Expanded(
+                child: SingleChildScrollView(
+                  controller: childScrollController,
+                  child: Column(
+                    children: [
+                      Container(
+                        key: productInfoKey,
+                        child: _product == null
+                            ? SizedBox(
+                                height:
+                                    MediaQuery.of(context).size.height - 200,
+                                child: ViewUtils.buildLoading())
+                            : ProductInfo(
+                                _product,
+                                activityId: widget.activityId,
+                                showParameter: _productAttributeList.isNotEmpty,
+                              ),
+                      ),
+                      Container(
+                          key: UniqueKey(),
+                          padding: EdgeInsets.symmetric(horizontal: 16.w),
+                          child: _product == null
+                              ? const SizedBox()
+                              : ProductHtml(_product)),
+                    ],
+                  ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-          Opacity(
-            opacity: toolbarOpacity,
-            child: Container(
-              width: 220.w,
-              height: 36.w,
-              margin: EdgeInsets.only(top: 5.w),
-              color: Colors.transparent,
-              child: buildPreferredSize(),
+          Positioned(
+            top: (_product != null && shopId > 0)
+                ? 70.w
+                : 5.w, // 店铺栏高度大约 64w + 上下内边距，所以大概设 70w
+            child: Opacity(
+              opacity: toolbarOpacity,
+              child: Container(
+                width: 220.w,
+                height: 36.w,
+                color: Colors.transparent,
+                child: buildPreferredSize(),
+              ),
             ),
           ),
         ],
@@ -300,7 +448,8 @@ class ProductDetailPageState extends BaseKeepAliveState<ProductDetailPage>
             child: Row(children: [
               Image.asset("assets/icons/search.png",
                   width: 18.w, height: 18.w, color: IConstant.sub_text_color),
-              Expanded(child: Padding(
+              Expanded(
+                  child: Padding(
                 padding: EdgeInsets.only(left: 7.w),
                 child: Text(
                   LanguageConfig.get(LanguageConfigKeys.Shop_product_search),
@@ -370,7 +519,8 @@ class ProductDetailPageState extends BaseKeepAliveState<ProductDetailPage>
                   EventBusUtil.getInstance().emit(HomeEvent());
                   EventBusUtil.getInstance().emit(CollectEvent());
                 }
-                nextPage(BrandShopPage(BaseModel.getString(_product, "shopId")), false);
+                nextPage(BrandShopPage(BaseModel.getString(_product, "shopId")),
+                    false);
                 break;
             }
           }
@@ -379,8 +529,9 @@ class ProductDetailPageState extends BaseKeepAliveState<ProductDetailPage>
     );
   }
 
-  Tab getTab(dynamic item){
-    return Tab(child: Container(
+  Tab getTab(dynamic item) {
+    return Tab(
+        child: Container(
       width: 65.w,
       height: 36.w,
       decoration: BoxDecoration(
@@ -388,7 +539,11 @@ class ProductDetailPageState extends BaseKeepAliveState<ProductDetailPage>
         color: Colors.transparent,
       ),
       child: Center(
-        child: Text(item, maxLines: 1, overflow: TextOverflow.ellipsis, textAlign: TextAlign.start, style: TextStyle(fontSize: 12.sp)),
+        child: Text(item,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.start,
+            style: TextStyle(fontSize: 12.sp)),
       ),
     ));
   }
@@ -401,8 +556,8 @@ class ProductDetailPageState extends BaseKeepAliveState<ProductDetailPage>
         child: Row(
           children: [
             Expanded(
-                flex: 2,
-                child: buildHeart(),
+              flex: 2,
+              child: buildHeart(),
             ),
             // Expanded(
             //     flex: 2,
@@ -411,21 +566,27 @@ class ProductDetailPageState extends BaseKeepAliveState<ProductDetailPage>
             //     },),
             // ),
             Expanded(
-                flex: 2,
-                child: IconButton(icon: Image.asset("assets/icons/add_cart.png", width: 24.w, height: 24.w), onPressed: (){
+              flex: 2,
+              child: IconButton(
+                icon: Image.asset("assets/icons/add_cart.png",
+                    width: 24.w, height: 24.w),
+                onPressed: () {
                   openBottomSheet(context, 1);
-                },),
+                },
+              ),
             ),
             Expanded(flex: isTaskProd ? 2 : 4, child: const SizedBox()),
             Expanded(
               flex: 4,
-              child: OutlineTextButton(text: LanguageConfig.get(LanguageConfigKeys.Shop_product_now_buy),
+              child: OutlineTextButton(
+                  text: LanguageConfig.get(
+                      LanguageConfigKeys.Shop_product_now_buy),
                   top: 8.w,
                   bottom: 8.w,
                   onTap: () => openBottomSheet(context, 2)),
             ),
             SizedBox(width: 10.w),
-            isTaskProd ? buildBadge(): const SizedBox(),
+            isTaskProd ? buildBadge() : const SizedBox(),
           ],
         ),
       ),
@@ -436,8 +597,10 @@ class ProductDetailPageState extends BaseKeepAliveState<ProductDetailPage>
     return badges.Badge(
       showBadge: detailReadCount.isUnread(),
       position: badges.BadgePosition.topEnd(top: -8, end: 0),
-      badgeContent: Text("", style: TextStyle(fontSize: 10.sp, color: Colors.white)),
-      child: SmallTextButton(text: LanguageConfig.get(LanguageConfigKeys.Shop_product_mxget),
+      badgeContent:
+          Text("", style: TextStyle(fontSize: 10.sp, color: Colors.white)),
+      child: SmallTextButton(
+          text: LanguageConfig.get(LanguageConfigKeys.Shop_product_mxget),
           top: 8.w,
           bottom: 8.w,
           left: 20.w,
@@ -447,9 +610,17 @@ class ProductDetailPageState extends BaseKeepAliveState<ProductDetailPage>
   }
 
   Widget buildHeart() {
-    return IconButton(icon: Image.asset(isCollection ? "assets/icons/heart_red.png" : "assets/icons/heart_grey.png", width: 24.w, height: 24.w), onPressed: (){
-      isCollection ? delete() : add();
-    },);
+    return IconButton(
+      icon: Image.asset(
+          isCollection
+              ? "assets/icons/heart_red.png"
+              : "assets/icons/heart_grey.png",
+          width: 24.w,
+          height: 24.w),
+      onPressed: () {
+        isCollection ? delete() : add();
+      },
+    );
   }
 
   Future<void> add() async {
@@ -458,17 +629,17 @@ class ProductDetailPageState extends BaseKeepAliveState<ProductDetailPage>
       doAdd();
     } else {
       toLogin((ctx) => {
-        setState(() {
-          finishContext(ctx);
-          doAdd();
-        })
-      });
+            setState(() {
+              finishContext(ctx);
+              doAdd();
+            })
+          });
     }
   }
 
   Future<void> doAdd() async {
     ViewUtils.show();
-    BaseRsp rsp = await HttpUtils.postJSON(IURLConstant.MALL_COLLECTION_ADD,{
+    BaseRsp rsp = await HttpUtils.postJSON(IURLConstant.MALL_COLLECTION_ADD, {
       "productId": BaseModel.getString(_product, "id"),
       "productName": BaseModel.getString(_product, "name"),
       "productPic": BaseModel.getString(_product, "pic"),
@@ -493,19 +664,18 @@ class ProductDetailPageState extends BaseKeepAliveState<ProductDetailPage>
       doDelete();
     } else {
       toLogin((ctx) => {
-        setState(() {
-          finishContext(ctx);
-          doDelete();
-        })
-      });
+            setState(() {
+              finishContext(ctx);
+              doDelete();
+            })
+          });
     }
   }
 
   Future<void> doDelete() async {
     ViewUtils.show();
-    BaseRsp rsp = await HttpUtils.post(IURLConstant.MALL_COLLECTION_DELETE, {
-      "productId": BaseModel.getString(_product, "id")
-    });
+    BaseRsp rsp = await HttpUtils.post(IURLConstant.MALL_COLLECTION_DELETE,
+        {"productId": BaseModel.getString(_product, "id")});
     if (rsp.retCode == RspRetCode.SUCCESS) {
       setState(() {
         isCollection = false;
@@ -524,7 +694,8 @@ class ProductDetailPageState extends BaseKeepAliveState<ProductDetailPage>
     setState(() {
       detailReadCount.read = 0;
     });
-    await AppUtils.setReadCount(IConstant.activity_detail_count, detailReadCount);
+    await AppUtils.setReadCount(
+        IConstant.activity_detail_count, detailReadCount);
   }
 
   openBottomSheet(BuildContext context, int type) {
@@ -543,8 +714,8 @@ class ProductDetailPageState extends BaseKeepAliveState<ProductDetailPage>
                 height: 0.8 * Adapt.getWindowHeight(),
                 decoration: BoxDecoration(
                     color: IConstant.white_color,
-                    borderRadius: BorderRadius.vertical(top: Radius.circular(12.w))
-                ),
+                    borderRadius:
+                        BorderRadius.vertical(top: Radius.circular(12.w))),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -559,15 +730,16 @@ class ProductDetailPageState extends BaseKeepAliveState<ProductDetailPage>
                         margin: EdgeInsets.only(top: 4.w, bottom: 2.w),
                         decoration: BoxDecoration(
                             color: IConstant.line_color,
-                            borderRadius: BorderRadius.all(Radius.circular(30.w))
-                        ),
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(30.w))),
                       ),
                     ),
                     Container(
                         padding: EdgeInsets.only(top: 10.w),
                         child: Center(
                             child: Text(
-                                LanguageConfig.get(LanguageConfigKeys.Shop_product_select_spec),
+                                LanguageConfig.get(LanguageConfigKeys
+                                    .Shop_product_select_spec),
                                 style: TextStyle(
                                     fontSize: 17.sp,
                                     color: IConstant.text_color)))),
@@ -584,7 +756,8 @@ class ProductDetailPageState extends BaseKeepAliveState<ProductDetailPage>
                         children: [
                           LoadImageView(80.w, 80.w, getProductPic()),
                           SizedBox(width: 10.w),
-                          Expanded(child: Column(
+                          Expanded(
+                              child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: <Widget>[
                               PriceText(getChoicePrice()),
@@ -617,24 +790,29 @@ class ProductDetailPageState extends BaseKeepAliveState<ProductDetailPage>
                         child: Row(
                           children: [
                             Text(
-                                LanguageConfig.get(LanguageConfigKeys.Shop_product_quantity),
+                                LanguageConfig.get(
+                                    LanguageConfigKeys.Shop_product_quantity),
                                 style: TextStyle(
                                     fontSize: 17.sp,
                                     color: IConstant.text_color)),
                             SizedBox(width: 80.w),
-                            CartNumberView(_number, (number) {
-                              setState(() {
-                                _number = number;
-                              });
-                            }, limitNum: BaseModel.getInt(_product, 'productQuantityLimit'),),
+                            CartNumberView(
+                              _number,
+                              (number) {
+                                setState(() {
+                                  _number = number;
+                                });
+                              },
+                              limitNum: BaseModel.getInt(
+                                  _product, 'productQuantityLimit'),
+                            ),
                           ],
                         )),
                     Divider(height: 1.w),
                     Container(
                       height: 70.w,
                       margin: EdgeInsets.fromLTRB(40.w, 0.w, 40.w, 20.w),
-                      child: Row(
-                          children: getButtons(type)),
+                      child: Row(children: getButtons(type)),
                     )
                   ],
                 ),
@@ -657,7 +835,7 @@ class ProductDetailPageState extends BaseKeepAliveState<ProductDetailPage>
     }
   }
 
-  double getChoicePrice(){
+  double getChoicePrice() {
     if (_skuModel != null) {
       return _skuModel!.price;
     } else {
@@ -668,37 +846,47 @@ class ProductDetailPageState extends BaseKeepAliveState<ProductDetailPage>
   List<Widget> getButtons(int type) {
     List<Widget> tempList = [];
     if (type == 1) {
-      tempList.add(Expanded(flex: 1, child: BigTextButton(
-          text: LanguageConfig.get(LanguageConfigKeys.Shop_product_join_cart),
-          top: 8.w,
-          bottom: 8.w,
-          onTap: () {
-            addCartIsLogin();
-          })));
+      tempList.add(Expanded(
+          flex: 1,
+          child: BigTextButton(
+              text:
+                  LanguageConfig.get(LanguageConfigKeys.Shop_product_join_cart),
+              top: 8.w,
+              bottom: 8.w,
+              onTap: () {
+                addCartIsLogin();
+              })));
     } else if (type == 2) {
-      tempList.add(Expanded(flex: 1, child: BigTextButton(
-          text: LanguageConfig.get(LanguageConfigKeys.Shop_product_now_buy),
-          top: 8.w,
-          bottom: 8.w,
-          onTap: () {
-            buyIsLogin();
-          })));
+      tempList.add(Expanded(
+          flex: 1,
+          child: BigTextButton(
+              text: LanguageConfig.get(LanguageConfigKeys.Shop_product_now_buy),
+              top: 8.w,
+              bottom: 8.w,
+              onTap: () {
+                buyIsLogin();
+              })));
     } else {
-      tempList.add(Expanded(flex: 1, child: BigTextButton(
-          text: LanguageConfig.get(LanguageConfigKeys.Shop_product_join_cart),
-          top: 8.w,
-          bottom: 8.w,
-          onTap: () {
-            addCartIsLogin();
-          })));
+      tempList.add(Expanded(
+          flex: 1,
+          child: BigTextButton(
+              text:
+                  LanguageConfig.get(LanguageConfigKeys.Shop_product_join_cart),
+              top: 8.w,
+              bottom: 8.w,
+              onTap: () {
+                addCartIsLogin();
+              })));
       tempList.add(SizedBox(width: 20.w));
-      tempList.add(Expanded(flex: 1, child: BigTextButton(
-          text: LanguageConfig.get(LanguageConfigKeys.Shop_product_now_buy),
-          top: 8.w,
-          bottom: 8.w,
-          onTap: () {
-            buyIsLogin();
-          })));
+      tempList.add(Expanded(
+          flex: 1,
+          child: BigTextButton(
+              text: LanguageConfig.get(LanguageConfigKeys.Shop_product_now_buy),
+              top: 8.w,
+              bottom: 8.w,
+              onTap: () {
+                buyIsLogin();
+              })));
     }
     return tempList;
   }
@@ -763,7 +951,9 @@ class ProductDetailPageState extends BaseKeepAliveState<ProductDetailPage>
         label: Text(value,
             style: TextStyle(
                 fontSize: 15.sp,
-                color: _choiceMap.containsValue(value) ? IConstant.white_color : IConstant.text_color)),
+                color: _choiceMap.containsValue(value)
+                    ? IConstant.white_color
+                    : IConstant.text_color)),
         shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.all(Radius.circular(20.w))),
         backgroundColor: IConstant.grey_bg_color,
@@ -817,15 +1007,15 @@ class ProductDetailPageState extends BaseKeepAliveState<ProductDetailPage>
       openCart();
     } else {
       toLogin((ctx) => {
-        setState(() {
-          finishContext(ctx);
-          openCart();
-        })
-      });
+            setState(() {
+              finishContext(ctx);
+              openCart();
+            })
+          });
     }
   }
 
-  void openCart(){
+  void openCart() {
     showPop(0.9 * Adapt.getWindowHeight(), CartPage(fromDetail: true));
   }
 
@@ -859,16 +1049,19 @@ class ProductDetailPageState extends BaseKeepAliveState<ProductDetailPage>
 
   void buy() {
     if (_skuModel == null) {
-      ViewUtils.displayToast(LanguageConfig.get(LanguageConfigKeys.Shop_product_select_spec));
+      ViewUtils.displayToast(
+          LanguageConfig.get(LanguageConfigKeys.Shop_product_select_spec));
       return;
     }
     if (_isNeedAgree == 0) {
-      showPop(0.9 * Adapt.getWindowHeight(), ProductProtocolPage(productId, (sure) {
-        if (sure) {
-          finish();
-          goOrderConfirm();
-        }
-      }));
+      showPop(
+          0.9 * Adapt.getWindowHeight(),
+          ProductProtocolPage(productId, (sure) {
+            if (sure) {
+              finish();
+              goOrderConfirm();
+            }
+          }));
     } else {
       goOrderConfirm();
     }
@@ -877,16 +1070,21 @@ class ProductDetailPageState extends BaseKeepAliveState<ProductDetailPage>
   void goOrderConfirm() {
     _isNeedAgree = 1;
     List<CartItem> selectCartList = [];
-    CartItem cartItem =  CartItem.fromProductToCartItem(_product, _skuModel!, _number, widget.pocketCode);
+    CartItem cartItem = CartItem.fromProductToCartItem(
+        _product, _skuModel!, _number, widget.pocketCode);
     selectCartList.add(cartItem);
     finishContext(context);
     EventBusUtil.getInstance().emit(CartEvent());
-    nextPage(OrderConfirmPage(selectCartList, false, [], productId: productId, isLottery: widget.isLottery), false);
+    nextPage(
+        OrderConfirmPage(selectCartList, false, [],
+            productId: productId, isLottery: widget.isLottery),
+        false);
   }
 
   addCart() async {
     if (_skuModel == null) {
-      ViewUtils.displayToast(LanguageConfig.get(LanguageConfigKeys.Shop_product_select_spec));
+      ViewUtils.displayToast(
+          LanguageConfig.get(LanguageConfigKeys.Shop_product_select_spec));
       return;
     }
     String productId = _skuModel!.productId;
@@ -918,7 +1116,8 @@ class ProductDetailPageState extends BaseKeepAliveState<ProductDetailPage>
     });
     if (rsp.retCode == RspRetCode.SUCCESS) {
       setState(() {
-        ViewUtils.displayToast(LanguageConfig.get(LanguageConfigKeys.Shop_product_cart_add_success));
+        ViewUtils.displayToast(LanguageConfig.get(
+            LanguageConfigKeys.Shop_product_cart_add_success));
         finishContext(context);
         EventBusUtil.getInstance().emit(CartEvent());
         loadCartNum();
@@ -927,5 +1126,4 @@ class ProductDetailPageState extends BaseKeepAliveState<ProductDetailPage>
       ViewUtils.displayToast(rsp.msg);
     }
   }
-
 }
