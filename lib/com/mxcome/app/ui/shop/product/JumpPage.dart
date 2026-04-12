@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mxcome/com/mxcome/app/IConstant.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:image_gallery_saver/image_gallery_saver.dart';
+import 'package:mxcome/com/mxcome/app/utils/ViewUtils.dart';
 
 class JumpPage extends StatefulWidget {
   final String note;
@@ -61,22 +64,43 @@ class _JumpPageState extends State<JumpPage> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // 二维码图片
-                    Container(
-                      width: 260.w,
-                      height: 360.w,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8.w),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
-                            blurRadius: 12,
-                            offset: const Offset(0, 2),
+                    // 二维码图片，包裹长按手势
+                    GestureDetector(
+                      onLongPress: () async {
+                        try {
+                          // 从本地 assets 读取图片字节
+                          final ByteData data =
+                              await rootBundle.load('assets/icons/wexin.png');
+                          final Uint8List bytes = data.buffer.asUint8List();
+
+                          // 保存到相册
+                          final result =
+                              await ImageGallerySaver.saveImage(bytes);
+                          if (result['isSuccess']) {
+                            ViewUtils.displayToast('保存成功');
+                          } else {
+                            ViewUtils.displayToast('保存失败');
+                          }
+                        } catch (e) {
+                          ViewUtils.displayToast('保存出错');
+                        }
+                      },
+                      child: Container(
+                        width: 260.w,
+                        height: 360.w,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8.w),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.1),
+                              blurRadius: 12,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                          image: const DecorationImage(
+                            image: AssetImage('assets/icons/wexin.png'),
+                            fit: BoxFit.cover,
                           ),
-                        ],
-                        image: const DecorationImage(
-                          image: AssetImage('assets/icons/wexin.png'),
-                          fit: BoxFit.cover,
                         ),
                       ),
                     ),
