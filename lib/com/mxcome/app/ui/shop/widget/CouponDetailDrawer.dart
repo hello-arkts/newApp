@@ -128,56 +128,62 @@ class _CouponDetailDrawerState extends State<CouponDetailDrawer> {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (BuildContext context) {
-        return StatefulBuilder(
-          builder: (context, setModalState) {
-            final store = _shopList[_selectedStoreIndex];
-            final String address = BaseModel.getString(store, 'address');
+        return DraggableScrollableSheet(
+          initialChildSize: 0.5,
+          minChildSize: 0.3,
+          maxChildSize: 0.9,
+          builder: (_, controller) {
+            return Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(16.w)),
+              ),
+              padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 32.w),
+              child: StatefulBuilder(
+                builder: (context, setModalState) {
+                  final store = _shopList[_selectedStoreIndex];
+                  final String address = BaseModel.getString(store, 'address');
 
-            return SafeArea(
-              top: false,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius:
-                      BorderRadius.vertical(top: Radius.circular(16.w)),
-                ),
-                padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 32.w),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Center(
-                      child: GestureDetector(
-                        behavior: HitTestBehavior.opaque,
-                        onTap: () => Navigator.pop(context),
-                        child: Container(
-                          width: double.infinity,
-                          alignment: Alignment.center,
-                          child: const CouponDrawerHandle(),
+                  return SingleChildScrollView(
+                    controller: controller,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Center(
+                          child: GestureDetector(
+                            behavior: HitTestBehavior.opaque,
+                            onTap: () => Navigator.pop(context),
+                            child: Container(
+                              width: double.infinity,
+                              alignment: Alignment.center,
+                              child: const CouponDrawerHandle(),
+                            ),
+                          ),
                         ),
-                      ),
+                        SizedBox(height: 6.w),
+                        CouponStorePickerActionSection(
+                          addressText: address,
+                          shopList: _shopList,
+                          selectedIndex: _selectedStoreIndex,
+                          onSelectIndex: (int index) {
+                            // 更新弹窗内部状态
+                            setModalState(() {
+                              _selectedStoreIndex = index;
+                            });
+                            // 同时更新外部父组件的状态
+                            setState(() {
+                              _selectedStoreIndex = index;
+                            });
+                          },
+                          onNoDataTap: () {
+                            ViewUtils.displayToast(LanguageConfig.get(
+                                LanguageConfigKeys.ViewUtils_no_data));
+                          },
+                        ),
+                      ],
                     ),
-                    SizedBox(height: 6.w),
-                    CouponStorePickerActionSection(
-                      addressText: address,
-                      shopList: _shopList,
-                      selectedIndex: _selectedStoreIndex,
-                      onSelectIndex: (int index) {
-                        // 更新弹窗内部状态
-                        setModalState(() {
-                          _selectedStoreIndex = index;
-                        });
-                        // 同时更新外部父组件的状态
-                        setState(() {
-                          _selectedStoreIndex = index;
-                        });
-                      },
-                      onNoDataTap: () {
-                        ViewUtils.displayToast(LanguageConfig.get(
-                            LanguageConfigKeys.ViewUtils_no_data));
-                      },
-                    ),
-                  ],
-                ),
+                  );
+                },
               ),
             );
           },
