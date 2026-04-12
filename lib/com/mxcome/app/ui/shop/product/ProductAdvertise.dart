@@ -11,6 +11,7 @@ import 'package:mxcome/com/mxcome/app/ui/shop/widget/LoadImageView.dart';
 import 'package:mxcome/com/mxcome/app/utils/HttpUtils.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
+import 'package:mxcome/com/mxcome/app/ui/shop/product/JumpPage.dart';
 import '../../../BaseKeepAliveState.dart';
 import '../../../IConstant.dart';
 import '../../../config/LanguageConfig.dart';
@@ -205,9 +206,21 @@ class ProductAdvertiseState extends BaseKeepAliveState<ProductAdvertise> {
           itemCount: menus.length,
           itemBuilder: (context, index) {
             return InkWell(
-              onTap: () {
-                // 点击跳转逻辑，这里暂时保留原来的逻辑结构
-                if (index == 3) {
+              onTap: () async {
+                // 点击跳转逻辑
+                if (index == 0) {
+                  // 入境申请 (快速通关) -> 跳往自定义的中转页
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const JumpPage(
+                        note: 'https://tdac.immigration.go.th/',
+                        applyUrl: 'https://tdac.immigration.go.th/',
+                        selfApplyStatus: true,
+                      ),
+                    ),
+                  );
+                } else if (index == 3) {
                   nextPage(CategoryPage(getId(index)), false);
                 } else if (index == 5) {
                   nextPage(ConsumptionRebatePage(), false);
