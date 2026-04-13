@@ -262,22 +262,17 @@ class ProductDetailPageState extends BaseKeepAliveState<ProductDetailPage>
 
     // 解析店铺相关数据，根据真实 JSON 结构，店铺信息在 "brand" 对象里，外层可能还有 "shopName", "shopIcon"
     final dynamic brandData =
-        _product != null ? BaseModel.getDynamic(_product, 'brand') ?? {} : {};
+        _product != null ? BaseModel.getDynamic(_product, 'shop') ?? {} : {};
+
+    print('xixi>>>$brandData');
 
     // 如果 brand 里没有，尝试从外层直接拿
-    final String shopLogo = BaseModel.getString(brandData, 'logo').isNotEmpty
-        ? BaseModel.getString(brandData, 'logo')
-        : BaseModel.getString(_product ?? {}, 'shopIcon');
+    final String shopLogo = BaseModel.getString(brandData, 'logo');
 
-    final String shopName = BaseModel.getString(brandData, 'name').isNotEmpty
-        ? BaseModel.getString(brandData, 'name')
-        : BaseModel.getString(_product ?? {}, 'shopName');
+    final String shopName = BaseModel.getString(brandData, 'name');
 
     // 从详情里的属性拿地址（或者使用 useAddress/productAddress）
-    final String shopAddress =
-        BaseModel.getString(_product ?? {}, 'productAddress').isNotEmpty
-            ? BaseModel.getString(_product ?? {}, 'productAddress')
-            : BaseModel.getString(_product ?? {}, 'useAddress');
+    final String shopAddress = BaseModel.getString(brandData, 'address');
 
     final String shopPhone = BaseModel.getString(brandData, 'phone');
 
