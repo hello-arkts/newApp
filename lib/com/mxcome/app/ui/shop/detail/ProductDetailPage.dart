@@ -264,8 +264,6 @@ class ProductDetailPageState extends BaseKeepAliveState<ProductDetailPage>
     final dynamic brandData =
         _product != null ? BaseModel.getDynamic(_product, 'shop') ?? {} : {};
 
-    print('xixi>>>$brandData');
-
     // 如果 brand 里没有，尝试从外层直接拿
     final String shopLogo = BaseModel.getString(brandData, 'logo');
 
@@ -383,6 +381,9 @@ class ProductDetailPageState extends BaseKeepAliveState<ProductDetailPage>
                     couponList: const [],
                     activeCouponIdListenable: ValueNotifier(''),
                     onSelectCouponId: (_) {},
+                    shopList: shopList,
+                    selectedStoreIndex: 0,
+                    onStoreSelected: (index) {},
                   ),
                 ),
               Expanded(

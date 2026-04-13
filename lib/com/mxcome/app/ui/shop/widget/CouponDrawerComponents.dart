@@ -160,6 +160,9 @@ class CouponShopTabHeaderSection extends StatelessWidget {
   final List<dynamic> couponList;
   final ValueListenable<String> activeCouponIdListenable;
   final ValueChanged<String> onSelectCouponId;
+  final List<dynamic> shopList;
+  final int selectedStoreIndex;
+  final ValueChanged<int> onStoreSelected;
 
   const CouponShopTabHeaderSection({
     super.key,
@@ -172,6 +175,9 @@ class CouponShopTabHeaderSection extends StatelessWidget {
     required this.couponList,
     required this.activeCouponIdListenable,
     required this.onSelectCouponId,
+    required this.shopList,
+    required this.selectedStoreIndex,
+    required this.onStoreSelected,
   });
 
   @override
@@ -279,7 +285,7 @@ class CouponShopTabHeaderSection extends StatelessWidget {
               ),
             ),
             InkWell(
-              onTap: onNavigateTap,
+              onTap: () => _showStorePicker(context),
               borderRadius: BorderRadius.circular(18.w),
               child: SizedBox(
                 width: 36.w,
@@ -311,6 +317,78 @@ class CouponShopTabHeaderSection extends StatelessWidget {
           ),
         ]
       ],
+    );
+  }
+
+  void _showStorePicker(BuildContext context) async {
+    if (shopList.isEmpty) return;
+
+    await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext context) {
+        return DraggableScrollableSheet(
+          initialChildSize: 0.5,
+          minChildSize: 0.3,
+          maxChildSize: 0.9,
+          builder: (_, controller) {
+            return Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius:
+                    BorderRadius.vertical(top: Radius.circular(16.w)),
+              ),
+              padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 32.w),
+              child: StatefulBuilder(
+                builder: (context, setModalState) {
+                  final store = shopList.isNotEmpty &&
+                          selectedStoreIndex >= 0 &&
+                          selectedStoreIndex < shopList.length
+                      ? shopList[selectedStoreIndex]
+                      : {};
+                  final String addressText =
+                      BaseModel.getString(store, 'address');
+
+                  return SingleChildScrollView(
+                    controller: controller,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Center(
+                          child: GestureDetector(
+                            behavior: HitTestBehavior.opaque,
+                            onTap: () => Navigator.pop(context),
+                            child: Container(
+                              width: double.infinity,
+                              alignment: Alignment.center,
+                              child: const CouponDrawerHandle(),
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 6.w),
+                        CouponStorePickerActionSection(
+                          addressText: addressText,
+                          shopList: shopList,
+                          selectedIndex: selectedStoreIndex,
+                          onSelectIndex: (int index) {
+                            setModalState(() {
+                              onStoreSelected(index);
+                            });
+                          },
+                          onNoDataTap: () {
+                            Navigator.pop(context);
+                          },
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            );
+          },
+        );
+      },
     );
   }
 }

@@ -293,6 +293,7 @@ class _CouponDetailDrawerState extends State<CouponDetailDrawer> {
         ? _shopList[_selectedStoreIndex]
         : {};
     final String address = BaseModel.getString(store, 'address');
+    print('xixi:$address');
     final String phone = BaseModel.getString(store, 'phone').isNotEmpty
         ? BaseModel.getString(store, 'phone')
         : BaseModel.getString(store, 'tel');
@@ -326,6 +327,13 @@ class _CouponDetailDrawerState extends State<CouponDetailDrawer> {
               if (id == _activeCouponId.value) return;
               _activeCouponId.value = id;
               _loadDetail(id, showLoading: false);
+            },
+            shopList: _shopList,
+            selectedStoreIndex: _selectedStoreIndex,
+            onStoreSelected: (index) {
+              setState(() {
+                _selectedStoreIndex = index;
+              });
             },
           ),
         ),

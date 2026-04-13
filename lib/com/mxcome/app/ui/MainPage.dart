@@ -50,6 +50,7 @@ import 'shop/event/ScrollEvent.dart';
 import 'shop/widget/GovRecommendBar.dart';
 
 class MainPage extends StatefulWidget {
+
   MainPage();
 
   @override
@@ -60,8 +61,7 @@ class MainPageState extends BaseKeepAliveState<MainPage> {
   PageController pageController = PageController();
   late List<Widget> pages;
   int pageIdx = 0;
-  GlobalKey<PartRefreshWidgetState> keyMenus =
-      GlobalKey<PartRefreshWidgetState>();
+  GlobalKey<PartRefreshWidgetState> keyMenus = GlobalKey<PartRefreshWidgetState>();
   late AppLinks _appLinks;
   StreamSubscription<Uri>? _linkSubscription;
   dynamic loginSuccessEvent;
@@ -77,20 +77,19 @@ class MainPageState extends BaseKeepAliveState<MainPage> {
   dynamic launchUrlEvent;
   dynamic payloadEvent;
   dynamic balanceEvent;
-  dynamic scrollEvent;
   ReadCount pocketCount = ReadCount(IConstant.pocket_count, 0, 0);
   ReadCount activityCount = ReadCount(IConstant.activity_count, 0, 0);
-
-  // 广告栏显示/隐藏控制
+  
+  // 占位框动画控制
   bool isBottomBarVisible = true;
+  double lastScrollPosition = 0;
 
   @override
   void initState() {
     super.initState();
     pages = [ShopPage(), TabPocketPage(), GrowPage()];
     checkDeepLink();
-    loginSuccessEvent =
-        EventBusUtil.getInstance().on<LoginSuccessEvent>((event) async {
+    loginSuccessEvent = EventBusUtil.getInstance().on<LoginSuccessEvent>((event) async {
       await Future.delayed(const Duration(milliseconds: 200));
       await AppUtils.setToken(event.token);
       loadUserInfo();
@@ -103,7 +102,7 @@ class MainPageState extends BaseKeepAliveState<MainPage> {
     userInfoEvent = EventBusUtil.getInstance().on<UserInfoEvent>((event) {
       if (event.userInfoStatus == UserInfoStatus.query) {
         loadUserInfo();
-      } else if (event.userInfoStatus == UserInfoStatus.complete) {
+      } else if (event.userInfoStatus == UserInfoStatus.complete){
         clearReadCount();
       }
     });
@@ -134,11 +133,9 @@ class MainPageState extends BaseKeepAliveState<MainPage> {
     });
     qrcodeEvent = EventBusUtil.getInstance().on<QRCodeEvent>((event) {
       if (TextUtils.isNotEmpty(event.content)) {
-        if (event.content.startsWith(PageConstant.APP_BASE_URI) ||
-            event.content.startsWith(PageConstant.WEB_BASE_URI)) {
+        if (event.content.startsWith(PageConstant.APP_BASE_URI) || event.content.startsWith(PageConstant.WEB_BASE_URI)) {
           parserDeepLink(Uri.parse(event.content));
-        } else {
-          //其他内容
+        } else { //其他内容
         }
       }
     });
@@ -150,8 +147,7 @@ class MainPageState extends BaseKeepAliveState<MainPage> {
     mainTabEvent = EventBusUtil.getInstance().on<MainTabEvent>((event) async {
       if (event.pageType == PageType.main) {
         pageIdx = 0;
-      } else if (event.pageType == PageType.pocket ||
-          event.pageType == PageType.pocketActivity) {
+      } else if (event.pageType == PageType.pocket || event.pageType == PageType.pocketActivity) {
         pageIdx = 1;
       } else if (event.pageType == PageType.grow) {
         pageIdx = 2;
@@ -164,41 +160,36 @@ class MainPageState extends BaseKeepAliveState<MainPage> {
         });
       }
     });
-    launchUrlEvent =
-        EventBusUtil.getInstance().on<LaunchUrlEvent>((event) async {
+    launchUrlEvent = EventBusUtil.getInstance().on<LaunchUrlEvent>((event) async {
       String path = event.url;
-      if (path.indexOf("payResult") > 0) {
-        //支付成功页
+      if (path.indexOf("payResult") > 0) { //支付成功页
         path = path.substring(path.indexOf("payResult"), path.length);
         backHome();
         nextPage(PaySuccessPage(), false);
-      } else if (TextUtils.isNotEmpty(path)) {
-        //银行卡支付，跳转银行APP
+      } else if (TextUtils.isNotEmpty(path)) { //银行卡支付，跳转银行APP
         Uri uri = Uri.parse(path);
         try {
-          if (!await launchUrl(uri)) {
-            //ios返回false
+          if (!await launchUrl(uri)) { //ios返回false
             if (event.launchType == LaunchType.scbPay) {
               nextPage(SCBDownloadPage(), false);
             } else {
               ViewUtils.displayToast("launch url error: $path");
             }
           }
-        } catch (e) {
-          //安卓报错
+        } catch(e) { //安卓报错
           nextPage(SCBDownloadPage(), false);
         }
       } else {
         backHome();
       }
     });
-    payloadEvent =
-        EventBusUtil.getInstance().on<PayloadEvent>((event) async {});
+    payloadEvent = EventBusUtil.getInstance().on<PayloadEvent>((event) async {
+    });
     balanceEvent = EventBusUtil.getInstance().on<BalanceEvent>((event) async {
       // checkBalanceStatus();
     });
     // 监听滚动事件，控制占位框显示/隐藏
-    scrollEvent = EventBusUtil.getInstance().on<ScrollEvent>((event) {
+    EventBusUtil.getInstance().on<ScrollEvent>((event) {
       handleScroll(event.scrollDirection);
     });
     loadUserInfo();
@@ -238,15 +229,14 @@ class MainPageState extends BaseKeepAliveState<MainPage> {
 
   Future<void> loadCount() async {
     ReadCount pocketCnt = await AppUtils.getReadCount(IConstant.pocket_count);
-    ReadCount activityCnt =
-        await AppUtils.getReadCount(IConstant.activity_count);
+    ReadCount activityCnt = await AppUtils.getReadCount(IConstant.activity_count);
     setState(() {
       pocketCount = pocketCnt;
       activityCount = activityCnt;
     });
   }
 
-  void checkBalanceStatus() async {
+  void checkBalanceStatus() async{
     // BaseRsp rsp = await HttpUtils.post(IURLConstant.MALL_SSO_GET_BALANCE_WINDOW, {});
     // if (rsp.retCode == RspRetCode.SUCCESS) {
     //   int isWindow = BaseModel.getInt(rsp.data, "isWindow");
@@ -273,7 +263,6 @@ class MainPageState extends BaseKeepAliveState<MainPage> {
     EventBusUtil.getInstance().off(launchUrlEvent);
     EventBusUtil.getInstance().off(payloadEvent);
     EventBusUtil.getInstance().off(balanceEvent);
-    EventBusUtil.getInstance().off(scrollEvent);
     _linkSubscription?.cancel();
     super.dispose();
   }
@@ -334,9 +323,7 @@ class MainPageState extends BaseKeepAliveState<MainPage> {
         } else {
           int paramsIndex = fragment.indexOf(PageConstant.URI_PARAMS_KEY);
           path = fragment.substring(1, paramsIndex - 1);
-          String value = fragment.substring(
-              paramsIndex + PageConstant.URI_PARAMS_KEY.length + 1,
-              fragment.length);
+          String value = fragment.substring(paramsIndex + PageConstant.URI_PARAMS_KEY.length + 1, fragment.length);
           value = HttpUtils.decode(Uri.decodeComponent(value));
           if (TextUtils.isNotEmpty(value)) {
             params = jsonDecode(value);
@@ -345,8 +332,7 @@ class MainPageState extends BaseKeepAliveState<MainPage> {
         }
       }
       // int open_type = BaseModel.getInt(params, PageConstant.OPEN_TYPE);
-      switch (path) {
-        //此处针对不同路由以及对应的参数进行界面处理
+      switch (path) { //此处针对不同路由以及对应的参数进行界面处理
         case "activity":
           String activityId = BaseModel.getString(params, "activityId");
           activityIsLogin(activityId);
@@ -364,19 +350,19 @@ class MainPageState extends BaseKeepAliveState<MainPage> {
     if (await AppUtils.isLogined()) {
       nextPage(RandomLotteryPage(), false);
     } else {
-      toLogin((ctx) => {
-            setState(() {
-              finishContext(ctx);
-              nextPage(RandomLotteryPage(), false);
-            })
-          });
+      toLogin((ctx) =>
+      {
+        setState(() {
+          finishContext(ctx);
+          nextPage(RandomLotteryPage(), false);
+        })
+      });
     }
   }
 
   bool checkPay(Uri uri) {
     String path = uri.path;
-    if (path.indexOf("payResult") > 0) {
-      //余额支付
+    if (path.indexOf("payResult") > 0) { //余额支付
       path = path.substring(path.indexOf("payResult"), path.length);
       backHome();
       nextPage(PaySuccessPage(), false);
@@ -399,23 +385,18 @@ class MainPageState extends BaseKeepAliveState<MainPage> {
       bottomNavigationBar: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
-        height: isBottomBarVisible ? 59.w : 0,
-        clipBehavior: Clip.hardEdge,
-        decoration: BoxDecoration(
-          color: const Color(0xFFF5F5F5),
-          boxShadow: isBottomBarVisible
-              ? [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-                    blurRadius: 10,
-                    offset: const Offset(0, -2), // 负数的 y 值让阴影向上方发散
-                  )
-                ]
-              : null,
+        height: isBottomBarVisible ? 59.h : 0,
+        // 去掉 clipBehavior，改用 overflow 包裹解决溢出
+        decoration: const BoxDecoration(
+          color: Color(0xFFF5F5F5),
         ),
-        child: const Wrap(
-          children: [GovRecommendBar()],
-        ),
+        child: isBottomBarVisible
+            ? OverflowBox(
+          maxHeight: double.infinity, // 允许子组件超出容器，不报溢出错误
+          alignment: Alignment.topCenter,
+          child: const GovRecommendBar(),
+        )
+            : null,
       ),
       // bottomNavigationBar: PartRefreshWidget(
       //     keyMenus,
@@ -478,10 +459,8 @@ class MainPageState extends BaseKeepAliveState<MainPage> {
     return badges.Badge(
       showBadge: pocketCount.getNumber() > 0,
       position: badges.BadgePosition.topEnd(top: -8, end: -10),
-      badgeContent:
-          Text("", style: TextStyle(fontSize: 10.sp, color: Colors.white)),
-      child:
-          Image.asset("assets/icons/$iconName.png", width: 26.w, height: 26.w),
+      badgeContent: Text("", style: TextStyle(fontSize: 10.sp, color: Colors.white)),
+      child: Image.asset("assets/icons/$iconName.png", width: 26.w, height: 26.w),
     );
   }
 
@@ -489,10 +468,8 @@ class MainPageState extends BaseKeepAliveState<MainPage> {
     return badges.Badge(
       showBadge: activityCount.getNumber() > 0,
       position: badges.BadgePosition.topEnd(top: -8, end: -10),
-      badgeContent:
-          Text("", style: TextStyle(fontSize: 10.sp, color: Colors.white)),
-      child:
-          Image.asset("assets/icons/$iconName.png", width: 26.w, height: 26.w),
+      badgeContent: Text("", style: TextStyle(fontSize: 10.sp, color: Colors.white)),
+      child: Image.asset("assets/icons/$iconName.png", width: 26.w, height: 26.w),
     );
   }
 
@@ -502,16 +479,14 @@ class MainPageState extends BaseKeepAliveState<MainPage> {
       BaseRsp rsp = await HttpUtils.post(IURLConstant.MALL_SSO_INFO, {});
       if (rsp.retCode == RspRetCode.SUCCESS) {
         await AppUtils.setUserInfo(rsp.data);
-        EventBusUtil.getInstance()
-            .emit(UserInfoEvent(userInfoStatus: UserInfoStatus.complete));
+        EventBusUtil.getInstance().emit(UserInfoEvent(userInfoStatus: UserInfoStatus.complete));
         await AppUtils.addOrUpdateLoggedInfo(rsp.data);
       }
     }
   }
 
   void getSystemSettingsInfo() async {
-    BaseRsp rsp =
-        await HttpUtils.post(IURLConstant.MALL_GET_SYSTEM_SETTINGS, {});
+    BaseRsp rsp = await HttpUtils.post(IURLConstant.MALL_GET_SYSTEM_SETTINGS, {});
     if (rsp.retCode == RspRetCode.SUCCESS) {
       await AppUtils.setSystemSettingsInfo(rsp.data);
     }
@@ -535,12 +510,9 @@ class MainPageState extends BaseKeepAliveState<MainPage> {
       if (rsp.retCode == RspRetCode.SUCCESS) {
         await AppUtils.setPocketData(rsp.data);
         await AppUtils.setUserInfo(res.data);
-        EventBusUtil.getInstance()
-            .emit(PocketEvent(pocketType: PocketType.complete));
-        List<dynamic> activityMemberList =
-            BaseModel.getDynamic(rsp.data, "activityMemberList");
-        List<dynamic> pocketMemberList =
-            BaseModel.getDynamic(rsp.data, "pocketMemberList");
+        EventBusUtil.getInstance().emit(PocketEvent(pocketType: PocketType.complete));
+        List<dynamic> activityMemberList = BaseModel.getDynamic(rsp.data, "activityMemberList");
+        List<dynamic> pocketMemberList = BaseModel.getDynamic(rsp.data, "pocketMemberList");
         int activityCount = 0; //进行中活动数
         for (var item in activityMemberList) {
           String endTime = BaseModel.getString(item, "endTime");
@@ -579,8 +551,7 @@ class MainPageState extends BaseKeepAliveState<MainPage> {
   loadOrderNum() async {
     bool isLogin = await AppUtils.isLogined();
     if (isLogin) {
-      BaseRsp rsp =
-          await HttpUtils.post(IURLConstant.MALL_GET_ORDER_STATUS_NUM, {});
+      BaseRsp rsp = await HttpUtils.post(IURLConstant.MALL_GET_ORDER_STATUS_NUM, {});
       if (rsp.retCode == RspRetCode.SUCCESS) {
         ReadCount orderCount0 = ReadCount(IConstant.order_count_0, 0, 1);
         ReadCount orderCount1 = ReadCount(IConstant.order_count_1, 0, 1);
@@ -598,8 +569,7 @@ class MainPageState extends BaseKeepAliveState<MainPage> {
         await AppUtils.setReadCount(IConstant.order_count_1, orderCount1);
         await AppUtils.setReadCount(IConstant.order_count_2, orderCount2);
         await AppUtils.setReadCount(IConstant.order_count_3, orderCount3);
-        EventBusUtil.getInstance()
-            .emit(OrderEvent(orderType: OrderType.complete));
+        EventBusUtil.getInstance().emit(OrderEvent(orderType: OrderType.complete));
       }
     }
   }
@@ -612,26 +582,24 @@ class MainPageState extends BaseKeepAliveState<MainPage> {
         "pageSize": "1000",
       });
       if (rsp.retCode == RspRetCode.SUCCESS) {
-        List<dynamic> dataList = BaseModel.isNotEmpty(rsp.data, "list")
-            ? BaseModel.getDynamic(rsp.data, "list")
-            : [];
+        List<dynamic> dataList = BaseModel.isNotEmpty(rsp.data, "list") ? BaseModel.getDynamic(rsp.data, "list") : [];
         await AppUtils.setCollectData(dataList);
-        EventBusUtil.getInstance()
-            .emit(CollectEvent(collectType: CollectType.complete));
+        EventBusUtil.getInstance().emit(CollectEvent(collectType: CollectType.complete));
       }
     }
   }
 
   loadActivity() async {
-    BaseRsp rsp = await HttpUtils.post(IURLConstant.MALL_ACTIVITY_LIST,
-        {"isReceive": "0", "pageNum": "$page", "pageSize": "10"});
+    BaseRsp rsp = await HttpUtils.post(IURLConstant.MALL_ACTIVITY_LIST, {
+      "isReceive": "0",
+      "pageNum": "$page",
+      "pageSize": "10"
+
+    });
     if (rsp.retCode == RspRetCode.SUCCESS) {
-      List<dynamic> dataList = BaseModel.isNotEmpty(rsp.data, "list")
-          ? BaseModel.getDynamic(rsp.data, "list")
-          : [];
+      List<dynamic> dataList = BaseModel.isNotEmpty(rsp.data, "list") ? BaseModel.getDynamic(rsp.data, "list") : [];
       await AppUtils.setActivityData(dataList);
-      EventBusUtil.getInstance()
-          .emit(ActivityEvent(activityType: ActivityType.complete));
+      EventBusUtil.getInstance().emit(ActivityEvent(activityType: ActivityType.complete));
       ReadCount tmpCount = activityCount;
       tmpCount.value = dataList.length;
       await AppUtils.setReadCount(IConstant.activity_count, tmpCount);
@@ -649,19 +617,18 @@ class MainPageState extends BaseKeepAliveState<MainPage> {
       }
     }
     if (activity == null) {
-      ViewUtils.displayToast(
-          LanguageConfig.get(LanguageConfigKeys.Shop_activity_not_exist));
+      ViewUtils.displayToast(LanguageConfig.get(LanguageConfigKeys.Shop_activity_not_exist));
       return;
     }
     if (await AppUtils.isLogined()) {
       activityStart(activity, false);
     } else {
       toLogin((ctx) => {
-            setState(() {
-              finishContext(ctx);
-              activityStart(activity, false);
-            })
-          });
+        setState(() {
+          finishContext(ctx);
+          activityStart(activity, false);
+        })
+      });
     }
   }
 
@@ -671,21 +638,18 @@ class MainPageState extends BaseKeepAliveState<MainPage> {
       String version = BaseModel.getString(rsp.data, "version");
       String localVersion = await Util.getVersion();
       if (version != localVersion) {
-        await AppUtils.setReadCount(
-            IConstant.version_count, ReadCount(IConstant.version_count, 0, 1));
+        await AppUtils.setReadCount(IConstant.version_count, ReadCount(IConstant.version_count, 0, 1));
         String updateTime = BaseModel.getString(rsp.data, "updateTime");
         String versionInfo = BaseModel.getString(rsp.data, "versionInfo");
         showUpdateDialog(updateTime, versionInfo);
       } else {
-        await AppUtils.setReadCount(
-            IConstant.version_count, ReadCount(IConstant.version_count, 0, 0));
+        await AppUtils.setReadCount(IConstant.version_count, ReadCount(IConstant.version_count, 0, 0));
       }
     }
   }
 
   void showUpdateDialog(String updateTime, String versionInfo) {
-    showPop(
-        0.6 * Adapt.getWindowHeight(), VersionPage(updateTime, versionInfo));
+    showPop(0.6 * Adapt.getWindowHeight(), VersionPage(updateTime, versionInfo));
   }
 
   // Future<void> handleRedInfo() async {
@@ -717,7 +681,7 @@ class MainPageState extends BaseKeepAliveState<MainPage> {
   //   }
   // }
 
-  finishRedWindow() async {
+  finishRedWindow() async{
     await HttpUtils.post(IURLConstant.MALL_FINISH_RED_WINDOW, {});
   }
 
@@ -735,4 +699,5 @@ class MainPageState extends BaseKeepAliveState<MainPage> {
       });
     }
   }
+
 }
