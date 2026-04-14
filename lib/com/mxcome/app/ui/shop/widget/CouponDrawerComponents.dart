@@ -163,6 +163,7 @@ class CouponShopTabHeaderSection extends StatelessWidget {
   final List<dynamic> shopList;
   final int selectedStoreIndex;
   final ValueChanged<int> onStoreSelected;
+  final ValueChanged<int>? onPhoneSelected;
 
   const CouponShopTabHeaderSection({
     super.key,
@@ -178,6 +179,7 @@ class CouponShopTabHeaderSection extends StatelessWidget {
     required this.shopList,
     required this.selectedStoreIndex,
     required this.onStoreSelected,
+    this.onPhoneSelected,
   });
 
   @override
@@ -261,15 +263,7 @@ class CouponShopTabHeaderSection extends StatelessWidget {
             ),
             SizedBox(width: 8.w),
             InkWell(
-              onTap: phone.isEmpty
-                  ? null
-                  : () async {
-                      final uri = Uri.parse('tel:$phone');
-                      if (await canLaunchUrl(uri)) {
-                        await launchUrl(uri,
-                            mode: LaunchMode.externalApplication);
-                      }
-                    },
+              onTap: () => _showPhoneSelectorDrawer(context),
               borderRadius: BorderRadius.circular(18.w),
               child: SizedBox(
                 width: 36.w,
@@ -388,7 +382,228 @@ class CouponShopTabHeaderSection extends StatelessWidget {
             );
           },
         );
+      }
+    );
+  }
+
+  void _showPhoneSelectorDrawer(BuildContext context) async {
+    if (shopList.isEmpty) return;
+
+    await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext context) {
+        return DraggableScrollableSheet(
+          initialChildSize: 0.5,
+          minChildSize: 0.3,
+          maxChildSize: 0.9,
+          builder: (_, controller) {
+            return Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius:
+                    BorderRadius.vertical(top: Radius.circular(16.w)),
+              ),
+              padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 32.w),
+              child: StatefulBuilder(
+                builder: (context, setModalState) {
+                  final store = shopList.isNotEmpty &&
+                          selectedStoreIndex >= 0 &&
+                          selectedStoreIndex < shopList.length
+                      ? shopList[selectedStoreIndex]
+                      : {};
+                  final String phoneText = BaseModel.getString(store, 'phone').isNotEmpty
+                      ? BaseModel.getString(store, 'phone')
+                      : BaseModel.getString(store, 'tel');
+
+                  return SingleChildScrollView(
+                    controller: controller,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Center(
+                          child: GestureDetector(
+                            behavior: HitTestBehavior.opaque,
+                            onTap: () => Navigator.pop(context),
+                            child: Container(
+                              width: double.infinity,
+                              alignment: Alignment.center,
+                              child: const CouponDrawerHandle(),
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 6.w),
+                        CouponPhoneSelectorActionSection(
+                          phoneText: phoneText,
+                          shopList: shopList,
+                          selectedIndex: selectedStoreIndex,
+                          onSelectIndex: (int index) {
+                            onStoreSelected(index);
+                            setModalState(() {});
+                          },
+                          onNoDataTap: () {
+                            Navigator.pop(context);
+                          },
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            );
+          },
+        );
       },
+    );
+  }
+
+  Future<int?> _showPhoneSelector(BuildContext context) async {
+    if (shopList.isEmpty) return null;
+
+    return await showModalBottomSheet<int>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext context) {
+        return DraggableScrollableSheet(
+          initialChildSize: 0.5,
+          minChildSize: 0.3,
+          maxChildSize: 0.9,
+          builder: (_, controller) {
+            return Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius:
+                    BorderRadius.vertical(top: Radius.circular(16.w)),
+              ),
+              padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 32.w),
+              child: StatefulBuilder(
+                builder: (context, setModalState) {
+                  final store = shopList.isNotEmpty &&
+                          selectedStoreIndex >= 0 &&
+                          selectedStoreIndex < shopList.length
+                      ? shopList[selectedStoreIndex]
+                      : {};
+                  final String phoneText = BaseModel.getString(store, 'phone').isNotEmpty
+                      ? BaseModel.getString(store, 'phone')
+                      : BaseModel.getString(store, 'tel');
+
+                  return SingleChildScrollView(
+                    controller: controller,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Center(
+                          child: GestureDetector(
+                            behavior: HitTestBehavior.opaque,
+                            onTap: () => Navigator.pop(context),
+                            child: Container(
+                              width: double.infinity,
+                              alignment: Alignment.center,
+                              child: const CouponDrawerHandle(),
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 6.w),
+                        CouponPhoneSelectorActionSection(
+                          phoneText: phoneText,
+                          shopList: shopList,
+                          selectedIndex: selectedStoreIndex,
+                          onSelectIndex: (int index) {
+                            Navigator.pop(context, index);
+                          },
+                          onNoDataTap: () {
+                            Navigator.pop(context);
+                          },
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void _callPhone(String phone) async {
+    final uri = Uri.parse('tel:$phone');
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    }
+  }
+
+  Widget _buildPhoneListItem(
+    BuildContext context,
+    String address,
+    String phone,
+    bool isSelected,
+    VoidCallback onTap,
+  ) {
+    return Container(
+      margin: EdgeInsets.only(bottom: 8.w),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12.w),
+        border: Border.all(
+          color: isSelected ? IConstant.main_color : IConstant.line_color,
+          width: isSelected ? 2.w : 1.w,
+        ),
+        color: isSelected ? IConstant.main_color.withOpacity(0.05) : null,
+      ),
+      child: ListTile(
+        onTap: phone.isNotEmpty ? onTap : null,
+        contentPadding:
+            EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.w),
+        leading: Container(
+          width: 36.w,
+          height: 36.w,
+          decoration: BoxDecoration(
+            color: isSelected
+                ? IConstant.main_color
+                : IConstant.main_color.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(8.w),
+          ),
+          child: Icon(
+            Icons.phone,
+            size: 18.w,
+            color: isSelected ? Colors.white : IConstant.main_color,
+          ),
+        ),
+        title: phone.isNotEmpty
+            ? Text(
+                phone,
+                style: TextStyle(
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.w600,
+                  color: isSelected ? IConstant.main_color : IConstant.title_color,
+                ),
+              )
+            : Text(
+                '暂无电话',
+                style: TextStyle(
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.w600,
+                  color: IConstant.grey_color.withOpacity(0.5),
+                ),
+              ),
+        subtitle: Text(
+          address,
+          style: TextStyle(
+            fontSize: 12.sp,
+            color: isSelected ? IConstant.main_color.withOpacity(0.7) : IConstant.grey_color,
+          ),
+        ),
+        trailing: phone.isNotEmpty
+            ? Icon(
+                Icons.chevron_right,
+                size: 20.w,
+                color: IConstant.grey_color,
+              )
+            : null,
+      ),
     );
   }
 }
@@ -882,6 +1097,81 @@ class CouponStoreAddressRow extends StatelessWidget {
   }
 }
 
+/// 电话选择器行
+class CouponPhoneSelectorRow extends StatelessWidget {
+  final String phoneText;
+  final bool expanded;
+  final VoidCallback onToggle;
+
+  const CouponPhoneSelectorRow({
+    super.key,
+    required this.phoneText,
+    required this.expanded,
+    required this.onToggle,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Text(
+          LanguageConfig.get(LanguageConfigKeys.Shop_product_consulting),
+          style: TextStyle(
+            fontSize: 14.sp,
+            fontWeight: FontWeight.w600,
+            color: IConstant.title_color,
+          ),
+        ),
+        SizedBox(width: 12.w),
+        Expanded(
+          child: SizedBox(
+            height: 44.w,
+            child: InkWell(
+              onTap: onToggle,
+              borderRadius: BorderRadius.circular(22.w),
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 10.w),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(22.w),
+                  border:
+                      Border.all(width: 1.w, color: IConstant.grey_line_color),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.phone,
+                        size: 18.w, color: IConstant.title_color),
+                    SizedBox(width: 8.w),
+                    Expanded(
+                      child: Text(
+                        phoneText,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 14.sp,
+                          color: IConstant.title_color,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                    Icon(
+                      expanded
+                          ? Icons.keyboard_arrow_up
+                          : Icons.keyboard_arrow_down,
+                      size: 20.w,
+                      color: IConstant.title_color,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 /// 地图选择器组件
 class CouponMapPickerDrawer extends StatelessWidget {
   final String address;
@@ -1332,6 +1622,214 @@ class CouponPrimaryButton extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// 电话选择器抽屉组件
+class CouponPhoneSelectorActionSection extends StatelessWidget {
+  final String phoneText;
+  final List<dynamic> shopList;
+  final int selectedIndex;
+  final ValueChanged<int> onSelectIndex;
+  final VoidCallback? onNoDataTap;
+
+  const CouponPhoneSelectorActionSection({
+    super.key,
+    required this.phoneText,
+    required this.shopList,
+    required this.selectedIndex,
+    required this.onSelectIndex,
+    this.onNoDataTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        CouponPhoneSelectorRow(
+          phoneText: phoneText.isEmpty ? '请选择' : phoneText,
+          expanded: false,
+          onToggle: () => _showPhoneList(context),
+        ),
+        SizedBox(height: 12.w),
+        CouponPrimaryButton(
+          text: LanguageConfig.get(LanguageConfigKeys.Shop_product_consulting),
+          onPressed: () {
+            if (shopList.isNotEmpty &&
+                selectedIndex >= 0 &&
+                selectedIndex < shopList.length) {
+              final store = shopList[selectedIndex];
+              final String phone = BaseModel.getString(store, 'phone').isNotEmpty
+                  ? BaseModel.getString(store, 'phone')
+                  : BaseModel.getString(store, 'tel');
+              if (phone.isNotEmpty) {
+                _callPhone(phone);
+              }
+            }
+          },
+          icon: Icon(Icons.phone, size: 20.w, color: Colors.white),
+        ),
+      ],
+    );
+  }
+
+  Future<void> _showPhoneList(BuildContext context) async {
+    if (shopList.isEmpty) {
+      onNoDataTap?.call();
+      return;
+    }
+
+    final int? pickedIndex = await showModalBottomSheet<int>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return SafeArea(
+          top: false,
+          child: Container(
+            constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.6),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(16.w)),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 16.w),
+                    child: Column(
+                      children: [
+                        Center(
+                          child: GestureDetector(
+                            behavior: HitTestBehavior.opaque,
+                            onTap: () => Navigator.pop(context),
+                            child: Container(
+                              width: double.infinity,
+                              alignment: Alignment.center,
+                              child: const CouponDrawerHandle(),
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 6.w),
+                        Expanded(
+                          child: CouponPhoneStoreList(
+                            shopList: shopList,
+                            selectedIndex: selectedIndex,
+                            onSelect: (index) {
+                              Navigator.pop(context);
+                              onSelectIndex(index);
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _callPhone(String phone) async {
+    final uri = Uri.parse('tel:$phone');
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    }
+  }
+}
+
+/// 电话店铺列表（用于选择器）
+class CouponPhoneStoreList extends StatelessWidget {
+  final List<dynamic> shopList;
+  final int selectedIndex;
+  final ValueChanged<int> onSelect;
+
+  const CouponPhoneStoreList({
+    super.key,
+    required this.shopList,
+    required this.selectedIndex,
+    required this.onSelect,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 220.w,
+      child: ListView.separated(
+        itemCount: shopList.length,
+        separatorBuilder: (_, __) => SizedBox(height: 8.w),
+        itemBuilder: (context, index) {
+          final store = shopList[index];
+          final bool active = index == selectedIndex;
+          final String storeName = BaseModel.getString(store, 'name');
+          final String address = BaseModel.getString(store, 'address');
+          final String phone = BaseModel.getString(store, 'phone').isNotEmpty
+              ? BaseModel.getString(store, 'phone')
+              : BaseModel.getString(store, 'tel');
+          return Container(
+            padding: EdgeInsets.all(10.w),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12.w),
+              border: Border.all(
+                width: active ? 2.w : 1.w,
+                color: active ? IConstant.main_color : IConstant.line_color,
+              ),
+              color: active ? IConstant.main_color.withOpacity(0.05) : null,
+            ),
+            child: InkWell(
+              onTap: () => onSelect(index),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    storeName,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w600,
+                      color: active ? IConstant.main_color : IConstant.title_color,
+                    ),
+                  ),
+                  SizedBox(height: 4.w),
+                  Row(
+                    children: [
+                      Icon(Icons.location_on, size: 14.w, color: IConstant.grey_color),
+                      SizedBox(width: 4.w),
+                      Expanded(
+                        child: Text(
+                          address,
+                          style: TextStyle(fontSize: 12.sp, color: IConstant.grey_color),
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 2.w),
+                  Row(
+                    children: [
+                      Icon(Icons.phone, size: 14.w, color: IConstant.grey_color),
+                      SizedBox(width: 4.w),
+                      Text(
+                        phone.isNotEmpty ? phone : '暂无电话',
+                        style: TextStyle(
+                          fontSize: 12.sp,
+                          color: phone.isNotEmpty ? IConstant.title_color : IConstant.grey_color.withOpacity(0.5),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
       ),
     );
   }
