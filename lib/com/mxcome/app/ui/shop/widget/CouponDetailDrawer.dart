@@ -1,0 +1,481 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:mxcome/com/mxcome/app/IConstant.dart';
+import 'package:mxcome/com/mxcome/app/IURLConstant.dart';
+import 'package:mxcome/com/mxcome/app/config/LanguageConfig.dart';
+import 'package:mxcome/com/mxcome/app/model/BaseModel.dart';
+import 'package:mxcome/com/mxcome/app/utils/HttpUtils.dart';
+import 'package:mxcome/com/mxcome/app/utils/ViewUtils.dart';
+import 'package:mxcome/com/mxcome/app/ui/shop/widget/CouponDrawerComponents.dart';
+import 'package:mxcome/com/mxcome/app/ui/shop/widget/CouponDrawerTabSwitcher.dart';
+import 'package:mxcome/com/mxcome/app/ui/shop/featured/ShopFeaturedPage.dart';
+
+import 'package:sprintf/sprintf.dart';
+import 'package:mxcome/com/mxcome/app/config/LanguageConfig.dart';
+
+class CouponDetailDrawer extends StatefulWidget {
+  final String initialCouponId;
+  final dynamic initialItem;
+
+  const CouponDetailDrawer({
+    super.key,
+    required this.initialCouponId,
+    required this.initialItem,
+  });
+
+  @override
+  State<CouponDetailDrawer> createState() => _CouponDetailDrawerState();
+}
+
+class _CouponDetailDrawerState extends State<CouponDetailDrawer> {
+  bool _loading = true;
+  dynamic _detail;
+  List<dynamic> _couponList = [];
+  List<dynamic> _shopList = [];
+  late final ValueNotifier<String> _activeCouponId;
+  int _selectedStoreIndex = 0;
+  int _tabIndex = 0;
+  double _bottomDragDy = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _activeCouponId = ValueNotifier(widget.initialCouponId);
+    _loadDetail(_activeCouponId.value);
+  }
+
+  @override
+  void dispose() {
+    _activeCouponId.dispose();
+    super.dispose();
+  }
+
+  Future<void> _loadDetail(String couponId, {bool showLoading = true}) async {
+    if (showLoading) {
+      setState(() {
+        _loading = true;
+      });
+    }
+    try {
+      final rsp = await HttpUtils.post(IURLConstant.MALL_COUPON_DETAIL, {
+        'couponId': couponId,
+      });
+      if (!mounted) return;
+      if (rsp.retCode == 200) {
+        final data = rsp.data;
+        final dynamic couponTypes = BaseModel.getDynamic(data, 'couponTypes');
+        final List<dynamic> couponList =
+            (BaseModel.getDynamicList(data, 'couponList') ?? [])
+                .cast<dynamic>();
+        final List<dynamic> shopList =
+            (BaseModel.getDynamicList(data, 'shopList') ?? []).cast<dynamic>();
+        final List<dynamic> fallbackCouponList =
+            (BaseModel.getDynamicList(couponTypes, 'couponList') ?? [])
+                .cast<dynamic>();
+        final List<dynamic> fallbackShopList =
+            (BaseModel.getDynamicList(couponTypes, 'shopList') ?? [])
+                .cast<dynamic>();
+        _activeCouponId.value = couponId;
+        setState(() {
+          final List<dynamic> resolvedShopList =
+              shopList.isNotEmpty ? shopList : fallbackShopList;
+          _detail = data;
+          _couponList = couponList.isNotEmpty ? couponList : fallbackCouponList;
+          _shopList = resolvedShopList;
+          _selectedStoreIndex = _shopList.isNotEmpty ? 0 : -1;
+          _loading = false;
+        });
+        return;
+      }
+      setState(() {
+        _loading = false;
+      });
+      ViewUtils.displayToast(rsp.msg);
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _loading = false;
+      });
+      ViewUtils.displayToast(
+          LanguageConfig.get(LanguageConfigKeys.ViewUtils_retry));
+    }
+  }
+
+  String _couponAmount(dynamic coupon) {
+    double minPoint = BaseModel.getDouble(coupon, 'minPoint');
+    double amount = BaseModel.getDouble(coupon, 'amount');
+    if (minPoint > 0) {
+      return sprintf(
+          LanguageConfig.get(
+              LanguageConfigKeys.Featured_promotion_discount_full),
+          [minPoint.toInt(), amount.toInt()]);
+    }
+    return sprintf(
+        LanguageConfig.get(LanguageConfigKeys.Featured_promotion_voucher),
+        [amount.toInt()]);
+  }
+
+  Future<void> _openNavigation() async {
+    if (_shopList.isEmpty || _selectedStoreIndex < 0) {
+      ViewUtils.displayToast(
+          LanguageConfig.get(LanguageConfigKeys.ViewUtils_no_data));
+      return;
+    }
+
+    // 弹出一个包含 CouponStorePickerActionSection 的底部抽屉
+    await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext context) {
+        return DraggableScrollableSheet(
+          initialChildSize: 0.5,
+          minChildSize: 0.3,
+          maxChildSize: 0.9,
+          builder: (_, controller) {
+            return Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(16.w)),
+              ),
+              padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 32.w),
+              child: StatefulBuilder(
+                builder: (context, setModalState) {
+                  final store = _shopList[_selectedStoreIndex];
+                  final String address = BaseModel.getString(store, 'address');
+
+                  return SingleChildScrollView(
+                    controller: controller,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Center(
+                          child: GestureDetector(
+                            behavior: HitTestBehavior.opaque,
+                            onTap: () => Navigator.pop(context),
+                            child: Container(
+                              width: double.infinity,
+                              alignment: Alignment.center,
+                              child: const CouponDrawerHandle(),
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 6.w),
+                        CouponStorePickerActionSection(
+                          addressText: address,
+                          shopList: _shopList,
+                          selectedIndex: _selectedStoreIndex,
+                          onSelectIndex: (int index) {
+                            // 更新弹窗内部状态
+                            setModalState(() {
+                              _selectedStoreIndex = index;
+                            });
+                            // 同时更新外部父组件的状态
+                            setState(() {
+                              _selectedStoreIndex = index;
+                            });
+                          },
+                          onNoDataTap: () {
+                            ViewUtils.displayToast(LanguageConfig.get(
+                                LanguageConfigKeys.ViewUtils_no_data));
+                          },
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void _switchToShopTab() {
+    if (_tabIndex != 0) return;
+    if (_bottomDragDy < -40) {
+      setState(() {
+        _tabIndex = 1;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return DraggableScrollableSheet(
+      initialChildSize: 0.94,
+      maxChildSize: 0.94,
+      builder: (context, scrollController) {
+        return Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(12.w)),
+          ),
+          child: Column(
+            children: [
+              GestureDetector(
+                onTap: () => Navigator.pop(context),
+                child: const CouponDrawerHandle(),
+              ),
+              Padding(
+                padding: EdgeInsets.fromLTRB(16.w, 6.w, 16.w, 6.w),
+                child: Align(
+                  alignment: Alignment.center,
+                  child: CouponSegmentedSwitch(
+                    width: 210,
+                    index: _tabIndex,
+                    labels: [
+                      LanguageConfig.get(
+                          LanguageConfigKeys.Shop_mine_use_coupons),
+                      LanguageConfig.get(LanguageConfigKeys.Shop_product_shop),
+                    ],
+                    onChanged: (i) {
+                      if (i == _tabIndex) return;
+                      setState(() {
+                        _tabIndex = i;
+                      });
+                    },
+                  ),
+                ),
+              ),
+              Expanded(
+                child: _loading
+                    ? Center(
+                        child: SizedBox(
+                          width: 22.w,
+                          height: 22.w,
+                          child:
+                              const CircularProgressIndicator(strokeWidth: 2),
+                        ),
+                      )
+                    : CouponDrawerTabSwitcher(
+                        index: _tabIndex,
+                        useCouponBuilder: (_) => Column(
+                          children: [
+                            Expanded(
+                              child: SingleChildScrollView(
+                                padding:
+                                    EdgeInsets.fromLTRB(16.w, 8.w, 16.w, 12.w),
+                                child: _buildContent(),
+                              ),
+                            ),
+                            _buildBottom(),
+                          ],
+                        ),
+                        shopBuilder: (_) => _buildShopTab(),
+                      ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildShopTab() {
+    final dynamic detail = _detail ?? {};
+    final dynamic shop = BaseModel.getDynamic(detail, 'shop') ?? {};
+    final dynamic initShop =
+        BaseModel.getDynamic(widget.initialItem, 'shop') ?? {};
+    final String logo = BaseModel.getString(shop, 'logo').isNotEmpty
+        ? BaseModel.getString(shop, 'logo')
+        : BaseModel.getString(initShop, 'logo');
+    final String name = BaseModel.getString(shop, 'name').isNotEmpty
+        ? BaseModel.getString(shop, 'name')
+        : BaseModel.getString(detail, 'name').isNotEmpty
+            ? BaseModel.getString(detail, 'name')
+            : BaseModel.getString(widget.initialItem, 'name');
+
+    final dynamic store = (_shopList.isNotEmpty &&
+            _selectedStoreIndex >= 0 &&
+            _selectedStoreIndex < _shopList.length)
+        ? _shopList[_selectedStoreIndex]
+        : {};
+    final String address = BaseModel.getString(store, 'address');
+    print('xixi:$address');
+    final String phone = BaseModel.getString(store, 'phone').isNotEmpty
+        ? BaseModel.getString(store, 'phone')
+        : BaseModel.getString(store, 'tel');
+
+    final int shopId = BaseModel.getInt(shop, 'id') != 0
+        ? BaseModel.getInt(shop, 'id')
+        : BaseModel.getInt(initShop, 'id') != 0
+            ? BaseModel.getInt(initShop, 'id')
+            : BaseModel.getInt(detail, 'shopId');
+
+    return Column(
+      children: [
+        Padding(
+          padding: EdgeInsets.fromLTRB(16.w, 8.w, 16.w, 0),
+          child: CouponShopTabHeaderSection(
+            logoUrl: logo,
+            name: name,
+            address: address,
+            phone: phone,
+            shopId: shopId,
+            onNavigateTap: _openNavigation,
+            couponList: _couponList,
+            activeCouponIdListenable: _activeCouponId,
+            onSelectCouponId: (id) {
+              if (id.isEmpty) return;
+              if (_tabIndex != 0) {
+                setState(() {
+                  _tabIndex = 0;
+                });
+              }
+              if (id == _activeCouponId.value) return;
+              _activeCouponId.value = id;
+              _loadDetail(id, showLoading: false);
+            },
+            shopList: _shopList,
+            selectedStoreIndex: _selectedStoreIndex,
+            onStoreSelected: (index) {
+              setState(() {
+                _selectedStoreIndex = index;
+              });
+            },
+          ),
+        ),
+        SizedBox(height: 12.w),
+        Expanded(child: ShopFeaturedModule(shopId: shopId)),
+      ],
+    );
+  }
+
+  Widget _buildContent() {
+    final dynamic detail = _detail ?? {};
+    final dynamic couponTypes =
+        BaseModel.getDynamic(detail, 'couponTypes') ?? {};
+    final dynamic shop = BaseModel.getDynamic(detail, 'shop') ?? {};
+    final dynamic initShop =
+        BaseModel.getDynamic(widget.initialItem, 'shop') ?? {};
+    final String logo = BaseModel.getString(shop, 'logo').isNotEmpty
+        ? BaseModel.getString(shop, 'logo')
+        : BaseModel.getString(initShop, 'logo');
+    final String name = BaseModel.getString(detail, 'name').isNotEmpty
+        ? BaseModel.getString(detail, 'name')
+        : BaseModel.getString(widget.initialItem, 'name');
+    final String qrcode = BaseModel.getString(detail, 'qrcode').isNotEmpty
+        ? BaseModel.getString(detail, 'qrcode')
+        : (BaseModel.getString(couponTypes, 'qrcode').isNotEmpty
+            ? BaseModel.getString(couponTypes, 'qrcode')
+            : BaseModel.getString(couponTypes, 'qrCode'));
+    final String code = BaseModel.getString(detail, 'code').isNotEmpty
+        ? BaseModel.getString(detail, 'code')
+        : BaseModel.getString(couponTypes, 'code');
+    final String selectedAddress =
+        (_shopList.isNotEmpty && _selectedStoreIndex >= 0)
+            ? BaseModel.getString(
+                _shopList[_selectedStoreIndex],
+                'address',
+              )
+            : '';
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        CouponShopHeader(
+          logoUrl: logo,
+          title: name,
+          subtitle: _couponAmount(detail),
+        ),
+        CouponQrSection(
+          qrData: qrcode,
+          code: code,
+          tipText: LanguageConfig.get(
+              LanguageConfigKeys.Coupon_detail_show_code_tip),
+        ),
+        SizedBox(height: 14.w),
+        if (_couponList.isNotEmpty)
+          ValueListenableBuilder<String>(
+            valueListenable: _activeCouponId,
+            builder: (context, activeId, _) {
+              return CouponTypeSelector(
+                couponList: _couponList,
+                activeCouponId: activeId,
+                onSelect: (id) {
+                  if (id.isEmpty) return;
+                  // 切换回“使用优惠券”Tab
+                  if (_tabIndex != 0) {
+                    setState(() {
+                      _tabIndex = 0;
+                    });
+                  }
+                  if (id == _activeCouponId.value) return;
+                  _activeCouponId.value = id;
+                  _loadDetail(id, showLoading: false);
+                },
+              );
+            },
+          ),
+        SizedBox(height: 12.w),
+        CouponStorePickerActionSection(
+          addressText: selectedAddress.isEmpty
+              ? LanguageConfig.get(
+                  LanguageConfigKeys.Coupon_detail_select_address)
+              : selectedAddress,
+          shopList: _shopList,
+          selectedIndex: _selectedStoreIndex,
+          onSelectIndex: (index) {
+            setState(() {
+              _selectedStoreIndex = index;
+            });
+          },
+          onNoDataTap: () {
+            ViewUtils.displayToast(
+                LanguageConfig.get(LanguageConfigKeys.ViewUtils_no_data));
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildBottom() {
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onVerticalDragStart: (_) {
+        _bottomDragDy = 0;
+      },
+      onVerticalDragUpdate: (details) {
+        _bottomDragDy += details.delta.dy;
+      },
+      onVerticalDragEnd: (details) {
+        final double v = details.primaryVelocity ?? 0;
+        if (v < -500) {
+          _bottomDragDy = -999;
+        }
+        _switchToShopTab();
+      },
+      child: SafeArea(
+        top: false,
+        child: Container(
+          width: double.infinity,
+          padding: EdgeInsets.fromLTRB(8.w, 4.w, 8.w, 4.w),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            border: Border(
+              top: BorderSide(width: 1.w, color: IConstant.line_color),
+            ),
+          ),
+          child: Column(
+            children: [
+              Column(
+                children: [
+                  Icon(Icons.keyboard_arrow_up,
+                      size: 24.w, color: IConstant.grey_color),
+                  Text(
+                    LanguageConfig.get(
+                        LanguageConfigKeys.Coupon_detail_swipe_up_shop),
+                    style:
+                        TextStyle(fontSize: 14.sp, color: IConstant.grey_color),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}

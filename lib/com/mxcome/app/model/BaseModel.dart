@@ -2,8 +2,6 @@ import 'dart:convert';
 
 import 'package:mxcome/com/mxcome/app/utils/TextUtils.dart';
 
-
-
 class BaseModel {
   static getInt(dynamic json, String key) {
     try {
@@ -46,7 +44,7 @@ class BaseModel {
 
   static getDynamicList(dynamic json, String key) {
     try {
-      if(isNotEmpty(json, key)){
+      if (isNotEmpty(json, key)) {
         return json[key];
       } else {
         return [];
@@ -110,5 +108,4 @@ class BaseModel {
     }
     return false;
   }
-
 }

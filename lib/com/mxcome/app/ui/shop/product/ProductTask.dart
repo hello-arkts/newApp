@@ -85,8 +85,10 @@ class ProductTaskState extends BaseKeepAliveState<ProductTask> {
   Widget buildBody() {
     return Column(
       children: [
-        buildMXGet(),
-        buildTaskList(),
+        if (profitProductList.isNotEmpty) ...[
+          buildTaskList(),
+          buildMXGet(),
+        ]
       ],
     );
   }

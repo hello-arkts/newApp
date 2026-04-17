@@ -22,18 +22,15 @@ import '../utils/EventBusUtil.dart';
 import '../widget/GenAvatar.dart';
 
 class ProductHeaderBar extends StatefulWidget {
-
   bool innerBoxIsScrolled = false;
 
   ProductHeaderBar(this.innerBoxIsScrolled, {super.key});
 
   @override
   State<ProductHeaderBar> createState() => _ProductHeaderBarState();
-
 }
 
 class _ProductHeaderBarState extends BaseKeepAliveState<ProductHeaderBar> {
-
   bool isLogin = false;
 
   List<dynamic> advertiseList = [];
@@ -114,8 +111,12 @@ class _ProductHeaderBarState extends BaseKeepAliveState<ProductHeaderBar> {
     }
     dynamic data = await AppUtils.getHomeData();
     setState(() {
-      advertiseList = BaseModel.isNotEmpty(data, "advertiseList") ? BaseModel.getDynamic(data, "advertiseList") : [];
-      categoryList = BaseModel.isNotEmpty(data, "productCategoriesList") ? BaseModel.getDynamic(data, "productCategoriesList") : [];
+      advertiseList = BaseModel.isNotEmpty(data, "advertiseList")
+          ? BaseModel.getDynamic(data, "advertiseList")
+          : [];
+      categoryList = BaseModel.isNotEmpty(data, "productCategoriesList")
+          ? BaseModel.getDynamic(data, "productCategoriesList")
+          : [];
       categoryList.insert(0, {'name': 'Web3 wallet'});
       categoryList.insert(2, {'name': 'Monthly benefits'});
     });
@@ -135,7 +136,8 @@ class _ProductHeaderBarState extends BaseKeepAliveState<ProductHeaderBar> {
       expandedHeight: 400.w - statusBarHeight,
       //显示的高度
       flexibleSpace: FlexibleSpaceBar(
-        background: ProductAdvertise(advertiseList: advertiseList, categoryList: categoryList),
+        background: ProductAdvertise(
+            advertiseList: advertiseList, categoryList: categoryList),
       ),
     );
   }
@@ -154,8 +156,9 @@ class _ProductHeaderBarState extends BaseKeepAliveState<ProductHeaderBar> {
             padding: EdgeInsets.fromLTRB(20.w, 7.h, 0, 7.h),
             child: Row(children: [
               Image.asset("assets/icons/search.png",
-                width: 18.w, height: 18.w, color: IConstant.text_color),
-              Expanded(child: Padding(
+                  width: 18.w, height: 18.w, color: IConstant.text_color),
+              Expanded(
+                  child: Padding(
                 padding: EdgeInsets.only(left: 7.w),
                 child: Text(
                   LanguageConfig.get(LanguageConfigKeys.Shop_product_search),
@@ -183,37 +186,107 @@ class _ProductHeaderBarState extends BaseKeepAliveState<ProductHeaderBar> {
   }
 
   List<Widget> buildActions() {
-    if(_innerBoxIsScrolled) {
-      return [
-        InkWell(
-          onTap: () {
-            //showSearch(context: context, delegate: SearchDelegateBar());
-            if(isLogin) {
-              showScanDialog();
-            }else {
-              toLogin((ctx1) => {
-                setState(() {
-                  finishContext(ctx1);
-                })
-              });
-            }
-          },
-          child: Container(
-              margin: EdgeInsets.fromLTRB(5.w, 10.w, 16.w, 10.w),
-              padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.w),
-              decoration: BoxDecoration(
-                  color: Colors.white,
-                  border: Border.all(color: IConstant.white_bg_color, width: 1.w),
-                  borderRadius: BorderRadius.all(Radius.circular(17.w))),
-              child: Image.asset("assets/icons/ic_home_scan.png",
-                  width: 22.w, height: 22.w,)),
-        )
-      ];
-    } else {
-      return [
-        buildCart()
-      ];
-    }
+    return [buildActionCapsule()];
+  }
+
+  Widget buildActionCapsule() {
+    return Center(
+      child: Container(
+        margin: EdgeInsets.only(right: 16.w),
+        padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.w),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20.w),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.06),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            // 分享/链接图标
+            InkWell(
+              onTap: () {
+                // TODO: 添加链接点击逻辑
+              },
+              child: Image.asset(
+                "assets/icons/ic_kol_link1.png",
+                width: 22.w,
+                height: 22.w,
+                color: IConstant.title_color,
+                errorBuilder: (context, error, stackTrace) =>
+                    Icon(Icons.link, size: 22.w, color: IConstant.title_color),
+              ),
+            ),
+            SizedBox(width: 18.w),
+            // 红包图标与红点
+            InkWell(
+              onTap: () {
+                // TODO: 添加红包点击逻辑
+              },
+              child: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  Image.asset(
+                    "assets/icons/red_pocket1.png",
+                    width: 22.w,
+                    height: 22.w,
+                    fit: BoxFit.contain,
+                    errorBuilder: (context, error, stackTrace) => Icon(
+                      Icons.redeem,
+                      size: 22.w,
+                      color: IConstant.main_color,
+                    ),
+                  ),
+                  // Positioned(
+                  //   right: 1.w,
+                  //   top: -4.w,
+                  //   child: Container(
+                  //     width: 8.w,
+                  //     height: 8.w,
+                  //     decoration: const BoxDecoration(
+                  //       color: Color(0xFFFF4D4F),
+                  //       shape: BoxShape.circle,
+                  //     ),
+                  //   ),
+                  // ), // 红包图标与红点（预留）
+                ],
+              ),
+            ),
+            SizedBox(width: 18.w),
+            // 扫码图标
+            InkWell(
+              onTap: () {
+                if (isLogin) {
+                  showScanDialog();
+                } else {
+                  toLogin((ctx1) => {
+                        setState(() {
+                          finishContext(ctx1);
+                        })
+                      });
+                }
+              },
+              child: Image.asset(
+                "assets/icons/ic_home_scan.png",
+                width: 22.w,
+                height: 22.w,
+                color: IConstant.title_color,
+                errorBuilder: (context, error, stackTrace) => Icon(
+                    Icons.qr_code_scanner,
+                    size: 22.w,
+                    color: IConstant.title_color),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Widget buildMessage() {
@@ -231,26 +304,28 @@ class _ProductHeaderBarState extends BaseKeepAliveState<ProductHeaderBar> {
                       color: IConstant.grey_bg_color,
                       child: Center(
                           child: Image.asset("assets/icons/bell.png",
-                              width: 22.w, height: 22.w, color: IConstant.text_color)))))),
+                              width: 22.w,
+                              height: 22.w,
+                              color: IConstant.text_color)))))),
     );
   }
 
   Widget buildCart() {
     return InkWell(
-        onTap: () {
-          goCartIsLogin();
-        },
-        child: Center(
+      onTap: () {
+        goCartIsLogin();
+      },
+      child: Center(
           child: Container(
-            width: 40.w,
-            height: 40.w,
-            margin: EdgeInsets.all(5.w),
-            decoration: BoxDecoration(
-                color: IConstant.grey_bg_color,
-                borderRadius: BorderRadius.all(Radius.circular(40.w))),
-            child: CartBadge(cartNumber: cartNumber),
-          )),
-        );
+        width: 40.w,
+        height: 40.w,
+        margin: EdgeInsets.all(5.w),
+        decoration: BoxDecoration(
+            color: IConstant.grey_bg_color,
+            borderRadius: BorderRadius.all(Radius.circular(40.w))),
+        child: CartBadge(cartNumber: cartNumber),
+      )),
+    );
   }
 
   goCartIsLogin() async {
@@ -259,15 +334,15 @@ class _ProductHeaderBarState extends BaseKeepAliveState<ProductHeaderBar> {
       openCart();
     } else {
       toLogin((ctx) => {
-        setState(() {
-          finishContext(ctx);
-          openCart();
-        })
-      });
+            setState(() {
+              finishContext(ctx);
+              openCart();
+            })
+          });
     }
   }
 
-  void openCart(){
+  void openCart() {
     showPop(0.9 * Adapt.getWindowHeight(), CartPage(fromDetail: true));
   }
 
@@ -283,20 +358,20 @@ class _ProductHeaderBarState extends BaseKeepAliveState<ProductHeaderBar> {
     if (isLogin && TextUtils.isNotEmpty(_avatar)) {
       return ClipOval(
           child: SizedBox(
-          width: double.infinity,
-          height: double.infinity,
-          child: GenAvatar(_avatar!)));
+              width: double.infinity,
+              height: double.infinity,
+              child: GenAvatar(_avatar!)));
     } else {
       return ClipOval(
           child: Container(
               width: double.infinity,
               height: double.infinity,
-              color: _innerBoxIsScrolled ? IConstant.white_bg_color : IConstant.white_translucent_color4,
+              color: _innerBoxIsScrolled
+                  ? IConstant.white_bg_color
+                  : IConstant.white_translucent_color4,
               child: Center(
                   child: Icon(Icons.menu,
-                      size: 25.w,
-                      color: IConstant.text_color))));
+                      size: 25.w, color: IConstant.text_color))));
     }
   }
-
 }
