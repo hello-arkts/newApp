@@ -131,8 +131,12 @@ class _PromotionActionState extends State<PromotionAction> {
     }
 
     final item = widget.promotionItems[index];
-    final String name = BaseModel.getString(item, "name");
-    final String logo = BaseModel.getString(item['shop'], "logo");
+    final String name = BaseModel.getString(item, "nameZh").isNotEmpty
+        ? BaseModel.getString(item, "nameZh")
+        : (BaseModel.getString(item, "nameTh").isNotEmpty
+            ? BaseModel.getString(item, "nameTh")
+            : BaseModel.getString(item, "nameEn"));
+    final String logo = BaseModel.getString(item['shop'], "logoUrl");
     final String promotionAmount = _getPromotionAmount(item);
 
     return Material(
@@ -242,15 +246,14 @@ class _PromotionActionState extends State<PromotionAction> {
   /// 获取优惠金额文本（满减信息）
   String _getPromotionAmount(dynamic item) {
     try {
-      double minPoint = BaseModel.getDouble(item, "minPoint");
+      double thresholdAmount = BaseModel.getDouble(item, "thresholdAmount");
       double amount = BaseModel.getDouble(item, "amount");
 
-      // 显示满减信息
-      if (minPoint > 0) {
+      if (thresholdAmount > 0) {
         return sprintf(
             LanguageConfig.get(
                 LanguageConfigKeys.Featured_promotion_discount_full),
-            [minPoint.toInt(), amount.toInt()]);
+            [thresholdAmount.toInt(), amount.toInt()]);
       } else {
         return sprintf(
             LanguageConfig.get(LanguageConfigKeys.Featured_promotion_voucher),

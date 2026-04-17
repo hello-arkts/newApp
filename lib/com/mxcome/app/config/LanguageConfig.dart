@@ -1651,6 +1651,7 @@ class LanguageConfig {
       LanguageConfigKeys.Coupon_type_free_shipping: "Free Shipping",
       LanguageConfigKeys.Coupon_type_voucher: "Voucher",
       LanguageConfigKeys.Coupon_validity_period: "Valid until %s",
+      LanguageConfigKeys.Coupon_validity_days: "Valid for %s days",
       LanguageConfigKeys.Coupon_select_store: "Select Store",
       LanguageConfigKeys.Coupon_destination: "Destination",
       LanguageConfigKeys.Map_google: "Google Maps",
@@ -3303,6 +3304,7 @@ class LanguageConfig {
       LanguageConfigKeys.Coupon_type_free_shipping: "ส่งฟรี",
       LanguageConfigKeys.Coupon_type_voucher: "คูปองเงินสด",
       LanguageConfigKeys.Coupon_validity_period: "ใช้ได้ถึง %s",
+      LanguageConfigKeys.Coupon_validity_days: "ใช้ได้ %s วัน",
       LanguageConfigKeys.Coupon_select_store: "เลือกร้านค้า",
       LanguageConfigKeys.Coupon_destination: "จุดหมายปลายทาง",
       LanguageConfigKeys.Map_google: "Google Maps",
@@ -4674,6 +4676,7 @@ class LanguageConfig {
       LanguageConfigKeys.Coupon_type_free_shipping: "免邮券",
       LanguageConfigKeys.Coupon_type_voucher: "代金券",
       LanguageConfigKeys.Coupon_validity_period: "有效期 %s",
+      LanguageConfigKeys.Coupon_validity_days: "有效期 %s 天",
       LanguageConfigKeys.Coupon_select_store: "选择门店",
       LanguageConfigKeys.Coupon_destination: "目的地",
       LanguageConfigKeys.Map_google: "Google 地图",
@@ -4836,6 +4839,7 @@ class LanguageConfigKeys {
   static const Coupon_type_free_shipping = "Coupon_type_free_shipping";
   static const Coupon_type_voucher = "Coupon_type_voucher";
   static const Coupon_validity_period = "Coupon_validity_period";
+  static const Coupon_validity_days = "Coupon_validity_days";
   static const Coupon_select_store = "Coupon_select_store";
   static const Coupon_destination = "Coupon_destination";
   static const Map_google = "Map_google";

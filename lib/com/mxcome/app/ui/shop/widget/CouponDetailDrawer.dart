@@ -63,25 +63,17 @@ class _CouponDetailDrawerState extends State<CouponDetailDrawer> {
       if (!mounted) return;
       if (rsp.retCode == 200) {
         final data = rsp.data;
-        final dynamic couponTypes = BaseModel.getDynamic(data, 'couponTypes');
+        final dynamic coupon = BaseModel.getDynamic(data, 'coupon');
         final List<dynamic> couponList =
             (BaseModel.getDynamicList(data, 'couponList') ?? [])
                 .cast<dynamic>();
         final List<dynamic> shopList =
             (BaseModel.getDynamicList(data, 'shopList') ?? []).cast<dynamic>();
-        final List<dynamic> fallbackCouponList =
-            (BaseModel.getDynamicList(couponTypes, 'couponList') ?? [])
-                .cast<dynamic>();
-        final List<dynamic> fallbackShopList =
-            (BaseModel.getDynamicList(couponTypes, 'shopList') ?? [])
-                .cast<dynamic>();
         _activeCouponId.value = couponId;
         setState(() {
-          final List<dynamic> resolvedShopList =
-              shopList.isNotEmpty ? shopList : fallbackShopList;
-          _detail = data;
-          _couponList = couponList.isNotEmpty ? couponList : fallbackCouponList;
-          _shopList = resolvedShopList;
+          _detail = coupon;
+          _couponList = couponList;
+          _shopList = shopList;
           _selectedStoreIndex = _shopList.isNotEmpty ? 0 : -1;
           _loading = false;
         });
@@ -102,13 +94,13 @@ class _CouponDetailDrawerState extends State<CouponDetailDrawer> {
   }
 
   String _couponAmount(dynamic coupon) {
-    double minPoint = BaseModel.getDouble(coupon, 'minPoint');
+    double thresholdAmount = BaseModel.getDouble(coupon, 'thresholdAmount');
     double amount = BaseModel.getDouble(coupon, 'amount');
-    if (minPoint > 0) {
+    if (thresholdAmount > 0) {
       return sprintf(
           LanguageConfig.get(
               LanguageConfigKeys.Featured_promotion_discount_full),
-          [minPoint.toInt(), amount.toInt()]);
+          [thresholdAmount.toInt(), amount.toInt()]);
     }
     return sprintf(
         LanguageConfig.get(LanguageConfigKeys.Featured_promotion_voucher),
@@ -142,7 +134,17 @@ class _CouponDetailDrawerState extends State<CouponDetailDrawer> {
               child: StatefulBuilder(
                 builder: (context, setModalState) {
                   final store = _shopList[_selectedStoreIndex];
-                  final String address = BaseModel.getString(store, 'address');
+                  final String address = BaseModel.getString(store, 'addressZh').isNotEmpty
+                      ? BaseModel.getString(store, 'addressZh')
+                      : (BaseModel.getString(store, 'addressTh').isNotEmpty
+                          ? BaseModel.getString(store, 'addressTh')
+                          : BaseModel.getString(store, 'addressEn'));
+                  final dynamic shop = BaseModel.getDynamic(widget.initialItem, 'shop') ?? {};
+                  final String shopName = BaseModel.getString(shop, 'brandNameZh').isNotEmpty
+                      ? BaseModel.getString(shop, 'brandNameZh')
+                      : (BaseModel.getString(shop, 'brandNameTh').isNotEmpty
+                          ? BaseModel.getString(shop, 'brandNameTh')
+                          : BaseModel.getString(shop, 'brandNameEn'));
 
                   return SingleChildScrollView(
                     controller: controller,
@@ -165,6 +167,7 @@ class _CouponDetailDrawerState extends State<CouponDetailDrawer> {
                           addressText: address,
                           shopList: _shopList,
                           selectedIndex: _selectedStoreIndex,
+                          shopName: shopName,
                           onSelectIndex: (int index) {
                             // 更新弹窗内部状态
                             setModalState(() {
@@ -275,34 +278,32 @@ class _CouponDetailDrawerState extends State<CouponDetailDrawer> {
 
   Widget _buildShopTab() {
     final dynamic detail = _detail ?? {};
-    final dynamic shop = BaseModel.getDynamic(detail, 'shop') ?? {};
     final dynamic initShop =
         BaseModel.getDynamic(widget.initialItem, 'shop') ?? {};
-    final String logo = BaseModel.getString(shop, 'logo').isNotEmpty
-        ? BaseModel.getString(shop, 'logo')
-        : BaseModel.getString(initShop, 'logo');
-    final String name = BaseModel.getString(shop, 'name').isNotEmpty
-        ? BaseModel.getString(shop, 'name')
-        : BaseModel.getString(detail, 'name').isNotEmpty
-            ? BaseModel.getString(detail, 'name')
-            : BaseModel.getString(widget.initialItem, 'name');
+    final String logo = BaseModel.getString(detail, 'logoUrl').isNotEmpty
+        ? BaseModel.getString(detail, 'logoUrl')
+        : BaseModel.getString(initShop, 'logoUrl');
+    final String shopName = BaseModel.getString(initShop, 'brandNameZh').isNotEmpty
+        ? BaseModel.getString(initShop, 'brandNameZh')
+        : (BaseModel.getString(initShop, 'brandNameTh').isNotEmpty
+            ? BaseModel.getString(initShop, 'brandNameTh')
+            : BaseModel.getString(initShop, 'brandNameEn'));
 
     final dynamic store = (_shopList.isNotEmpty &&
             _selectedStoreIndex >= 0 &&
             _selectedStoreIndex < _shopList.length)
         ? _shopList[_selectedStoreIndex]
         : {};
-    final String address = BaseModel.getString(store, 'address');
-    print('xixi:$address');
-    final String phone = BaseModel.getString(store, 'phone').isNotEmpty
-        ? BaseModel.getString(store, 'phone')
-        : BaseModel.getString(store, 'tel');
+    final String address = BaseModel.getString(store, 'addressZh').isNotEmpty
+        ? BaseModel.getString(store, 'addressZh')
+        : (BaseModel.getString(store, 'addressTh').isNotEmpty
+            ? BaseModel.getString(store, 'addressTh')
+            : BaseModel.getString(store, 'addressEn'));
+    final String phone = BaseModel.getString(store, 'addressPhone') ?? '';
 
-    final int shopId = BaseModel.getInt(shop, 'id') != 0
-        ? BaseModel.getInt(shop, 'id')
-        : BaseModel.getInt(initShop, 'id') != 0
-            ? BaseModel.getInt(initShop, 'id')
-            : BaseModel.getInt(detail, 'shopId');
+    final int shopId = BaseModel.getInt(initShop, 'id') != 0
+        ? BaseModel.getInt(initShop, 'id')
+        : BaseModel.getInt(detail, 'id');
 
     return Column(
       children: [
@@ -310,7 +311,7 @@ class _CouponDetailDrawerState extends State<CouponDetailDrawer> {
           padding: EdgeInsets.fromLTRB(16.w, 8.w, 16.w, 0),
           child: CouponShopTabHeaderSection(
             logoUrl: logo,
-            name: name,
+            name: shopName,
             address: address,
             phone: phone,
             shopId: shopId,
@@ -335,6 +336,7 @@ class _CouponDetailDrawerState extends State<CouponDetailDrawer> {
                 _selectedStoreIndex = index;
               });
             },
+            shopName: shopName,
           ),
         ),
         SizedBox(height: 12.w),
@@ -345,30 +347,22 @@ class _CouponDetailDrawerState extends State<CouponDetailDrawer> {
 
   Widget _buildContent() {
     final dynamic detail = _detail ?? {};
-    final dynamic couponTypes =
-        BaseModel.getDynamic(detail, 'couponTypes') ?? {};
-    final dynamic shop = BaseModel.getDynamic(detail, 'shop') ?? {};
-    final dynamic initShop =
-        BaseModel.getDynamic(widget.initialItem, 'shop') ?? {};
-    final String logo = BaseModel.getString(shop, 'logo').isNotEmpty
-        ? BaseModel.getString(shop, 'logo')
-        : BaseModel.getString(initShop, 'logo');
-    final String name = BaseModel.getString(detail, 'name').isNotEmpty
-        ? BaseModel.getString(detail, 'name')
-        : BaseModel.getString(widget.initialItem, 'name');
-    final String qrcode = BaseModel.getString(detail, 'qrcode').isNotEmpty
-        ? BaseModel.getString(detail, 'qrcode')
-        : (BaseModel.getString(couponTypes, 'qrcode').isNotEmpty
-            ? BaseModel.getString(couponTypes, 'qrcode')
-            : BaseModel.getString(couponTypes, 'qrCode'));
-    final String code = BaseModel.getString(detail, 'code').isNotEmpty
-        ? BaseModel.getString(detail, 'code')
-        : BaseModel.getString(couponTypes, 'code');
+    final dynamic shop = BaseModel.getDynamic(widget.initialItem, 'shop') ?? {};
+    final String logo = BaseModel.getString(detail, 'logoUrl').isNotEmpty
+        ? BaseModel.getString(detail, 'logoUrl')
+        : BaseModel.getString(shop, 'logoUrl');
+    final String shopName = BaseModel.getString(shop, 'brandNameZh').isNotEmpty
+        ? BaseModel.getString(shop, 'brandNameZh')
+        : (BaseModel.getString(shop, 'brandNameTh').isNotEmpty
+            ? BaseModel.getString(shop, 'brandNameTh')
+            : BaseModel.getString(shop, 'brandNameEn'));
+    final String qrcode = BaseModel.getString(detail, 'qrcode') ?? '';
+    final String code = BaseModel.getString(detail, 'code') ?? '';
     final String selectedAddress =
         (_shopList.isNotEmpty && _selectedStoreIndex >= 0)
             ? BaseModel.getString(
                 _shopList[_selectedStoreIndex],
-                'address',
+                'addressZh',
               )
             : '';
 
@@ -377,7 +371,7 @@ class _CouponDetailDrawerState extends State<CouponDetailDrawer> {
       children: [
         CouponShopHeader(
           logoUrl: logo,
-          title: name,
+          title: shopName,
           subtitle: _couponAmount(detail),
         ),
         CouponQrSection(
@@ -417,6 +411,7 @@ class _CouponDetailDrawerState extends State<CouponDetailDrawer> {
               : selectedAddress,
           shopList: _shopList,
           selectedIndex: _selectedStoreIndex,
+          shopName: shopName,
           onSelectIndex: (index) {
             setState(() {
               _selectedStoreIndex = index;

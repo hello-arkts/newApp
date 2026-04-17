@@ -260,23 +260,29 @@ class ProductDetailPageState extends BaseKeepAliveState<ProductDetailPage>
   Widget build(BuildContext context) {
     super.build(context);
 
-    // 解析店铺相关数据，根据真实 JSON 结构，店铺信息在 "brand" 对象里，外层可能还有 "shopName", "shopIcon"
+    // 解析店铺相关数据，根据真实 JSON 结构，店铺信息在 "shop" 对象里
     final dynamic brandData =
         _product != null ? BaseModel.getDynamic(_product, 'shop') ?? {} : {};
 
-    // 如果 brand 里没有，尝试从外层直接拿
-    final String shopLogo = BaseModel.getString(brandData, 'logo');
+    final String shopLogo = BaseModel.getString(brandData, 'logoUrl');
 
-    final String shopName = BaseModel.getString(brandData, 'name');
+    final String shopName = BaseModel.getString(brandData, 'brandNameZh').isNotEmpty
+        ? BaseModel.getString(brandData, 'brandNameZh')
+        : (BaseModel.getString(brandData, 'brandNameTh').isNotEmpty
+            ? BaseModel.getString(brandData, 'brandNameTh')
+            : BaseModel.getString(brandData, 'brandNameEn'));
 
-    // 从详情里的属性拿地址（或者使用 useAddress/productAddress）
-    final String shopAddress = BaseModel.getString(brandData, 'address');
+    final String shopAddress = BaseModel.getString(brandData, 'addressZh').isNotEmpty
+        ? BaseModel.getString(brandData, 'addressZh')
+        : (BaseModel.getString(brandData, 'addressTh').isNotEmpty
+            ? BaseModel.getString(brandData, 'addressTh')
+            : BaseModel.getString(brandData, 'addressEn'));
 
-    final String shopPhone = BaseModel.getString(brandData, 'phone');
+    final String shopPhone = BaseModel.getString(brandData, 'addressPhone');
 
     // 使用 brand 的 shopId 或者外层的 shopId
-    final int shopId = BaseModel.getInt(brandData, 'shopId') > 0
-        ? BaseModel.getInt(brandData, 'shopId')
+    final int shopId = BaseModel.getInt(brandData, 'id') > 0
+        ? BaseModel.getInt(brandData, 'id')
         : BaseModel.getInt(_product ?? {}, 'shopId');
 
     // 构造 shopList 数据用于抽屉地图选择器，这里商品详情通常只有一个所属店铺
@@ -302,6 +308,7 @@ class ProductDetailPageState extends BaseKeepAliveState<ProductDetailPage>
                     address: shopAddress,
                     phone: shopPhone,
                     shopId: shopId,
+                    shopName: shopName,
                     onNavigateTap: () async {
                       if (shopList.isEmpty) {
                         ViewUtils.displayToast(LanguageConfig.get(
@@ -332,7 +339,11 @@ class ProductDetailPageState extends BaseKeepAliveState<ProductDetailPage>
                                   builder: (context, setModalState) {
                                     final store = shopList[0];
                                     final String address =
-                                        BaseModel.getString(store, 'address');
+                                        BaseModel.getString(store, 'addressZh').isNotEmpty
+                                            ? BaseModel.getString(store, 'addressZh')
+                                            : (BaseModel.getString(store, 'addressTh').isNotEmpty
+                                                ? BaseModel.getString(store, 'addressTh')
+                                                : BaseModel.getString(store, 'addressEn'));
 
                                     return SingleChildScrollView(
                                       controller: controller,
@@ -357,6 +368,7 @@ class ProductDetailPageState extends BaseKeepAliveState<ProductDetailPage>
                                             addressText: address,
                                             shopList: shopList,
                                             selectedIndex: 0,
+                                            shopName: shopName,
                                             onSelectIndex: (int index) {
                                               // 详情页通常只有一家店，不做切换处理
                                             },

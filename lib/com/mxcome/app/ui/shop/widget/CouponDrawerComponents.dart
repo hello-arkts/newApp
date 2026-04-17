@@ -164,6 +164,7 @@ class CouponShopTabHeaderSection extends StatelessWidget {
   final int selectedStoreIndex;
   final ValueChanged<int> onStoreSelected;
   final ValueChanged<int>? onPhoneSelected;
+  final String shopName;
 
   const CouponShopTabHeaderSection({
     super.key,
@@ -179,6 +180,7 @@ class CouponShopTabHeaderSection extends StatelessWidget {
     required this.shopList,
     required this.selectedStoreIndex,
     required this.onStoreSelected,
+    required this.shopName,
     this.onPhoneSelected,
   });
 
@@ -351,7 +353,11 @@ class CouponShopTabHeaderSection extends StatelessWidget {
                           ? shopList[selectedStoreIndex]
                           : {};
                       final String addressText =
-                          BaseModel.getString(store, 'address');
+                          BaseModel.getString(store, 'addressZh').isNotEmpty
+                              ? BaseModel.getString(store, 'addressZh')
+                              : (BaseModel.getString(store, 'addressTh').isNotEmpty
+                                  ? BaseModel.getString(store, 'addressTh')
+                                  : BaseModel.getString(store, 'addressEn'));
 
                       return SingleChildScrollView(
                         controller: controller,
@@ -374,6 +380,7 @@ class CouponShopTabHeaderSection extends StatelessWidget {
                               addressText: addressText,
                               shopList: shopList,
                               selectedIndex: selectedStoreIndex,
+                              shopName: shopName,
                               onSelectIndex: (int index) {
                                 setModalState(() {
                                   onStoreSelected(index);
@@ -432,9 +439,7 @@ class CouponShopTabHeaderSection extends StatelessWidget {
                               selectedStoreIndex < shopList.length
                           ? shopList[selectedStoreIndex]
                           : {};
-                      final String phoneText = BaseModel.getString(store, 'phone').isNotEmpty
-                          ? BaseModel.getString(store, 'phone')
-                          : BaseModel.getString(store, 'tel');
+                      final String phoneText = BaseModel.getString(store, 'addressPhone') ?? '';
 
                       return SingleChildScrollView(
                         controller: controller,
@@ -464,6 +469,7 @@ class CouponShopTabHeaderSection extends StatelessWidget {
                               onNoDataTap: () {
                                 Navigator.pop(context);
                               },
+                              shopName: shopName,
                             ),
                           ],
                         ),
@@ -506,9 +512,7 @@ class CouponShopTabHeaderSection extends StatelessWidget {
                           selectedStoreIndex < shopList.length
                       ? shopList[selectedStoreIndex]
                       : {};
-                  final String phoneText = BaseModel.getString(store, 'phone').isNotEmpty
-                      ? BaseModel.getString(store, 'phone')
-                      : BaseModel.getString(store, 'tel');
+                  final String phoneText = BaseModel.getString(store, 'addressPhone') ?? '';
 
                   return SingleChildScrollView(
                     controller: controller,
@@ -537,6 +541,7 @@ class CouponShopTabHeaderSection extends StatelessWidget {
                           onNoDataTap: () {
                             Navigator.pop(context);
                           },
+                          shopName: shopName,
                         ),
                       ],
                     ),
@@ -863,12 +868,12 @@ class CouponBenefitCard extends StatelessWidget {
 
   CouponBenefitType _inferType() {
     if (benefitType != null) return benefitType!;
-    final double minPoint = BaseModel.getDouble(coupon, 'minPoint');
+    final double thresholdAmount = BaseModel.getDouble(coupon, 'thresholdAmount');
     final double discount = BaseModel.getDouble(coupon, 'discount');
     final int freeShipping = BaseModel.getInt(coupon, 'freeShipping');
     if (freeShipping == 1) return CouponBenefitType.freeShipping;
     if (discount > 0) return CouponBenefitType.discount;
-    if (minPoint > 0) return CouponBenefitType.fullReduction;
+    if (thresholdAmount > 0) return CouponBenefitType.fullReduction;
     return CouponBenefitType.cashVoucher;
   }
 
@@ -894,13 +899,13 @@ class CouponBenefitCard extends StatelessWidget {
 
   String _benefitText() {
     final type = _inferType();
-    final double minPoint = BaseModel.getDouble(coupon, 'minPoint');
+    final double thresholdAmount = BaseModel.getDouble(coupon, 'thresholdAmount');
     final double amount = BaseModel.getDouble(coupon, 'amount');
-    if (type == CouponBenefitType.fullReduction && minPoint > 0) {
+    if (type == CouponBenefitType.fullReduction && thresholdAmount > 0) {
       return sprintf(
           LanguageConfig.get(
               LanguageConfigKeys.Featured_promotion_discount_full),
-          [minPoint.toInt(), amount.toInt()]);
+          [thresholdAmount.toInt(), amount.toInt()]);
     }
     if (type == CouponBenefitType.cashVoucher) {
       return sprintf(
@@ -911,14 +916,11 @@ class CouponBenefitCard extends StatelessWidget {
   }
 
   String _expireText() {
-    final String endTime = BaseModel.getString(coupon, 'endTime');
-    if (endTime.isEmpty) return '';
-    final String normalized = endTime.replaceAll('T', ' ');
-    final String endDate =
-        normalized.length >= 10 ? normalized.substring(0, 10) : normalized;
+    final int validityDays = BaseModel.getInt(coupon, 'validityDays');
+    if (validityDays <= 0) return '';
     return sprintf(
-        LanguageConfig.get(LanguageConfigKeys.Coupon_validity_period),
-        [endDate]);
+        LanguageConfig.get(LanguageConfigKeys.Coupon_validity_days),
+        [validityDays]);
   }
 
   @override
@@ -1509,12 +1511,14 @@ class CouponStoreList extends StatelessWidget {
   final List<dynamic> shopList;
   final int selectedIndex;
   final ValueChanged<int> onSelect;
+  final String shopName;
 
   const CouponStoreList({
     super.key,
     required this.shopList,
     required this.selectedIndex,
     required this.onSelect,
+    required this.shopName,
   });
 
   @override
@@ -1527,8 +1531,11 @@ class CouponStoreList extends StatelessWidget {
         itemBuilder: (context, index) {
           final store = shopList[index];
           final bool active = index == selectedIndex;
-          final String storeName = BaseModel.getString(store, 'name');
-          final String address = BaseModel.getString(store, 'address');
+          final String address = BaseModel.getString(store, 'addressZh').isNotEmpty
+              ? BaseModel.getString(store, 'addressZh')
+              : (BaseModel.getString(store, 'addressTh').isNotEmpty
+                  ? BaseModel.getString(store, 'addressTh')
+                  : BaseModel.getString(store, 'addressEn'));
           return Container(
             padding: EdgeInsets.all(10.w),
             decoration: BoxDecoration(
@@ -1548,7 +1555,7 @@ class CouponStoreList extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          storeName,
+                          shopName,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
@@ -1649,12 +1656,13 @@ class CouponPrimaryButton extends StatelessWidget {
 }
 
 /// 电话选择器抽屉组件
-class CouponPhoneSelectorActionSection extends StatelessWidget {
+class CouponPhoneSelectorActionSection extends StatefulWidget {
   final String phoneText;
   final List<dynamic> shopList;
   final int selectedIndex;
   final ValueChanged<int> onSelectIndex;
   final VoidCallback? onNoDataTap;
+  final String shopName;
 
   const CouponPhoneSelectorActionSection({
     super.key,
@@ -1662,8 +1670,43 @@ class CouponPhoneSelectorActionSection extends StatelessWidget {
     required this.shopList,
     required this.selectedIndex,
     required this.onSelectIndex,
+    required this.shopName,
     this.onNoDataTap,
   });
+
+  @override
+  State<CouponPhoneSelectorActionSection> createState() => _CouponPhoneSelectorActionSectionState();
+}
+
+class _CouponPhoneSelectorActionSectionState extends State<CouponPhoneSelectorActionSection> {
+  late int _currentSelectedIndex;
+  late String _currentPhoneText;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentSelectedIndex = widget.selectedIndex;
+    _currentPhoneText = widget.phoneText;
+  }
+
+  @override
+  void didUpdateWidget(CouponPhoneSelectorActionSection oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.selectedIndex != oldWidget.selectedIndex) {
+      _currentSelectedIndex = widget.selectedIndex;
+      _updatePhoneText();
+    }
+  }
+
+  void _updatePhoneText() {
+    if (_currentSelectedIndex >= 0 &&
+        _currentSelectedIndex < widget.shopList.length) {
+      final store = widget.shopList[_currentSelectedIndex];
+      _currentPhoneText = BaseModel.getString(store, 'addressPhone') ?? '';
+    } else {
+      _currentPhoneText = '';
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -1671,7 +1714,7 @@ class CouponPhoneSelectorActionSection extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         CouponPhoneSelectorRow(
-          phoneText: phoneText.isEmpty ? '请选择' : phoneText,
+          phoneText: _currentPhoneText.isEmpty ? '请选择' : _currentPhoneText,
           expanded: false,
           onToggle: () => _showPhoneList(context),
         ),
@@ -1679,13 +1722,11 @@ class CouponPhoneSelectorActionSection extends StatelessWidget {
         CouponPrimaryButton(
           text: LanguageConfig.get(LanguageConfigKeys.Shop_product_consulting),
           onPressed: () {
-            if (shopList.isNotEmpty &&
-                selectedIndex >= 0 &&
-                selectedIndex < shopList.length) {
-              final store = shopList[selectedIndex];
-              final String phone = BaseModel.getString(store, 'phone').isNotEmpty
-                  ? BaseModel.getString(store, 'phone')
-                  : BaseModel.getString(store, 'tel');
+            if (widget.shopList.isNotEmpty &&
+                _currentSelectedIndex >= 0 &&
+                _currentSelectedIndex < widget.shopList.length) {
+              final store = widget.shopList[_currentSelectedIndex];
+              final String phone = BaseModel.getString(store, 'addressPhone') ?? '';
               if (phone.isNotEmpty) {
                 _callPhone(phone);
               }
@@ -1698,8 +1739,8 @@ class CouponPhoneSelectorActionSection extends StatelessWidget {
   }
 
   Future<void> _showPhoneList(BuildContext context) async {
-    if (shopList.isEmpty) {
-      onNoDataTap?.call();
+    if (widget.shopList.isEmpty) {
+      widget.onNoDataTap?.call();
       return;
     }
 
@@ -1738,12 +1779,17 @@ class CouponPhoneSelectorActionSection extends StatelessWidget {
                         SizedBox(height: 6.w),
                         Expanded(
                           child: CouponPhoneStoreList(
-                            shopList: shopList,
-                            selectedIndex: selectedIndex,
+                            shopList: widget.shopList,
+                            selectedIndex: _currentSelectedIndex,
                             onSelect: (index) {
                               Navigator.pop(context);
-                              onSelectIndex(index);
+                              setState(() {
+                                _currentSelectedIndex = index;
+                                _updatePhoneText();
+                              });
+                              widget.onSelectIndex(index);
                             },
+                            shopName: widget.shopName,
                           ),
                         ),
                       ],
@@ -1771,12 +1817,14 @@ class CouponPhoneStoreList extends StatelessWidget {
   final List<dynamic> shopList;
   final int selectedIndex;
   final ValueChanged<int> onSelect;
+  final String shopName;
 
   const CouponPhoneStoreList({
     super.key,
     required this.shopList,
     required this.selectedIndex,
     required this.onSelect,
+    required this.shopName,
   });
 
   @override
@@ -1789,11 +1837,12 @@ class CouponPhoneStoreList extends StatelessWidget {
         itemBuilder: (context, index) {
           final store = shopList[index];
           final bool active = index == selectedIndex;
-          final String storeName = BaseModel.getString(store, 'name');
-          final String address = BaseModel.getString(store, 'address');
-          final String phone = BaseModel.getString(store, 'phone').isNotEmpty
-              ? BaseModel.getString(store, 'phone')
-              : BaseModel.getString(store, 'tel');
+          final String address = BaseModel.getString(store, 'addressZh').isNotEmpty
+              ? BaseModel.getString(store, 'addressZh')
+              : (BaseModel.getString(store, 'addressTh').isNotEmpty
+                  ? BaseModel.getString(store, 'addressTh')
+                  : BaseModel.getString(store, 'addressEn'));
+          final String phone = BaseModel.getString(store, 'addressPhone') ?? '';
           return Container(
             padding: EdgeInsets.all(10.w),
             decoration: BoxDecoration(
@@ -1810,7 +1859,7 @@ class CouponPhoneStoreList extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    storeName,
+                    shopName,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
@@ -1857,7 +1906,7 @@ class CouponPhoneStoreList extends StatelessWidget {
 }
 
 /// 底部门店选择器组件
-class CouponStorePickerActionSection extends StatelessWidget {
+class CouponStorePickerActionSection extends StatefulWidget {
   final String addressText;
   final List<dynamic> shopList;
   final int selectedIndex;
@@ -1865,6 +1914,7 @@ class CouponStorePickerActionSection extends StatelessWidget {
   final VoidCallback? onNavigateTap;
   final VoidCallback? onNoDataTap;
   final double sheetMaxHeightFactor;
+  final String shopName;
 
   const CouponStorePickerActionSection({
     super.key,
@@ -1872,14 +1922,53 @@ class CouponStorePickerActionSection extends StatelessWidget {
     required this.shopList,
     required this.selectedIndex,
     required this.onSelectIndex,
+    required this.shopName,
     this.onNavigateTap,
     this.onNoDataTap,
     this.sheetMaxHeightFactor = 0.6,
   });
 
+  @override
+  State<CouponStorePickerActionSection> createState() => _CouponStorePickerActionSectionState();
+}
+
+class _CouponStorePickerActionSectionState extends State<CouponStorePickerActionSection> {
+  late int _currentSelectedIndex;
+  late String _currentAddressText;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentSelectedIndex = widget.selectedIndex;
+    _currentAddressText = widget.addressText;
+  }
+
+  @override
+  void didUpdateWidget(CouponStorePickerActionSection oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.selectedIndex != oldWidget.selectedIndex) {
+      _currentSelectedIndex = widget.selectedIndex;
+      _updateAddressText();
+    }
+  }
+
+  void _updateAddressText() {
+    if (_currentSelectedIndex >= 0 &&
+        _currentSelectedIndex < widget.shopList.length) {
+      final store = widget.shopList[_currentSelectedIndex];
+      _currentAddressText = BaseModel.getString(store, 'addressZh').isNotEmpty
+          ? BaseModel.getString(store, 'addressZh')
+          : (BaseModel.getString(store, 'addressTh').isNotEmpty
+              ? BaseModel.getString(store, 'addressTh')
+              : BaseModel.getString(store, 'addressEn'));
+    } else {
+      _currentAddressText = '';
+    }
+  }
+
   Future<void> _openStorePicker(BuildContext context) async {
-    if (shopList.isEmpty) {
-      onNoDataTap?.call();
+    if (widget.shopList.isEmpty) {
+      widget.onNoDataTap?.call();
       return;
     }
 
@@ -1889,7 +1978,7 @@ class CouponStorePickerActionSection extends StatelessWidget {
       backgroundColor: Colors.transparent,
       builder: (context) {
         final double maxHeight =
-            MediaQuery.of(context).size.height * sheetMaxHeightFactor;
+            MediaQuery.of(context).size.height * widget.sheetMaxHeightFactor;
         return SafeArea(
           top: false,
           child: Container(
@@ -1920,9 +2009,12 @@ class CouponStorePickerActionSection extends StatelessWidget {
                         SizedBox(height: 6.w),
                         Expanded(
                           child: CouponStoreList(
-                            shopList: shopList,
-                            selectedIndex: selectedIndex,
-                            onSelect: (index) => Navigator.pop(context, index),
+                            shopList: widget.shopList,
+                            selectedIndex: _currentSelectedIndex,
+                            onSelect: (index) {
+                              Navigator.pop(context, index);
+                            },
+                            shopName: widget.shopName,
                           ),
                         ),
                       ],
@@ -1937,28 +2029,32 @@ class CouponStorePickerActionSection extends StatelessWidget {
     );
 
     if (pickedIndex == null) return;
-    onSelectIndex(pickedIndex);
+    setState(() {
+      _currentSelectedIndex = pickedIndex;
+      _updateAddressText();
+    });
+    widget.onSelectIndex(pickedIndex);
   }
 
   Future<void> _openMapPicker(BuildContext context) async {
-    if (shopList.isEmpty ||
-        selectedIndex < 0 ||
-        selectedIndex >= shopList.length) {
-      onNoDataTap?.call();
+    if (widget.shopList.isEmpty ||
+        _currentSelectedIndex < 0 ||
+        _currentSelectedIndex >= widget.shopList.length) {
+      widget.onNoDataTap?.call();
       return;
     }
 
-    final dynamic store = shopList[selectedIndex];
-    final String address = BaseModel.getString(store, 'address');
-    final String lat = BaseModel.getString(store, 'lat').isNotEmpty
-        ? BaseModel.getString(store, 'lat')
-        : BaseModel.getString(store, 'latitude');
-    final String lng = BaseModel.getString(store, 'lng').isNotEmpty
-        ? BaseModel.getString(store, 'lng')
-        : BaseModel.getString(store, 'longitude');
+    final dynamic store = widget.shopList[_currentSelectedIndex];
+    final String address = BaseModel.getString(store, 'addressZh').isNotEmpty
+        ? BaseModel.getString(store, 'addressZh')
+        : (BaseModel.getString(store, 'addressTh').isNotEmpty
+            ? BaseModel.getString(store, 'addressTh')
+            : BaseModel.getString(store, 'addressEn'));
+    final String lat = BaseModel.getString(store, 'lat');
+    final String lng = BaseModel.getString(store, 'lng');
 
-    if (address.isEmpty && (lat.isEmpty || lng.isEmpty)) {
-      onNoDataTap?.call();
+    if (address.isEmpty) {
+      widget.onNoDataTap?.call();
       return;
     }
 
@@ -1976,7 +2072,7 @@ class CouponStorePickerActionSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         CouponStoreAddressRow(
-          addressText: addressText,
+          addressText: _currentAddressText,
           expanded: false,
           onToggle: () => _openStorePicker(context),
           onSelectStore: () => _openStorePicker(context),
@@ -1984,7 +2080,7 @@ class CouponStorePickerActionSection extends StatelessWidget {
         SizedBox(height: 6.w),
         CouponPrimaryButton(
           text: LanguageConfig.get(LanguageConfigKeys.Coupon_navigate_to_store),
-          onPressed: onNavigateTap ?? () => _openMapPicker(context),
+          onPressed: widget.onNavigateTap ?? () => _openMapPicker(context),
         ),
       ],
     );
