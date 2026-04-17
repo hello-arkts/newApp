@@ -85,6 +85,8 @@ class ProductDetailPageState extends BaseKeepAliveState<ProductDetailPage>
 
   dynamic _product;
 
+  dynamic _shopDetail;
+
   int _isNeedAgree = 0;
 
   List<dynamic> _productAttributeList = [];
@@ -212,7 +214,6 @@ class ProductDetailPageState extends BaseKeepAliveState<ProductDetailPage>
     if (rsp.retCode == RspRetCode.SUCCESS) {
       setState(() {
         _product = rsp.data;
-        // _isNeedAgree = BaseModel.getInt(rsp.data, "isNeedAgree");
         _skuStockList = BaseModel.getDynamic(rsp.data, "skuStockList");
         _productAttributeList =
             BaseModel.isNotEmpty(rsp.data, "productAttributeList")
@@ -223,12 +224,29 @@ class ProductDetailPageState extends BaseKeepAliveState<ProductDetailPage>
                 ? BaseModel.getDynamic(rsp.data, "productAttributeValueList")
                 : [];
       });
+      final int shopId = BaseModel.getInt(_product ?? {}, 'shopId');
+      if (shopId > 0) {
+        await _loadShopDetail(shopId);
+      }
     } else {
       ViewUtils.displayToast(rsp.msg);
     }
     loadCartNum();
     detailReadCount =
         await AppUtils.getReadCount(IConstant.activity_detail_count);
+  }
+
+  Future<void> _loadShopDetail(int shopId) async {
+    try {
+      final rsp = await HttpUtils.post(IURLConstant.MALL_PRODUCT_BY_SHOPID, {'shopId': shopId});
+      if (rsp.retCode == RspRetCode.SUCCESS && rsp.data != null) {
+        setState(() {
+          _shopDetail = rsp.data;
+        });
+      }
+    } catch (e) {
+      // ignore error, shop details will not be shown
+    }
   }
 
   Future<void> loadCartNum() async {
@@ -260,34 +278,53 @@ class ProductDetailPageState extends BaseKeepAliveState<ProductDetailPage>
   Widget build(BuildContext context) {
     super.build(context);
 
-    // 解析店铺相关数据，根据真实 JSON 结构，店铺信息在 "shop" 对象里
-    final dynamic brandData =
+    // 解析店铺相关数据，商品详情接口返回的是 shop 对象
+    final dynamic shopData =
         _product != null ? BaseModel.getDynamic(_product, 'shop') ?? {} : {};
 
-    final String shopLogo = BaseModel.getString(brandData, 'logoUrl');
+    // 店铺名称和Logo从商品接口的shop对象获取
+    final String shopName = BaseModel.getString(shopData, 'name').isNotEmpty
+        ? BaseModel.getString(shopData, 'name')
+        : '';
 
-    final String shopName = BaseModel.getString(brandData, 'brandNameZh').isNotEmpty
-        ? BaseModel.getString(brandData, 'brandNameZh')
-        : (BaseModel.getString(brandData, 'brandNameTh').isNotEmpty
-            ? BaseModel.getString(brandData, 'brandNameTh')
-            : BaseModel.getString(brandData, 'brandNameEn'));
+    final String shopLogo = BaseModel.getString(shopData, 'logo');
 
-    final String shopAddress = BaseModel.getString(brandData, 'addressZh').isNotEmpty
-        ? BaseModel.getString(brandData, 'addressZh')
-        : (BaseModel.getString(brandData, 'addressTh').isNotEmpty
-            ? BaseModel.getString(brandData, 'addressTh')
-            : BaseModel.getString(brandData, 'addressEn'));
+    // 地址和电话从店铺详情API获取，使用优惠券API的字段名
+    final String shopAddress = _shopDetail != null
+        ? (BaseModel.getString(_shopDetail, 'addressZh').isNotEmpty
+            ? BaseModel.getString(_shopDetail, 'addressZh')
+            : (BaseModel.getString(_shopDetail, 'addressTh').isNotEmpty
+                ? BaseModel.getString(_shopDetail, 'addressTh')
+                : BaseModel.getString(_shopDetail, 'addressEn')))
+        : BaseModel.getString(shopData, 'address');
 
-    final String shopPhone = BaseModel.getString(brandData, 'addressPhone');
+    final String shopPhone = _shopDetail != null
+        ? BaseModel.getString(_shopDetail, 'addressPhone') ?? ''
+        : BaseModel.getString(shopData, 'phone');
 
-    // 使用 brand 的 shopId 或者外层的 shopId
-    final int shopId = BaseModel.getInt(brandData, 'id') > 0
-        ? BaseModel.getInt(brandData, 'id')
-        : BaseModel.getInt(_product ?? {}, 'shopId');
+    // 使用外层 product 的 shopId 或 shop.id
+    final int shopId = BaseModel.getInt(_product ?? {}, 'shopId') > 0
+        ? BaseModel.getInt(_product ?? {}, 'shopId')
+        : BaseModel.getInt(shopData, 'id');
 
-    // 构造 shopList 数据用于抽屉地图选择器，这里商品详情通常只有一个所属店铺
-    final List<dynamic> shopList =
-        _product != null && brandData.isNotEmpty ? [brandData] : [];
+    // 构造 shopList 数据用于抽屉地图选择器
+    // 优先使用店铺详情API的数据，如果没有则使用商品接口的shop数据
+    List<dynamic> shopList;
+    if (_shopDetail != null) {
+      shopList = [_shopDetail];
+    } else if (_product != null && shopData.isNotEmpty) {
+      // 将商品接口的shop数据转换为适配格式，确保字段名一致
+      final Map<String, dynamic> adaptedShop = {
+        'id': shopId,
+        'name': shopName,
+        'logoUrl': shopLogo,
+        'addressZh': BaseModel.getString(shopData, 'address'),
+        'addressPhone': BaseModel.getString(shopData, 'phone'),
+      };
+      shopList = [adaptedShop];
+    } else {
+      shopList = [];
+    }
 
     return Scaffold(
       backgroundColor: IConstant.white_color,
@@ -338,12 +375,15 @@ class ProductDetailPageState extends BaseKeepAliveState<ProductDetailPage>
                                 child: StatefulBuilder(
                                   builder: (context, setModalState) {
                                     final store = shopList[0];
+                                    // 支持两种数据结构：店铺详情API的addressZh和商品接口的address
                                     final String address =
                                         BaseModel.getString(store, 'addressZh').isNotEmpty
                                             ? BaseModel.getString(store, 'addressZh')
                                             : (BaseModel.getString(store, 'addressTh').isNotEmpty
                                                 ? BaseModel.getString(store, 'addressTh')
-                                                : BaseModel.getString(store, 'addressEn'));
+                                                : (BaseModel.getString(store, 'addressEn').isNotEmpty
+                                                    ? BaseModel.getString(store, 'addressEn')
+                                                    : BaseModel.getString(store, 'address')));
 
                                     return SingleChildScrollView(
                                       controller: controller,
