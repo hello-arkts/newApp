@@ -463,12 +463,12 @@ class _CouponDetailDrawerState extends State<CouponDetailDrawer> {
               Column(
                 children: [
                   Icon(Icons.keyboard_arrow_up,
-                      size: 18.w, color: IConstant.grey_color),
+                      size: 24.w, color: IConstant.grey_color),
                   Text(
                     LanguageConfig.get(
                         LanguageConfigKeys.Coupon_detail_swipe_up_shop),
                     style:
-                        TextStyle(fontSize: 12.sp, color: IConstant.grey_color),
+                        TextStyle(fontSize: 14.sp, color: IConstant.grey_color),
                   ),
                 ],
               ),

@@ -262,61 +262,61 @@ class _PromotionActionState extends State<PromotionAction> {
   }
 
   /// 构建立即使用按钮
-  Widget _buildActionButton(dynamic item) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: () {
-          if (widget.onUseTap != null) {
-            widget.onUseTap!(item);
-            return;
-          }
-          final dynamic coupon = BaseModel.getDynamic(item, 'coupon');
-          final String couponId = BaseModel.getString(item, 'id').isNotEmpty
-              ? BaseModel.getString(item, 'id')
-              : (BaseModel.getString(item, 'couponId').isNotEmpty
-                  ? BaseModel.getString(item, 'couponId')
-                  : BaseModel.getString(coupon, 'id'));
-          if (couponId.isEmpty) {
-            if (widget.onPromotionTap != null) {
-              widget.onPromotionTap!(item);
-            }
-            return;
-          }
-          showModalBottomSheet(
-            context: context,
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            builder: (_) {
-              return CouponDetailDrawer(
-                initialCouponId: couponId,
-                initialItem: item,
-              );
-            },
-          );
-        },
-        borderRadius: BorderRadius.circular(20.r),
-        splashColor: IConstant.main_color.withOpacity(0.2),
-        highlightColor: IConstant.main_color.withOpacity(0.1),
-        child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 4.h),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20.r),
-            border: Border.all(
-              color: Colors.grey.shade400,
-              width: 1.w,
-            ),
-          ),
-          child: Text(
-            LanguageConfig.get(LanguageConfigKeys.Featured_promotion_use_now),
-            style: TextStyle(
-              fontSize: 10.sp,
-              color: IConstant.title_color,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
+  // Widget _buildActionButton(dynamic item) {
+  //   return Material(
+  //     color: Colors.transparent,
+  //     child: InkWell(
+  //       onTap: () {
+  //         if (widget.onUseTap != null) {
+  //           widget.onUseTap!(item);
+  //           return;
+  //         }
+  //         final dynamic coupon = BaseModel.getDynamic(item, 'coupon');
+  //         final String couponId = BaseModel.getString(item, 'id').isNotEmpty
+  //             ? BaseModel.getString(item, 'id')
+  //             : (BaseModel.getString(item, 'couponId').isNotEmpty
+  //                 ? BaseModel.getString(item, 'couponId')
+  //                 : BaseModel.getString(coupon, 'id'));
+  //         if (couponId.isEmpty) {
+  //           if (widget.onPromotionTap != null) {
+  //             widget.onPromotionTap!(item);
+  //           }
+  //           return;
+  //         }
+  //         showModalBottomSheet(
+  //           context: context,
+  //           isScrollControlled: true,
+  //           backgroundColor: Colors.transparent,
+  //           builder: (_) {
+  //             return CouponDetailDrawer(
+  //               initialCouponId: couponId,
+  //               initialItem: item,
+  //             );
+  //           },
+  //         );
+  //       },
+  //       borderRadius: BorderRadius.circular(20.r),
+  //       splashColor: IConstant.main_color.withOpacity(0.2),
+  //       highlightColor: IConstant.main_color.withOpacity(0.1),
+  //       child: Container(
+  //         padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 4.h),
+  //         decoration: BoxDecoration(
+  //           borderRadius: BorderRadius.circular(20.r),
+  //           border: Border.all(
+  //             color: Colors.grey.shade400,
+  //             width: 1.w,
+  //           ),
+  //         ),
+  //         child: Text(
+  //           LanguageConfig.get(LanguageConfigKeys.Featured_promotion_use_now),
+  //           style: TextStyle(
+  //             fontSize: 10.sp,
+  //             color: IConstant.title_color,
+  //             fontWeight: FontWeight.w500,
+  //           ),
+  //         ),
+  //       ),
+  //     ),
+  //   );
+  // }
 }

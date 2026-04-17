@@ -694,8 +694,8 @@ class CouponShopHeader extends StatelessWidget {
             Column(
               children: [
                 Container(
-                  width: 61.w,
-                  height: 61.w,
+                  width: 72.w,
+                  height: 72.w,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: IConstant.grey_color.withOpacity(0.1),
@@ -708,7 +708,7 @@ class CouponShopHeader extends StatelessWidget {
                   ),
                   child: logoUrl.isEmpty
                       ? Icon(Icons.store,
-                          size: 28.w, color: IConstant.grey_color)
+                          size: 36.w, color: IConstant.grey_color)
                       : null,
                 ),
                 SizedBox(height: 4.w),
