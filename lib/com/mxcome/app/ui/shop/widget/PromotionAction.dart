@@ -73,7 +73,7 @@ class _PromotionActionState extends State<PromotionAction> {
           const NeverScrollableScrollPhysics(), // 禁用内部滚动，让外层的 CustomScrollView 接管滑动事件
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: widget.columnsCount,
-        mainAxisExtent: 132.h,
+        mainAxisExtent: 125.h,
         mainAxisSpacing: 12.w,
         crossAxisSpacing: 12.w,
       ),
@@ -139,13 +139,37 @@ class _PromotionActionState extends State<PromotionAction> {
       color: Colors.transparent,
       child: InkWell(
         onTap: () {
-          if (widget.onPromotionTap != null) {
-            widget.onPromotionTap!(item);
+          if (widget.onUseTap != null) {
+            widget.onUseTap!(item);
+            return;
           }
+          final dynamic coupon = BaseModel.getDynamic(item, 'coupon');
+          final String couponId = BaseModel.getString(item, 'id').isNotEmpty
+              ? BaseModel.getString(item, 'id')
+              : (BaseModel.getString(item, 'couponId').isNotEmpty
+                  ? BaseModel.getString(item, 'couponId')
+                  : BaseModel.getString(coupon, 'id'));
+          if (couponId.isEmpty) {
+            if (widget.onPromotionTap != null) {
+              widget.onPromotionTap!(item);
+            }
+            return;
+          }
+          showModalBottomSheet(
+            context: context,
+            isScrollControlled: true,
+            backgroundColor: Colors.transparent,
+            builder: (_) {
+              return CouponDetailDrawer(
+                initialCouponId: couponId,
+                initialItem: item,
+              );
+            },
+          );
         },
         borderRadius: BorderRadius.circular(22.r),
         child: Container(
-          height: 132.h,
+          height: 125.h,
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(22.r),
@@ -161,10 +185,9 @@ class _PromotionActionState extends State<PromotionAction> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // Logo 圆形头像
               Container(
-                width: 35.w,
-                height: 35.w,
+                width: 72.w,
+                height: 72.w,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: IConstant.grey_color.withOpacity(0.1),
@@ -178,20 +201,18 @@ class _PromotionActionState extends State<PromotionAction> {
                 child: logo.isEmpty
                     ? Icon(
                         Icons.store,
-                        size: 20.w,
+                        size: 34.w,
                         color: IConstant.grey_color,
                       )
                     : null,
               ),
               SizedBox(height: 6.h),
-              // 店铺名称
               SizedBox(
-                width: 84.w,
-                height: 12.h,
+                height: 14.h,
                 child: Text(
                   name,
                   style: TextStyle(
-                    fontSize: 10.sp,
+                    fontSize: 14.sp,
                     color: IConstant.title_color,
                     fontWeight: FontWeight.w500,
                   ),
@@ -201,20 +222,16 @@ class _PromotionActionState extends State<PromotionAction> {
                 ),
               ),
               SizedBox(height: 4.h),
-              // 优惠金额（满减信息）
               Text(
                 promotionAmount,
                 style: TextStyle(
-                  fontSize: 12.sp,
+                  fontSize: 14.sp,
                   color: IConstant.main_color,
                   fontWeight: FontWeight.w500,
                 ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
-              SizedBox(height: 6.h),
-              // 立即使用按钮
-              _buildActionButton(item),
             ],
           ),
         ),
