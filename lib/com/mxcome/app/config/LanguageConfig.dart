@@ -29,8 +29,8 @@ class LanguageConfig {
       LanguageConfigKeys.Shop_menu_party_travel: "Party Travel",
       LanguageConfigKeys.Shop_menu_party_travel_sub:
           "Selected Tour, 0 Shopping",
-      LanguageConfigKeys.Shop_menu_consumer_rebate: "Consumer Rebate",
-      LanguageConfigKeys.Shop_menu_consumer_rebate_sub: "Money Making Tool",
+      LanguageConfigKeys.Shop_menu_consumer_rebate: "Special Airfare",
+      LanguageConfigKeys.Shop_menu_consumer_rebate_sub: "Charter Route Daily Limit",
       LanguageConfigKeys.app_name: "MXCOME",
       LanguageConfigKeys.language: "Choose Language", //语言
       LanguageConfigKeys.search: "Search", //搜索
@@ -1681,8 +1681,8 @@ class LanguageConfig {
       LanguageConfigKeys.Shop_menu_party_travel: "ทัวร์ปาร์ตี้",
       LanguageConfigKeys.Shop_menu_party_travel_sub:
           "ทัวร์คัดสรร 0 การช้อปปิ้ง",
-      LanguageConfigKeys.Shop_menu_consumer_rebate: "เงินคืนจากการบริโภค",
-      LanguageConfigKeys.Shop_menu_consumer_rebate_sub: "เครื่องมือทำเงิน",
+      LanguageConfigKeys.Shop_menu_consumer_rebate: "ราคาตั๋วเครื่องบินพิเศษ",
+      LanguageConfigKeys.Shop_menu_consumer_rebate_sub: "เส้นทางเช่าเครื่องบิน จำกัดรายวัน",
       LanguageConfigKeys.app_name: "MXCOME",
       LanguageConfigKeys.language: "ภาษา", //语言
       LanguageConfigKeys.search: "ค้นหา", //搜索
@@ -3331,8 +3331,8 @@ class LanguageConfig {
       LanguageConfigKeys.Shop_menu_brand_store_sub: "正品空运 3 天到家",
       LanguageConfigKeys.Shop_menu_party_travel: "派对旅行",
       LanguageConfigKeys.Shop_menu_party_travel_sub: "精选行程 0购物",
-      LanguageConfigKeys.Shop_menu_consumer_rebate: "消费返利",
-      LanguageConfigKeys.Shop_menu_consumer_rebate_sub: "赚钱神器",
+      LanguageConfigKeys.Shop_menu_consumer_rebate: "特价机票",
+      LanguageConfigKeys.Shop_menu_consumer_rebate_sub: "包机航线毎日限购",
       LanguageConfigKeys.app_name: "MXCOME", //MXCOME
       LanguageConfigKeys.language: "语言", //语言
       LanguageConfigKeys.search: "搜索", //搜索
