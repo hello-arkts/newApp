@@ -375,11 +375,17 @@ class _CouponDetailDrawerState extends State<CouponDetailDrawer> {
     final String logo = BaseModel.getString(detail, 'logoUrl').isNotEmpty
         ? BaseModel.getString(detail, 'logoUrl')
         : BaseModel.getString(shop, 'logoUrl');
-    final String shopName = BaseModel.getString(shop, 'brandNameZh').isNotEmpty
-        ? BaseModel.getString(shop, 'brandNameZh')
-        : (BaseModel.getString(shop, 'brandNameTh').isNotEmpty
-            ? BaseModel.getString(shop, 'brandNameTh')
-            : BaseModel.getString(shop, 'brandNameEn'));
+    String shopName = '';
+    if (LanguagePage.language == LanguageType.ZH) {
+      shopName = BaseModel.getString(shop, 'brandNameZh');
+    } else if (LanguagePage.language == LanguageType.TH) {
+      shopName = BaseModel.getString(shop, 'brandNameTh');
+    } else {
+      shopName = BaseModel.getString(shop, 'brandNameEn');
+    }
+    if (shopName.isEmpty) {
+      shopName = BaseModel.getString(shop, 'brandName');
+    }
     final String qrcode = BaseModel.getString(detail, 'qrcode') ?? '';
     final String code = BaseModel.getString(detail, 'code') ?? '';
     final String selectedAddress =
