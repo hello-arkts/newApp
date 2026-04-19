@@ -388,13 +388,20 @@ class _CouponDetailDrawerState extends State<CouponDetailDrawer> {
     }
     final String qrcode = BaseModel.getString(detail, 'qrcode') ?? '';
     final String code = BaseModel.getString(detail, 'code') ?? '';
-    final String selectedAddress =
-        (_shopList.isNotEmpty && _selectedStoreIndex >= 0)
-            ? BaseModel.getString(
-                _shopList[_selectedStoreIndex],
-                'addressZh',
-              )
-            : '';
+    String selectedAddress = '';
+    if (_shopList.isNotEmpty && _selectedStoreIndex >= 0) {
+      final dynamic addrStore = _shopList[_selectedStoreIndex];
+      if (LanguagePage.language == LanguageType.ZH) {
+        selectedAddress = BaseModel.getString(addrStore, 'addressZh');
+      } else if (LanguagePage.language == LanguageType.TH) {
+        selectedAddress = BaseModel.getString(addrStore, 'addressTh');
+      } else {
+        selectedAddress = BaseModel.getString(addrStore, 'addressEn');
+      }
+      if (selectedAddress.isEmpty) {
+        selectedAddress = BaseModel.getString(addrStore, 'address');
+      }
+    }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
