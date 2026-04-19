@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mxcome/com/mxcome/app/IConstant.dart';
+import 'package:mxcome/com/mxcome/app/ui/LanguagePage.dart';
 import 'package:mxcome/com/mxcome/app/ui/shop/brand/BrandShopPage.dart';
 import 'package:mxcome/com/mxcome/app/ui/shop/cart/CartPage.dart';
 import 'package:mxcome/com/mxcome/app/ui/shop/widget/CouponDrawerComponents.dart';
@@ -289,14 +290,18 @@ class ProductDetailPageState extends BaseKeepAliveState<ProductDetailPage>
 
     final String shopLogo = BaseModel.getString(shopData, 'logo');
 
-    // 地址和电话从店铺详情API获取，使用优惠券API的字段名
-    final String shopAddress = _shopDetail != null
-        ? (BaseModel.getString(_shopDetail, 'addressZh').isNotEmpty
-            ? BaseModel.getString(_shopDetail, 'addressZh')
-            : (BaseModel.getString(_shopDetail, 'addressTh').isNotEmpty
-                ? BaseModel.getString(_shopDetail, 'addressTh')
-                : BaseModel.getString(_shopDetail, 'addressEn')))
-        : BaseModel.getString(shopData, 'address');
+    // 地址和电话根据当前语言显示对应版本
+    String shopAddress = '';
+    if (LanguagePage.language == LanguageType.ZH) {
+      shopAddress = BaseModel.getString(_shopDetail ?? shopData, 'addressZh');
+    } else if (LanguagePage.language == LanguageType.TH) {
+      shopAddress = BaseModel.getString(_shopDetail ?? shopData, 'addressTh');
+    } else {
+      shopAddress = BaseModel.getString(_shopDetail ?? shopData, 'addressEn');
+    }
+    if (shopAddress.isEmpty) {
+      shopAddress = BaseModel.getString(shopData, 'address');
+    }
 
     final String shopPhone = _shopDetail != null
         ? BaseModel.getString(_shopDetail, 'addressPhone') ?? ''
@@ -375,15 +380,17 @@ class ProductDetailPageState extends BaseKeepAliveState<ProductDetailPage>
                                 child: StatefulBuilder(
                                   builder: (context, setModalState) {
                                     final store = shopList[0];
-                                    // 支持两种数据结构：店铺详情API的addressZh和商品接口的address
-                                    final String address =
-                                        BaseModel.getString(store, 'addressZh').isNotEmpty
-                                            ? BaseModel.getString(store, 'addressZh')
-                                            : (BaseModel.getString(store, 'addressTh').isNotEmpty
-                                                ? BaseModel.getString(store, 'addressTh')
-                                                : (BaseModel.getString(store, 'addressEn').isNotEmpty
-                                                    ? BaseModel.getString(store, 'addressEn')
-                                                    : BaseModel.getString(store, 'address')));
+                                    String address = '';
+                                    if (LanguagePage.language == LanguageType.ZH) {
+                                      address = BaseModel.getString(store, 'addressZh');
+                                    } else if (LanguagePage.language == LanguageType.TH) {
+                                      address = BaseModel.getString(store, 'addressTh');
+                                    } else {
+                                      address = BaseModel.getString(store, 'addressEn');
+                                    }
+                                    if (address.isEmpty) {
+                                      address = BaseModel.getString(store, 'address');
+                                    }
 
                                     return SingleChildScrollView(
                                       controller: controller,

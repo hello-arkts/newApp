@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mxcome/com/mxcome/app/IConstant.dart';
 import 'package:mxcome/com/mxcome/app/IURLConstant.dart';
 import 'package:mxcome/com/mxcome/app/config/LanguageConfig.dart';
+import 'package:mxcome/com/mxcome/app/ui/LanguagePage.dart';
 import 'package:mxcome/com/mxcome/app/model/BaseModel.dart';
 import 'package:mxcome/com/mxcome/app/utils/HttpUtils.dart';
 import 'package:mxcome/com/mxcome/app/utils/ViewUtils.dart';
@@ -11,7 +12,6 @@ import 'package:mxcome/com/mxcome/app/ui/shop/widget/CouponDrawerTabSwitcher.dar
 import 'package:mxcome/com/mxcome/app/ui/shop/featured/ShopFeaturedPage.dart';
 
 import 'package:sprintf/sprintf.dart';
-import 'package:mxcome/com/mxcome/app/config/LanguageConfig.dart';
 
 class CouponDetailDrawer extends StatefulWidget {
   final String initialCouponId;
@@ -134,17 +134,29 @@ class _CouponDetailDrawerState extends State<CouponDetailDrawer> {
               child: StatefulBuilder(
                 builder: (context, setModalState) {
                   final store = _shopList[_selectedStoreIndex];
-                  final String address = BaseModel.getString(store, 'addressZh').isNotEmpty
-                      ? BaseModel.getString(store, 'addressZh')
-                      : (BaseModel.getString(store, 'addressTh').isNotEmpty
-                          ? BaseModel.getString(store, 'addressTh')
-                          : BaseModel.getString(store, 'addressEn'));
+                  String address = '';
+                  if (LanguagePage.language == LanguageType.ZH) {
+                    address = BaseModel.getString(store, 'addressZh');
+                  } else if (LanguagePage.language == LanguageType.TH) {
+                    address = BaseModel.getString(store, 'addressTh');
+                  } else {
+                    address = BaseModel.getString(store, 'addressEn');
+                  }
+                  if (address.isEmpty) {
+                    address = BaseModel.getString(store, 'address');
+                  }
                   final dynamic shop = BaseModel.getDynamic(widget.initialItem, 'shop') ?? {};
-                  final String shopName = BaseModel.getString(shop, 'brandNameZh').isNotEmpty
-                      ? BaseModel.getString(shop, 'brandNameZh')
-                      : (BaseModel.getString(shop, 'brandNameTh').isNotEmpty
-                          ? BaseModel.getString(shop, 'brandNameTh')
-                          : BaseModel.getString(shop, 'brandNameEn'));
+                  String shopName = '';
+                  if (LanguagePage.language == LanguageType.ZH) {
+                    shopName = BaseModel.getString(shop, 'brandNameZh');
+                  } else if (LanguagePage.language == LanguageType.TH) {
+                    shopName = BaseModel.getString(shop, 'brandNameTh');
+                  } else {
+                    shopName = BaseModel.getString(shop, 'brandNameEn');
+                  }
+                  if (shopName.isEmpty) {
+                    shopName = BaseModel.getString(shop, 'brandName');
+                  }
 
                   return SingleChildScrollView(
                     controller: controller,
@@ -283,22 +295,34 @@ class _CouponDetailDrawerState extends State<CouponDetailDrawer> {
     final String logo = BaseModel.getString(detail, 'logoUrl').isNotEmpty
         ? BaseModel.getString(detail, 'logoUrl')
         : BaseModel.getString(initShop, 'logoUrl');
-    final String shopName = BaseModel.getString(initShop, 'brandNameZh').isNotEmpty
-        ? BaseModel.getString(initShop, 'brandNameZh')
-        : (BaseModel.getString(initShop, 'brandNameTh').isNotEmpty
-            ? BaseModel.getString(initShop, 'brandNameTh')
-            : BaseModel.getString(initShop, 'brandNameEn'));
+    String shopName = '';
+    if (LanguagePage.language == LanguageType.ZH) {
+      shopName = BaseModel.getString(initShop, 'brandNameZh');
+    } else if (LanguagePage.language == LanguageType.TH) {
+      shopName = BaseModel.getString(initShop, 'brandNameTh');
+    } else {
+      shopName = BaseModel.getString(initShop, 'brandNameEn');
+    }
+    if (shopName.isEmpty) {
+      shopName = BaseModel.getString(initShop, 'brandName');
+    }
 
     final dynamic store = (_shopList.isNotEmpty &&
             _selectedStoreIndex >= 0 &&
             _selectedStoreIndex < _shopList.length)
         ? _shopList[_selectedStoreIndex]
         : {};
-    final String address = BaseModel.getString(store, 'addressZh').isNotEmpty
-        ? BaseModel.getString(store, 'addressZh')
-        : (BaseModel.getString(store, 'addressTh').isNotEmpty
-            ? BaseModel.getString(store, 'addressTh')
-            : BaseModel.getString(store, 'addressEn'));
+    String address = '';
+    if (LanguagePage.language == LanguageType.ZH) {
+      address = BaseModel.getString(store, 'addressZh');
+    } else if (LanguagePage.language == LanguageType.TH) {
+      address = BaseModel.getString(store, 'addressTh');
+    } else {
+      address = BaseModel.getString(store, 'addressEn');
+    }
+    if (address.isEmpty) {
+      address = BaseModel.getString(store, 'address');
+    }
     final String phone = BaseModel.getString(store, 'addressPhone') ?? '';
 
     final int shopId = BaseModel.getInt(initShop, 'id') != 0
