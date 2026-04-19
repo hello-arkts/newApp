@@ -240,6 +240,8 @@ class ProductAdvertiseState extends BaseKeepAliveState<ProductAdvertise> {
                   SizedBox(height: 8.w),
                   Text(
                     menus[index]["title"]!,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       fontSize: 14.sp,
                       fontWeight: FontWeight.bold,
@@ -249,6 +251,8 @@ class ProductAdvertiseState extends BaseKeepAliveState<ProductAdvertise> {
                   SizedBox(height: 4.w),
                   Text(
                     menus[index]["subtitle"]!,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       fontSize: 10.sp,
                       color: menus[index].containsKey("subtitleColor") &&

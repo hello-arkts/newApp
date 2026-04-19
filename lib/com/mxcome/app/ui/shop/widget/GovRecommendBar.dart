@@ -22,35 +22,35 @@ class GovRecommendBar extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.spaceBetween, // 均匀分布，把剩余空间放在中间
           children: [
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  LanguageConfig.get(LanguageConfigKeys.Gov_recommend_title),
-                  style: TextStyle(
-                    fontSize: 13.sp, // 稍微缩小字体适应固定高度
-                    fontWeight: FontWeight.w600,
-                    color: const Color(0xFF1A1A1A),
-                    height: 1.2,
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    LanguageConfig.get(LanguageConfigKeys.Gov_recommend_title),
+                    style: TextStyle(
+                      fontSize: 13.sp,
+                      fontWeight: FontWeight.w600,
+                      color: const Color(0xFF1A1A1A),
+                      height: 1.2,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                SizedBox(height: 2.h),
-                Text(
-                  LanguageConfig.get(LanguageConfigKeys.Gov_recommend_subtitle),
-                  style: TextStyle(
-                    fontSize: 10.sp,
-                    fontWeight: FontWeight.w400,
-                    color: const Color(0xFF999999),
-                    height: 1.2,
+                  SizedBox(height: 2.h),
+                  Text(
+                    LanguageConfig.get(LanguageConfigKeys.Gov_recommend_subtitle),
+                    style: TextStyle(
+                      fontSize: 10.sp,
+                      fontWeight: FontWeight.w400,
+                      color: const Color(0xFF999999),
+                      height: 1.2,
+                    ),
                   ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
+                ],
+              ),
             ),
             Row(
               mainAxisSize: MainAxisSize.min,
