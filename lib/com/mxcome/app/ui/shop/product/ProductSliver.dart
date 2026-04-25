@@ -312,9 +312,6 @@ class ProductSliverState extends BaseKeepAliveState<ProductSliver> {
             return ProductTask();
           }, childCount: 1)),
           // 横向店铺列表
-          SliverToBoxAdapter(
-            child: _buildShopFeaturedScroller(),
-          ),
           // 当活动为空时隐藏活动列表
           if (datas.isNotEmpty) ...[
             SliverList(

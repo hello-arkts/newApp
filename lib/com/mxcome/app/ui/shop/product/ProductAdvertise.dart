@@ -24,6 +24,7 @@ import '../../web3/WalletCreatePage.dart';
 import '../../web3/WalletManagerPage.dart';
 import 'MonthlyBenefitsPage.dart';
 import 'SuperWednesdayPage.dart';
+import 'package:mxcome/com/mxcome/app/ui/shop/featured/ShopFeaturedScroller.dart';
 
 class ProductAdvertise extends StatefulWidget {
   dynamic advertiseList;
@@ -72,13 +73,15 @@ class ProductAdvertiseState extends BaseKeepAliveState<ProductAdvertise> {
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return Stack(
-      alignment: Alignment.bottomCenter,
+    return Column(
       children: [
-        Container(
-            transform: Matrix4.translationValues(0.0, -70.w, 0.0),
-            height: 400.w,
-            child: Swiper(
+        Stack(
+          alignment: Alignment.bottomCenter,
+          children: [
+            Container(
+                transform: Matrix4.translationValues(0.0, -50.w, 0.0),
+                height: 340.w,
+            child: Swiper(       
               loop: advertiseList.length > 1 ? true : false,
               autoplay: advertiseList.length > 1 ? true : false,
               autoplayDelay: 5000,
@@ -127,6 +130,9 @@ class ProductAdvertiseState extends BaseKeepAliveState<ProductAdvertise> {
           ),
           child: buildNewGridMenu(),
         ),
+        ],
+        ),
+        _buildShopFeaturedScroller(),
       ],
     );
   }
@@ -451,5 +457,9 @@ class ProductAdvertiseState extends BaseKeepAliveState<ProductAdvertise> {
             })
           });
     }
+  }
+
+  Widget _buildShopFeaturedScroller() {
+    return const ShopFeaturedScroller();
   }
 }

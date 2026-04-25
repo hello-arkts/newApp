@@ -65,8 +65,8 @@ class _ShopFeaturedScrollerState extends State<ShopFeaturedScroller> {
   Widget build(BuildContext context) {
     if (_isLoading) {
       return Container(
-        height: 80.w,
-        margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.w),
+        height: 44.w,
+        margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.w),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16.w),
@@ -87,7 +87,7 @@ class _ShopFeaturedScrollerState extends State<ShopFeaturedScroller> {
     }
 
     return Container(
-      padding: EdgeInsets.only(left: 8.w, right: 8.w, top: 16.w, bottom: 0),
+      padding: EdgeInsets.only(left: 8.w, right: 8.w, top: 8.w, bottom: 0),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16.w),
         boxShadow: [
