@@ -344,6 +344,28 @@ class _CouponDetailDrawerState extends State<CouponDetailDrawer> {
                                 child: _buildContent(),
                               ),
                             ),
+                            Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 8.w),
+                              child: CouponStorePickerActionSection(
+                                addressText: _getSelectedAddress().isEmpty
+                                    ? LanguageConfig.get(
+                                        LanguageConfigKeys.Coupon_detail_select_address)
+                                    : _getSelectedAddress(),
+                                shopList: _shopList,
+                                selectedIndex: _selectedStoreIndex,
+                                shopName: _getShopName(),
+                                onSelectIndex: (index) {
+                                  setState(() {
+                                    _selectedStoreIndex = index;
+                                  });
+                                },
+                                onNoDataTap: () {
+                                  ViewUtils.displayToast(
+                                      LanguageConfig.get(LanguageConfigKeys.ViewUtils_no_data));
+                                },
+                              ),
+                            ),
+                            SizedBox(height: 8.w),
                             _buildBottom(),
                           ],
                         ),
@@ -438,25 +460,7 @@ class _CouponDetailDrawerState extends State<CouponDetailDrawer> {
     );
   }
 
-  Widget _buildContent() {
-    final dynamic detail = _detail ?? {};
-    final dynamic shop = BaseModel.getDynamic(widget.initialItem, 'shop') ?? {};
-    final String logo = BaseModel.getString(detail, 'logoUrl').isNotEmpty
-        ? BaseModel.getString(detail, 'logoUrl')
-        : BaseModel.getString(shop, 'logoUrl');
-    String shopName = '';
-    if (LanguagePage.language == LanguageType.ZH) {
-      shopName = BaseModel.getString(shop, 'brandNameZh');
-    } else if (LanguagePage.language == LanguageType.TH) {
-      shopName = BaseModel.getString(shop, 'brandNameTh');
-    } else {
-      shopName = BaseModel.getString(shop, 'brandNameEn');
-    }
-    if (shopName.isEmpty) {
-      shopName = BaseModel.getString(shop, 'brandName');
-    }
-    final String qrcode = BaseModel.getString(detail, 'qrcode') ?? '';
-    final String code = BaseModel.getString(detail, 'code') ?? '';
+  String _getSelectedAddress() {
     String selectedAddress = '';
     if (_shopList.isNotEmpty && _selectedStoreIndex >= 0) {
       final dynamic addrStore = _shopList[_selectedStoreIndex];
@@ -471,13 +475,40 @@ class _CouponDetailDrawerState extends State<CouponDetailDrawer> {
         selectedAddress = BaseModel.getString(addrStore, 'address');
       }
     }
+    return selectedAddress;
+  }
+
+  String _getShopName() {
+    final dynamic shop = BaseModel.getDynamic(widget.initialItem, 'shop') ?? {};
+    String shopName = '';
+    if (LanguagePage.language == LanguageType.ZH) {
+      shopName = BaseModel.getString(shop, 'brandNameZh');
+    } else if (LanguagePage.language == LanguageType.TH) {
+      shopName = BaseModel.getString(shop, 'brandNameTh');
+    } else {
+      shopName = BaseModel.getString(shop, 'brandNameEn');
+    }
+    if (shopName.isEmpty) {
+      shopName = BaseModel.getString(shop, 'brandName');
+    }
+    return shopName;
+  }
+
+  Widget _buildContent() {
+    final dynamic detail = _detail ?? {};
+    final dynamic shop = BaseModel.getDynamic(widget.initialItem, 'shop') ?? {};
+    final String logo = BaseModel.getString(detail, 'logoUrl').isNotEmpty
+        ? BaseModel.getString(detail, 'logoUrl')
+        : BaseModel.getString(shop, 'logoUrl');
+    final String qrcode = BaseModel.getString(detail, 'qrcode') ?? '';
+    final String code = BaseModel.getString(detail, 'code') ?? '';
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         CouponShopHeader(
           logoUrl: logo,
-          title: shopName,
+          title: _getShopName(),
           subtitle: _couponAmount(detail),
         ),
         CouponQrSection(
@@ -509,25 +540,6 @@ class _CouponDetailDrawerState extends State<CouponDetailDrawer> {
               );
             },
           ),
-        SizedBox(height: 12.w),
-        CouponStorePickerActionSection(
-          addressText: selectedAddress.isEmpty
-              ? LanguageConfig.get(
-                  LanguageConfigKeys.Coupon_detail_select_address)
-              : selectedAddress,
-          shopList: _shopList,
-          selectedIndex: _selectedStoreIndex,
-          shopName: shopName,
-          onSelectIndex: (index) {
-            setState(() {
-              _selectedStoreIndex = index;
-            });
-          },
-          onNoDataTap: () {
-            ViewUtils.displayToast(
-                LanguageConfig.get(LanguageConfigKeys.ViewUtils_no_data));
-          },
-        ),
       ],
     );
   }
