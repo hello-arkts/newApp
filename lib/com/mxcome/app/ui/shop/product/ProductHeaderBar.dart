@@ -7,6 +7,7 @@ import 'package:mxcome/com/mxcome/app/ui/shop/event/HomeEvent.dart';
 import 'package:mxcome/com/mxcome/app/utils/TextUtils.dart';
 import 'package:mxcome/com/mxcome/app/utils/ViewUtils.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 import '../../../BaseKeepAliveState.dart';
 import '../../../IConstant.dart';
@@ -262,7 +263,7 @@ class _ProductHeaderBarState extends BaseKeepAliveState<ProductHeaderBar> {
             // 红包图标与红点
             InkWell(
               onTap: () {
-                // TODO: 添加红包点击逻辑
+                launchUrlString('mxcome://app/lottery');
               },
               child: Stack(
                 clipBehavior: Clip.none,
