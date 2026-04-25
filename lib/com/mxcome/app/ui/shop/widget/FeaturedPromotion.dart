@@ -79,97 +79,21 @@ class _FeaturedPromotionHeaderDelegate extends SliverPersistentHeaderDelegate {
   });
 
   @override
-  double get minExtent => 90.h;
+  double get minExtent => 120.h;
 
   @override
-  double get maxExtent => 90.h;
+  double get maxExtent => 120.h;
 
   @override
   Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
     return Container(
+      color: Colors.white,
       margin: EdgeInsets.symmetric(horizontal: 10.w),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  Text(
-                    LanguageConfig.get(LanguageConfigKeys.Featured_promotion_title),
-                    style: TextStyle(
-                      fontSize: 18.sp,
-                      fontWeight: FontWeight.bold,
-                      color: IConstant.title_color,
-                    ),
-                  ),
-                ],
-              ),
-              TextButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const FeaturedOfferDetails(),
-                    ),
-                  );
-                },
-                style: TextButton.styleFrom(
-                  padding: EdgeInsets.zero,
-                ),
-                child: Row(
-                  children: [
-                    Text(
-                      LanguageConfig.get(LanguageConfigKeys.Featured_promotion_view_all),
-                      style: TextStyle(
-                        fontSize: 13.sp,
-                        color: IConstant.text_color,
-                      ),
-                    ),
-                    Icon(
-                      Icons.chevron_right,
-                      size: 18.w,
-                      color: IConstant.text_color,
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 2.h),
-          SizedBox(
-            height: 32.h,
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              itemCount: categories.length,
-              itemBuilder: (context, index) {
-                final category = categories[index];
-                final isActive = index == activeIndex;
-                return GestureDetector(
-                  onTap: () => onCategoryTap(category),
-                  child: Container(
-                    margin: EdgeInsets.only(right: 12.w),
-                    padding: EdgeInsets.symmetric(horizontal: 16.w),
-                    decoration: BoxDecoration(
-                      color: isActive ? const Color(0xFFFF4D4D) : const Color(0xFFF5F5F5),
-                      borderRadius: BorderRadius.circular(16.r),
-                    ),
-                    alignment: Alignment.center,
-                    child: Text(
-                      category['name'] ?? '',
-                      style: TextStyle(
-                        fontSize: 13.sp,
-                        color: isActive ? Colors.white : IConstant.text_color,
-                        fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
-                      ),
-                    ),
-                  ),
-                );
-              },
-            ),
-          ),
-        ],
+      child: FeaturedPromotionContent.buildHeaderContent(
+        context: context,
+        categories: categories,
+        activeIndex: activeIndex,
+        onCategoryTap: onCategoryTap,
       ),
     );
   }
@@ -202,6 +126,75 @@ class FeaturedPromotionContent extends StatefulWidget {
 
   @override
   State<FeaturedPromotionContent> createState() => _FeaturedPromotionContentState();
+
+  static Widget buildHeaderContent({
+    required BuildContext context,
+    required List<dynamic> categories,
+    required int activeIndex,
+    required Function(dynamic) onCategoryTap,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildHeaderWidgetStatic(context, categories),
+        SizedBox(height: 2.h),
+        PromotionHighlight(
+          categories: categories,
+          activeIndex: activeIndex,
+          onCategoryTap: onCategoryTap,
+        ),
+      ],
+    );
+  }
+
+  static Widget _buildHeaderWidgetStatic(BuildContext context, List<dynamic> categories) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Flexible(
+          child: Text(
+            LanguageConfig.get(LanguageConfigKeys.Featured_promotion_title),
+            style: TextStyle(
+              fontSize: 18.sp,
+              fontWeight: FontWeight.bold,
+              color: IConstant.title_color,
+            ),
+          ),
+        ),
+        TextButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const FeaturedOfferDetails(),
+              ),
+            );
+          },
+          style: TextButton.styleFrom(
+            padding: EdgeInsets.zero,
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                LanguageConfig.get(LanguageConfigKeys.Featured_promotion_view_all),
+                style: TextStyle(
+                  fontSize: 13.sp,
+                  color: IConstant.text_color,
+                ),
+              ),
+              SizedBox(width: 4.w),
+              Icon(
+                Icons.chevron_right,
+                size: 18.w,
+                color: IConstant.text_color,
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
 }
 
 class _FeaturedPromotionContentState extends State<FeaturedPromotionContent> {
@@ -239,21 +232,14 @@ class _FeaturedPromotionContentState extends State<FeaturedPromotionContent> {
   }
 
   Widget buildHeader() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildHeaderWidget(),
-        SizedBox(height: 2.h),
-        PromotionHighlight(
-          categories: widget.categories,
-          activeIndex: _activeIndex,
-          onCategoryTap: (category) {
-            int index = widget.categories.indexOf(category);
-            _onCategorySelected(category, index);
-          },
-        ),
-        SizedBox(height: 8.h),
-      ],
+    return FeaturedPromotionContent.buildHeaderContent(
+      context: context,
+      categories: widget.categories,
+      activeIndex: _activeIndex,
+      onCategoryTap: (category) {
+        int index = widget.categories.indexOf(category);
+        _onCategorySelected(category, index);
+      },
     );
   }
 
@@ -264,7 +250,6 @@ class _FeaturedPromotionContentState extends State<FeaturedPromotionContent> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          buildHeader(),
           PromotionAction(
             promotionItems: widget.promotionItems,
             onPromotionTap: widget.onPromotionTap,
@@ -273,56 +258,6 @@ class _FeaturedPromotionContentState extends State<FeaturedPromotionContent> {
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildHeaderWidget() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Row(
-          children: [
-            Text(
-              LanguageConfig.get(LanguageConfigKeys.Featured_promotion_title),
-              style: TextStyle(
-                fontSize: 18.sp,
-                fontWeight: FontWeight.bold,
-                color: IConstant.title_color,
-              ),
-            ),
-          ],
-        ),
-        TextButton(
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const FeaturedOfferDetails(),
-              ),
-            );
-          },
-          style: TextButton.styleFrom(
-            padding: EdgeInsets.zero,
-          ),
-          child: Row(
-            children: [
-              Text(
-                LanguageConfig.get(LanguageConfigKeys.Featured_promotion_view_all),
-                style: TextStyle(
-                  fontSize: 13.sp,
-                  color: IConstant.text_color,
-                ),
-              ),
-              SizedBox(width: 4.w),
-              Icon(
-                Icons.chevron_right,
-                size: 18.w,
-                color: IConstant.text_color,
-              ),
-            ],
-          ),
-        ),
-      ],
     );
   }
 }
