@@ -13,6 +13,75 @@ import 'package:mxcome/com/mxcome/app/ui/shop/featured/ShopFeaturedPage.dart';
 
 import 'package:sprintf/sprintf.dart';
 
+class AnimatedArrowUp extends StatefulWidget {
+  final double size;
+  final Color color;
+
+  const AnimatedArrowUp({
+    super.key,
+    this.size = 24,
+    this.color = Colors.red,
+  });
+
+  @override
+  State<AnimatedArrowUp> createState() => _AnimatedArrowUpState();
+}
+
+class _AnimatedArrowUpState extends State<AnimatedArrowUp>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _animation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 800),
+      vsync: this,
+    );
+    _animation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+    );
+    _controller.repeat(reverse: true);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _animation,
+      builder: (context, child) {
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Transform.translate(
+              offset: Offset(0, -1.5 * _animation.value),
+              child: Icon(
+                Icons.keyboard_arrow_up,
+                size: (widget.size * 0.7).w,
+                color: widget.color,
+              ),
+            ),
+            Transform.translate(
+              offset: Offset(0, -3.0 * _animation.value),
+              child: Icon(
+                Icons.keyboard_arrow_up,
+                size: widget.size.w,
+                color: widget.color,
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
 class CouponDetailDrawer extends StatefulWidget {
   final String initialCouponId;
   final dynamic initialItem;
@@ -494,8 +563,7 @@ class _CouponDetailDrawerState extends State<CouponDetailDrawer> {
             children: [
               Column(
                 children: [
-                  Icon(Icons.keyboard_arrow_up,
-                      size: 24.w, color: IConstant.grey_color),
+                  const AnimatedArrowUp(),
                   Text(
                     LanguageConfig.get(
                         LanguageConfigKeys.Coupon_detail_swipe_up_shop),
