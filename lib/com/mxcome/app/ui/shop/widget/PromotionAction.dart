@@ -68,9 +68,10 @@ class _PromotionActionState extends State<PromotionAction> {
     final Widget gridView = GridView.builder(
       padding: gridPadding,
       primary: false,
-      shrinkWrap: true, // 强制让 GridView 计算内容高度
-      physics:
-          const NeverScrollableScrollPhysics(), // 禁用内部滚动，让外层的 CustomScrollView 接管滑动事件
+      shrinkWrap: true,
+      physics: widget.scrollable
+          ? const BouncingScrollPhysics()
+          : const NeverScrollableScrollPhysics(),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: widget.columnsCount,
         mainAxisExtent: 125.h,

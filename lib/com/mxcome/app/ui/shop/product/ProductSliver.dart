@@ -67,6 +67,7 @@ class ProductSliverState extends BaseKeepAliveState<ProductSliver> {
   List<dynamic> promotionCategories = []; // 分类列表
   List<dynamic> promotionItems = []; // 优惠券列表
   int _selectedCategoryIndex = 0; // 当前选中的分类索引
+  int _activePromotionIndex = 0; // 精选优惠头部当前选中索引
   int _promotionPageNum = 1;
   int _promotionPageSize = 10;
   bool _promotionHasMore = true;
@@ -358,6 +359,19 @@ class ProductSliverState extends BaseKeepAliveState<ProductSliver> {
             ),
           ],
           // 精选优惠组件
+          SliverPersistentHeader(
+            pinned: true,
+            delegate: FeaturedPromotion.buildPersistentHeader(
+              categories: promotionCategories,
+              activeIndex: _activePromotionIndex,
+              onCategoryTap: (category) {
+                setState(() {
+                  _activePromotionIndex = promotionCategories.indexOf(category);
+                });
+                loadPromotionItems(category);
+              },
+            ),
+          ),
           SliverToBoxAdapter(
             child: _buildFeaturedPromotion(),
           ),
@@ -757,7 +771,7 @@ class ProductSliverState extends BaseKeepAliveState<ProductSliver> {
   Widget _buildFeaturedPromotion() {
     return FeaturedPromotion(
       categories: promotionCategories,
-      promotionItems: promotionItems,
+      promotionItems: List.filled(20, promotionItems).expand((x) => x).toList(),
       onCategoryTap: (category) {
         // 处理分类点击，加载对应分类的优惠券
         loadPromotionItems(category);
@@ -774,3 +788,4 @@ class ProductSliverState extends BaseKeepAliveState<ProductSliver> {
     return const ShopFeaturedScroller();
   }
 }
+
