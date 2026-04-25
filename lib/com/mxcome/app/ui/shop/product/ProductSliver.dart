@@ -766,15 +766,18 @@ class ProductSliverState extends BaseKeepAliveState<ProductSliver> {
 
   /// 构建精选优惠组件
   Widget _buildFeaturedPromotionContent() {
-    return FeaturedPromotionContent(
-      categories: promotionCategories,
-      promotionItems: List.filled(20, promotionItems).expand((x) => x).toList(),
-      onCategoryTap: (category) {
-        loadPromotionItems(category);
-      },
-      onPromotionTap: (item) {
-        print('点击商品：${item}');
-      },
+    return ConstrainedBox(
+      constraints: BoxConstraints(minHeight: MediaQuery.of(context).size.height - 320.w),
+      child: FeaturedPromotionContent(
+        categories: promotionCategories,
+        promotionItems: promotionItems,
+        onCategoryTap: (category) {
+          loadPromotionItems(category);
+        },
+        onPromotionTap: (item) {
+          print('点击商品：${item}');
+        },
+      ),
     );
   }
 
