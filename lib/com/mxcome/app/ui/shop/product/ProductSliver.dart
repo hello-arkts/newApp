@@ -359,21 +359,18 @@ class ProductSliverState extends BaseKeepAliveState<ProductSliver> {
             ),
           ],
           // 精选优惠组件
-          SliverPersistentHeader(
-            pinned: true,
-            delegate: FeaturedPromotion.buildPersistentHeader(
-              categories: promotionCategories,
-              activeIndex: _activePromotionIndex,
-              onCategoryTap: (category) {
-                setState(() {
-                  _activePromotionIndex = promotionCategories.indexOf(category);
-                });
-                loadPromotionItems(category);
-              },
-            ),
+          FeaturedPromotionSliver(
+            categories: promotionCategories,
+            externalActiveIndex: _activePromotionIndex,
+            onCategoryTap: (category) {
+              setState(() {
+                _activePromotionIndex = promotionCategories.indexOf(category);
+              });
+              loadPromotionItems(category);
+            },
           ),
           SliverToBoxAdapter(
-            child: _buildFeaturedPromotion(),
+            child: _buildFeaturedPromotionContent(),
           ),
           // KOL 分享
           SliverToBoxAdapter(
@@ -768,16 +765,14 @@ class ProductSliverState extends BaseKeepAliveState<ProductSliver> {
   }
 
   /// 构建精选优惠组件
-  Widget _buildFeaturedPromotion() {
-    return FeaturedPromotion(
+  Widget _buildFeaturedPromotionContent() {
+    return FeaturedPromotionContent(
       categories: promotionCategories,
       promotionItems: List.filled(20, promotionItems).expand((x) => x).toList(),
       onCategoryTap: (category) {
-        // 处理分类点击，加载对应分类的优惠券
         loadPromotionItems(category);
       },
       onPromotionTap: (item) {
-        // 处理商品点击
         print('点击商品：${item}');
       },
     );
