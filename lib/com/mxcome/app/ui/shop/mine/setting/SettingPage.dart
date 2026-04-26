@@ -104,15 +104,18 @@ class SettingPageState extends BaseKeepAliveState<SettingPage> {
           Container(
             height: 150.w,
             margin: EdgeInsets.only(left: 8.w, top: 10.w),
-            child: WebView(
-              initialUrl: '',
-              javascriptMode: JavascriptMode.unrestricted,
-              onWebViewCreated: (WebViewController webViewController) async{
-                _webViewController = webViewController;
-                _loadHtmlFromAssets();
-              },
-              onPageFinished: (url) async{
-              },
+            // child: WebView(
+            //   initialUrl: '',
+            //   javascriptMode: JavascriptMode.unrestricted,
+            //   onWebViewCreated: (WebViewController webViewController) async{
+            //     _webViewController = webViewController;
+            //     _loadHtmlFromAssets();
+            //   },
+            //   onPageFinished: (url) async{
+            //   },
+            child: Image.asset(
+              'assets/icons/authorisedInThailand.jpg',
+              fit: BoxFit.contain,
             ),
           )
         ],
