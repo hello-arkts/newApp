@@ -102,7 +102,7 @@ class SettingPageState extends BaseKeepAliveState<SettingPage> {
           )),
           Divider(height: 1.w),
           Container(
-            height: 150.w,
+            height: 100.w,
             margin: EdgeInsets.only(left: 8.w, top: 10.w),
             // child: WebView(
             //   initialUrl: '',
@@ -113,9 +113,14 @@ class SettingPageState extends BaseKeepAliveState<SettingPage> {
             //   },
             //   onPageFinished: (url) async{
             //   },
-            child: Image.asset(
-              'assets/icons/authorisedInThailand.jpg',
-              fit: BoxFit.contain,
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: Image.asset(
+                'assets/icons/authorisedInThailand.jpg',
+                width: 150.w,
+                height: 150.w,
+                fit: BoxFit.contain,
+              ),
             ),
           )
         ],
