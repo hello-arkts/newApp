@@ -22,6 +22,7 @@ class ShopFeaturedBrandTab extends StatefulWidget {
 class _ShopFeaturedBrandTabState extends State<ShopFeaturedBrandTab> {
   bool _isLoading = true;
   bool _hasError = false;
+  bool _isEmpty = false;
   Map<String, dynamic>? _brandData;
 
   @override
@@ -34,6 +35,7 @@ class _ShopFeaturedBrandTabState extends State<ShopFeaturedBrandTab> {
     setState(() {
       _isLoading = true;
       _hasError = false;
+      _isEmpty = false;
     });
 
     try {
@@ -44,10 +46,18 @@ class _ShopFeaturedBrandTabState extends State<ShopFeaturedBrandTab> {
       if (!mounted) return;
 
       if (rsp.retCode == RspRetCode.SUCCESS && rsp.data != null) {
-        setState(() {
-          _brandData = rsp.data as Map<String, dynamic>;
-          _isLoading = false;
-        });
+        final data = rsp.data as Map<String, dynamic>;
+        if (data.isEmpty) {
+          setState(() {
+            _isEmpty = true;
+            _isLoading = false;
+          });
+        } else {
+          setState(() {
+            _brandData = data;
+            _isLoading = false;
+          });
+        }
       } else {
         setState(() {
           _isLoading = false;
@@ -69,6 +79,15 @@ class _ShopFeaturedBrandTabState extends State<ShopFeaturedBrandTab> {
   Widget build(BuildContext context) {
     if (_isLoading) {
       return const Center(child: CircularProgressIndicator());
+    }
+
+    if (_isEmpty) {
+      return Center(
+        child: Text(
+          LanguageConfig.get(LanguageConfigKeys.Shop_brand_no_data),
+          style: TextStyle(color: IConstant.grey_color, fontSize: 14.sp),
+        ),
+      );
     }
 
     if (_hasError || _brandData == null) {

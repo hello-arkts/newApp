@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mxcome/com/mxcome/app/IConstant.dart';
+import 'package:mxcome/com/mxcome/app/config/LanguageConfig.dart';
 
 import 'ShopFeaturedProductsTab.dart';
 import 'ShopFeaturedBrandTab.dart';
@@ -40,7 +41,7 @@ class _ShopFeaturedModuleState extends State<ShopFeaturedModule> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Text(
-                    '店铺精选',
+                    LanguageConfig.get(LanguageConfigKeys.Shop_featured_tab_products),
                     style: TextStyle(
                       fontSize: 16.sp,
                       fontWeight:
@@ -79,7 +80,7 @@ class _ShopFeaturedModuleState extends State<ShopFeaturedModule> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Text(
-                    '关于品牌',
+                    LanguageConfig.get(LanguageConfigKeys.Shop_featured_tab_brand),
                     style: TextStyle(
                       fontSize: 16.sp,
                       fontWeight:

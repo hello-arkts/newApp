@@ -1663,6 +1663,12 @@ class LanguageConfig {
       LanguageConfigKeys.Coupon_code_prefix: "Code: %s",
       LanguageConfigKeys.Shop_brand_load_failed: "Failed to load brand data",
       LanguageConfigKeys.Shop_brand_click_retry: "Click to retry",
+      LanguageConfigKeys.Shop_brand_no_data: "No brand information available",
+      LanguageConfigKeys.Shop_featured_products_empty: "No products available",
+      LanguageConfigKeys.Shop_featured_products_not_exist: "Shop does not exist",
+      LanguageConfigKeys.Shop_featured_no_more: "No more",
+      LanguageConfigKeys.Shop_featured_tab_products: "Shop Products",
+      LanguageConfigKeys.Shop_featured_tab_brand: "About Brand",
       LanguageConfigKeys.Promotion_highlight_category_fallback: "Category",
     },
 
@@ -3316,6 +3322,12 @@ class LanguageConfig {
       LanguageConfigKeys.Coupon_code_prefix: "รหัส: %s",
       LanguageConfigKeys.Shop_brand_load_failed: "โหลดข้อมูลแบรนด์ล้มเหลว",
       LanguageConfigKeys.Shop_brand_click_retry: "คลิกเพื่อลองใหม่",
+      LanguageConfigKeys.Shop_brand_no_data: "ร้านค้ายังไม่ได้ลงข้อมูล",
+      LanguageConfigKeys.Shop_featured_products_empty: "ร้านค้ายังไม่มีสินค้าวางจำหน่าย",
+      LanguageConfigKeys.Shop_featured_products_not_exist: "ร้านค้าไม่มีอยู่",
+      LanguageConfigKeys.Shop_featured_no_more: "หมดแล้ว",
+      LanguageConfigKeys.Shop_featured_tab_products: "สินค้าร้านค้า",
+      LanguageConfigKeys.Shop_featured_tab_brand: "เกี่ยวกับแบรนด์",
       LanguageConfigKeys.Promotion_highlight_category_fallback: "หมวดหมู่",
     },
 
@@ -4688,6 +4700,12 @@ class LanguageConfig {
       LanguageConfigKeys.Coupon_code_prefix: "券码: %s",
       LanguageConfigKeys.Shop_brand_load_failed: "加载品牌数据失败",
       LanguageConfigKeys.Shop_brand_click_retry: "点击重试",
+      LanguageConfigKeys.Shop_brand_no_data: "商家暂未录入",
+      LanguageConfigKeys.Shop_featured_products_empty: "商家暂未上架任何商品",
+      LanguageConfigKeys.Shop_featured_products_not_exist: "店铺不存在",
+      LanguageConfigKeys.Shop_featured_no_more: "没有更多了",
+      LanguageConfigKeys.Shop_featured_tab_products: "店铺精选",
+      LanguageConfigKeys.Shop_featured_tab_brand: "关于品牌",
       LanguageConfigKeys.Promotion_highlight_category_fallback: "分类",
     },
   };
@@ -4851,6 +4869,12 @@ class LanguageConfigKeys {
   static const Coupon_code_prefix = "Coupon_code_prefix";
   static const Shop_brand_load_failed = "Shop_brand_load_failed";
   static const Shop_brand_click_retry = "Shop_brand_click_retry";
+  static const Shop_brand_no_data = "Shop_brand_no_data";
+  static const Shop_featured_products_empty = "Shop_featured_products_empty";
+  static const Shop_featured_products_not_exist = "Shop_featured_products_not_exist";
+  static const Shop_featured_no_more = "Shop_featured_no_more";
+  static const Shop_featured_tab_products = "Shop_featured_tab_products";
+  static const Shop_featured_tab_brand = "Shop_featured_tab_brand";
   static const Featured_promotion_category_leisure =
       "Featured_promotion_category_leisure";
   static const Shop_product_shop = "Shop_product_shop";
