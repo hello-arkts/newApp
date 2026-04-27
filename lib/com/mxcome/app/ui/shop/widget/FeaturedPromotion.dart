@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mxcome/com/mxcome/app/config/LanguageConfig.dart';
 import 'package:mxcome/com/mxcome/app/IConstant.dart';
+import 'package:mxcome/com/mxcome/app/ui/shop/event/LanguageEvent.dart';
+import 'package:mxcome/com/mxcome/app/ui/shop/utils/EventBusUtil.dart';
 
 import 'PromotionHighlight.dart';
 import 'PromotionAction.dart';
@@ -33,15 +35,29 @@ class FeaturedPromotionSliver extends StatefulWidget {
 class _FeaturedPromotionSliverState extends State<FeaturedPromotionSliver> {
   int get _activeIndex => widget.externalActiveIndex ?? _internalActiveIndex;
   int _internalActiveIndex = 0;
+  dynamic _languageEvent;
+  int _languageVersion = 0;
 
   @override
   void initState() {
     super.initState();
+    _languageEvent = EventBusUtil.getInstance().on<LanguageEvent>((event) {
+      if (mounted) {
+        _languageVersion++;
+        setState(() {});
+      }
+    });
     if (widget.externalActiveIndex == null && widget.categories.isNotEmpty) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _internalActiveIndex = 0;
       });
     }
+  }
+
+  @override
+  void dispose() {
+    EventBusUtil.getInstance().off(_languageEvent);
+    super.dispose();
   }
 
   void _onCategoryTap(dynamic category) {
@@ -62,6 +78,7 @@ class _FeaturedPromotionSliverState extends State<FeaturedPromotionSliver> {
         categories: widget.categories,
         activeIndex: _activeIndex,
         onCategoryTap: _onCategoryTap,
+        languageVersion: _languageVersion,
       ),
     );
   }
@@ -71,11 +88,13 @@ class _FeaturedPromotionHeaderDelegate extends SliverPersistentHeaderDelegate {
   final List<dynamic> categories;
   final int activeIndex;
   final Function(dynamic) onCategoryTap;
+  final int languageVersion;
 
   _FeaturedPromotionHeaderDelegate({
     required this.categories,
     required this.activeIndex,
     required this.onCategoryTap,
+    required this.languageVersion,
   });
 
   @override
@@ -101,7 +120,8 @@ class _FeaturedPromotionHeaderDelegate extends SliverPersistentHeaderDelegate {
   @override
   bool shouldRebuild(covariant _FeaturedPromotionHeaderDelegate oldDelegate) {
     return activeIndex != oldDelegate.activeIndex ||
-        categories != oldDelegate.categories;
+        categories != oldDelegate.categories ||
+        languageVersion != oldDelegate.languageVersion;
   }
 }
 
@@ -200,10 +220,14 @@ class FeaturedPromotionContent extends StatefulWidget {
 class _FeaturedPromotionContentState extends State<FeaturedPromotionContent> {
   int get _activeIndex => widget.externalActiveIndex ?? _internalActiveIndex;
   int _internalActiveIndex = 0;
+  dynamic _languageEvent;
 
   @override
   void initState() {
     super.initState();
+    _languageEvent = EventBusUtil.getInstance().on<LanguageEvent>((event) {
+      if (mounted) setState(() {});
+    });
     if (widget.externalActiveIndex == null && widget.categories.isNotEmpty) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _onCategorySelected(widget.categories[0], 0);
@@ -218,6 +242,12 @@ class _FeaturedPromotionContentState extends State<FeaturedPromotionContent> {
         widget.externalActiveIndex != null) {
       _internalActiveIndex = widget.externalActiveIndex!;
     }
+  }
+
+  @override
+  void dispose() {
+    EventBusUtil.getInstance().off(_languageEvent);
+    super.dispose();
   }
 
   void _onCategorySelected(dynamic category, int index) {

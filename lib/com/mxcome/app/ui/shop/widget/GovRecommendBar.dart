@@ -1,16 +1,39 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mxcome/com/mxcome/app/config/LanguageConfig.dart';
+import 'package:mxcome/com/mxcome/app/ui/shop/event/LanguageEvent.dart';
+import 'package:mxcome/com/mxcome/app/ui/shop/utils/EventBusUtil.dart';
 
-class GovRecommendBar extends StatelessWidget {
+class GovRecommendBar extends StatefulWidget {
   const GovRecommendBar({
     Key? key,
   }) : super(key: key);
 
   @override
+  State<GovRecommendBar> createState() => _GovRecommendBarState();
+}
+
+class _GovRecommendBarState extends State<GovRecommendBar> {
+  dynamic _languageEvent;
+
+  @override
+  void initState() {
+    super.initState();
+    _languageEvent = EventBusUtil.getInstance().on<LanguageEvent>((event) {
+      if (mounted) setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    EventBusUtil.getInstance().off(_languageEvent);
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 59.w, // 严格固定高度
+      height: 59.w,
       child: Container(
         width: double.infinity,
         padding: EdgeInsets.symmetric(horizontal: 12.w),
@@ -27,7 +50,7 @@ class GovRecommendBar extends StatelessWidget {
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween, // 均匀分布，把剩余空间放在中间
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Expanded(
               child: Column(
