@@ -520,4 +520,10 @@ class IURLConstant {
 
   static const MALL_SHOP_LIST_BY_ID_SHOP =
       "${BASE_URL}/mall-portal/home/shopList"; // 商超列表
+
+  static const MALL_SHOP_FEATURED_PROMOTION =
+      "${BASE_URL}/mall-portal/home/homeAdvertiseList"; // 快捷功能列表
+
+  static const MALL_SHOP_FEATURED_PROMOTION_DETAIL =
+      "${BASE_URL}/mall-portal/home/homeAdvertiseDetail"; // 快捷功能详情
 }
