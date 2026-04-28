@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:mxcome/com/mxcome/app/IConstant.dart';
+import 'package:mxcome/com/mxcome/app/Logger.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 import 'package:mxcome/com/mxcome/app/config/LanguageConfig.dart';
 import 'package:mxcome/com/mxcome/app/ui/LanguagePage.dart';
+import 'package:card_swiper/card_swiper.dart';
+import 'package:mxcome/com/mxcome/app/IConstant.dart';
+import 'package:mxcome/com/mxcome/app/ui/shop/widget/LoadImageView.dart';
+import 'package:mxcome/com/mxcome/app/ui/shop/detail/VideoPlayerWidget.dart';
 
 class ShopFeaturedBrandTab extends StatefulWidget {
   final int shopId;
@@ -33,23 +37,28 @@ class _ShopFeaturedBrandTabState extends State<ShopFeaturedBrandTab> {
     final shop = widget.shopData!;
     String name = shop['brandName']?.toString() ?? '';
     String intro = '';
+    String subtitle = '';
     if (LanguagePage.language == LanguageType.ZH) {
       name = shop['brandNameZh']?.toString() ?? name;
       intro = shop['introZh']?.toString() ?? '';
+      subtitle = shop['brandNameZh2']?.toString() ?? '';
     } else if (LanguagePage.language == LanguageType.TH) {
       name = shop['brandNameTh']?.toString() ?? name;
       intro = shop['introTh']?.toString() ?? '';
+      subtitle = shop['brandNameTh2']?.toString() ?? '';
     } else {
       name = shop['brandNameEn']?.toString() ?? name;
       intro = shop['introEn']?.toString() ?? '';
+      subtitle = shop['brandNameEn2']?.toString() ?? '';
     }
 
     setState(() {
       _brandData = {
         'logo': shop['logoUrl'] ?? '',
         'name': name,
+        'subtitle': subtitle,
         'authMark': intro,
-        'provoPhoto': '',
+        'videoUrls': shop['videoUrls'] ?? '',
       };
     });
   }
@@ -106,9 +115,7 @@ class _ShopFeaturedBrandTabState extends State<ShopFeaturedBrandTab> {
                       ),
                       // Slogan / 副标题
                       Text(
-                        _brandData!['email']?.toString().isNotEmpty == true
-                            ? _brandData!['email'].toString()
-                            : 'Think different',
+                        _brandData!['subtitle']?.toString() ?? '',
                         style: TextStyle(
                           fontSize: 13.sp,
                           color: const Color(0xFF999999),
@@ -125,10 +132,9 @@ class _ShopFeaturedBrandTabState extends State<ShopFeaturedBrandTab> {
 
           // 品牌介绍文本
           Text(
-            _brandData!['authMark']?.toString().isNotEmpty == true
-                ? _brandData!['authMark'].toString()
-                : 'Apple was founded as Apple Computer Company on April 1, 1976, by Steve Wozniak, Steve Jobs (1955–2011) and Ronald Wayne to develop and sell Wozniak\'s Apple I personal computer. It was incorporated by Jobs and Wozniak as Apple Computer, Inc. in 1977. The company\'s second computer, the Apple II, became a best seller and one of the first mass-produced microcomputers. Apple went public in 1980 to instant financial success.',
+            _brandData!['authMark']?.toString() ?? '',
             textAlign: TextAlign.left,
+            softWrap: true,
             style: TextStyle(
               fontSize: 14.sp,
               color: const Color(0xFF333333),
@@ -139,7 +145,7 @@ class _ShopFeaturedBrandTabState extends State<ShopFeaturedBrandTab> {
           SizedBox(height: 24.h),
 
           // 宣传图 + 播放按钮
-          _buildMediaElement(_brandData!['provoPhoto']?.toString() ?? ''),
+          _buildMediaElement(_brandData!['videoUrls']?.toString() ?? ''),
 
           SizedBox(height: 40.h),
         ],
@@ -147,66 +153,53 @@ class _ShopFeaturedBrandTabState extends State<ShopFeaturedBrandTab> {
     );
   }
 
-  Widget _buildMediaElement(String url) {
-    return Column(
-      children: [
-        Stack(
-          alignment: Alignment.center,
-          children: [
-            ClipRRect(
+  Widget _buildMediaElement(String urls) {
+    if (urls.isEmpty) {
+      return _buildPlaceholderPhoto();
+    }
+
+    List<String> urlList = urls.split(',').where((url) => url.trim().isNotEmpty).toList();
+    if (urlList.isEmpty) {
+      return _buildPlaceholderPhoto();
+    }
+
+    return SizedBox(
+      height: 200.h,
+      child: Swiper(
+        key: UniqueKey(),
+        itemBuilder: (BuildContext context, int index) {
+          String mediaUrl = urlList[index].trim();
+          if (_isVideoUrl(mediaUrl)) {
+            return ClipRRect(
               borderRadius: BorderRadius.circular(12.r),
-              child: url.isNotEmpty
-                  ? CachedNetworkImage(
-                      imageUrl: url.trim(),
-                      width: double.infinity,
-                      height: 200.h,
-                      fit: BoxFit.cover,
-                      errorWidget: (context, url, error) =>
-                          _buildPlaceholderPhoto(),
-                    )
-                  : _buildPlaceholderPhoto(),
-            ),
-            // Play button overlay
-            Container(
-              width: 56.w,
-              height: 56.w,
-              decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.3),
-                shape: BoxShape.circle,
-                border: Border.all(color: Colors.white, width: 1.5.w),
-              ),
-              child: Center(
-                child: Icon(Icons.play_arrow, color: Colors.white, size: 36.w),
-              ),
-            ),
-          ],
+              child: VideoPlayerWidget(videoUrl: mediaUrl, volume: 0.5),
+            );
+          } else {
+            return ClipRRect(
+              borderRadius: BorderRadius.circular(12.r),
+              child: LoadImageView(1.sw, 200.h, mediaUrl),
+            );
+          }
+        },
+        itemCount: urlList.length,
+        loop: urlList.length == 1 ? false : true,
+        pagination: SwiperPagination(
+          builder: DotSwiperPaginationBuilder(
+            color: IConstant.grey_bg_color,
+            activeColor: IConstant.main_color,
+          ),
         ),
-        SizedBox(height: 16.h),
-        // 指示器
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              width: 24.w,
-              height: 4.h,
-              decoration: BoxDecoration(
-                color: const Color(0xFFFF4D4F),
-                borderRadius: BorderRadius.circular(2.r),
-              ),
-            ),
-            SizedBox(width: 6.w),
-            Container(
-              width: 4.w,
-              height: 4.w,
-              decoration: const BoxDecoration(
-                color: Color(0xFFFF4D4F),
-                shape: BoxShape.circle,
-              ),
-            ),
-          ],
-        ),
-      ],
+      ),
     );
+  }
+
+  bool _isVideoUrl(String url) {
+    String lowerUrl = url.toLowerCase();
+    return lowerUrl.endsWith('.mp4') ||
+        lowerUrl.endsWith('.mov') ||
+        lowerUrl.endsWith('.avi') ||
+        lowerUrl.endsWith('.mkv') ||
+        lowerUrl.endsWith('.webm');
   }
 
   Widget _buildPlaceholderLogo() {

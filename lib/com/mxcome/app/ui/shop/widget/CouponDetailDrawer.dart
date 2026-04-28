@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mxcome/com/mxcome/app/IConstant.dart';
 import 'package:mxcome/com/mxcome/app/IURLConstant.dart';
+import 'package:mxcome/com/mxcome/app/Logger.dart';
 import 'package:mxcome/com/mxcome/app/config/LanguageConfig.dart';
 import 'package:mxcome/com/mxcome/app/ui/LanguagePage.dart';
 import 'package:mxcome/com/mxcome/app/model/BaseModel.dart';
@@ -98,6 +99,7 @@ class CouponDetailDrawer extends StatefulWidget {
 
 class _CouponDetailDrawerState extends State<CouponDetailDrawer> {
   bool _loading = true;
+  dynamic _shopInfo;
   dynamic _detail;
   List<dynamic> _couponList = [];
   List<dynamic> _shopList = [];
@@ -132,6 +134,7 @@ class _CouponDetailDrawerState extends State<CouponDetailDrawer> {
       if (!mounted) return;
       if (rsp.retCode == 200) {
         final data = rsp.data;
+        final dynamic shop = BaseModel.getDynamic(data, 'shop');
         final dynamic coupon = BaseModel.getDynamic(data, 'coupon');
         final List<dynamic> couponList =
             (BaseModel.getDynamicList(data, 'couponList') ?? [])
@@ -140,6 +143,7 @@ class _CouponDetailDrawerState extends State<CouponDetailDrawer> {
             (BaseModel.getDynamicList(data, 'shopList') ?? []).cast<dynamic>();
         _activeCouponId.value = couponId;
         setState(() {
+          _shopInfo = shop;
           _detail = coupon;
           _couponList = couponList;
           _shopList = shopList;
@@ -381,8 +385,7 @@ class _CouponDetailDrawerState extends State<CouponDetailDrawer> {
 
   Widget _buildShopTab() {
     final dynamic detail = _detail ?? {};
-    final dynamic initShop =
-        BaseModel.getDynamic(widget.initialItem, 'shop') ?? {};
+    final dynamic initShop = _shopInfo ?? {};
     final String logo = BaseModel.getString(detail, 'logoUrl').isNotEmpty
         ? BaseModel.getString(detail, 'logoUrl')
         : BaseModel.getString(initShop, 'logoUrl');
