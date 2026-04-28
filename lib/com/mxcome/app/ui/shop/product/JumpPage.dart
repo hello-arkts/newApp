@@ -6,6 +6,7 @@ import 'package:mxcome/com/mxcome/app/Logger.dart';
 import 'package:mxcome/com/mxcome/app/model/homeAdvertiseServer.dart';
 import 'package:mxcome/com/mxcome/app/model/BaseRsp.dart';
 import 'package:mxcome/com/mxcome/app/model/BaseModel.dart';
+import 'package:mxcome/com/mxcome/app/config/LanguageConfig.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:mxcome/com/mxcome/app/utils/ViewUtils.dart';
 
@@ -38,10 +39,11 @@ class _JumpPageState extends State<JumpPage> {
         'id': widget.itemId.toString(),
       });
       if (rsp.retCode == RspRetCode.SUCCESS) {
-        // 处理数据
-        picProductList = BaseModel.getDynamicList(rsp.data, 'picProductList');
-        keFuList = BaseModel.getDynamicList(rsp.data, 'keFuList');
-        selfApplyAdvertise = rsp.data['advertise'];
+        setState(() {
+          picProductList = BaseModel.getDynamicList(rsp.data, 'picProductList');
+          keFuList = BaseModel.getDynamicList(rsp.data, 'keFuList');
+          selfApplyAdvertise = rsp.data['advertise'];
+        });
       }
     } catch (e) {
       Logger.log('JumpPage error: $e');
@@ -95,12 +97,12 @@ class _JumpPageState extends State<JumpPage> {
                                 final result =
                                     await ImageGallerySaver.saveImage(bytes);
                                 if (result['isSuccess']) {
-                                  ViewUtils.displayToast('保存成功');
+                                  ViewUtils.displayToast(LanguageConfig.get(LanguageConfigKeys.JumpPage_save_success));
                                 } else {
-                                  ViewUtils.displayToast('保存失败');
+                                  ViewUtils.displayToast(LanguageConfig.get(LanguageConfigKeys.JumpPage_save_fail));
                                 }
                               } catch (e) {
-                                ViewUtils.displayToast('保存出错');
+                                ViewUtils.displayToast(LanguageConfig.get(LanguageConfigKeys.JumpPage_save_error));
                               }
                             },
                             child: Image.network(
@@ -111,7 +113,7 @@ class _JumpPageState extends State<JumpPage> {
                           ),
                           SizedBox(height: 8.w),
                           Text(
-                            "长按保存到手机",
+                            LanguageConfig.get(LanguageConfigKeys.JumpPage_long_press_save_to_phone),
                             style: TextStyle(
                               fontSize: 14.sp,
                               color: IConstant.grey_color,
@@ -134,9 +136,9 @@ class _JumpPageState extends State<JumpPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          '返回',
-          style: TextStyle(color: Color(0xFF333333)),
+        title: Text(
+          LanguageConfig.get(LanguageConfigKeys.JumpPage_back),
+          style: const TextStyle(color: Color(0xFF333333)),
         ),
         elevation: 0,
         iconTheme: const IconThemeData(color: Color(0xFF333333)),
@@ -182,7 +184,7 @@ class _JumpPageState extends State<JumpPage> {
                           minimumSize: Size(double.infinity, 48.w),
                         ),
                         child: Text(
-                          '联系客服',
+                          LanguageConfig.get(LanguageConfigKeys.JumpPage_contact_customer_service),
                           style: TextStyle(
                             fontSize: 14.sp,
                             color: Colors.white,

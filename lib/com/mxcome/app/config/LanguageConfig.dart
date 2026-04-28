@@ -1670,6 +1670,13 @@ class LanguageConfig {
       LanguageConfigKeys.Shop_featured_tab_products: "Shop Products",
       LanguageConfigKeys.Shop_featured_tab_brand: "About Brand",
       LanguageConfigKeys.Promotion_highlight_category_fallback: "Category",
+
+      LanguageConfigKeys.JumpPage_contact_customer_service: "Contact Customer Service",
+      LanguageConfigKeys.JumpPage_long_press_save_to_phone: "Long press to save to phone",
+      LanguageConfigKeys.JumpPage_save_success: "Save success",
+      LanguageConfigKeys.JumpPage_save_fail: "Save failed",
+      LanguageConfigKeys.JumpPage_save_error: "Save error",
+      LanguageConfigKeys.JumpPage_back: "Back",
     },
 
     //泰语
@@ -3329,6 +3336,13 @@ class LanguageConfig {
       LanguageConfigKeys.Shop_featured_tab_products: "สินค้าร้านค้า",
       LanguageConfigKeys.Shop_featured_tab_brand: "เกี่ยวกับแบรนด์",
       LanguageConfigKeys.Promotion_highlight_category_fallback: "หมวดหมู่",
+
+      LanguageConfigKeys.JumpPage_contact_customer_service: "ติดต่อฝ่ายบริการลูกค้า",
+      LanguageConfigKeys.JumpPage_long_press_save_to_phone: "กดค้างเพื่อบันทึกลงโทรศัพท์",
+      LanguageConfigKeys.JumpPage_save_success: "บันทึกสำเร็จ",
+      LanguageConfigKeys.JumpPage_save_fail: "บันทึกไม่สำเร็จ",
+      LanguageConfigKeys.JumpPage_save_error: "เกิดข้อผิดพลาดในการบันทึก",
+      LanguageConfigKeys.JumpPage_back: "ย้อนกลับ",
     },
 
     //简体中文
@@ -4707,6 +4721,13 @@ class LanguageConfig {
       LanguageConfigKeys.Shop_featured_tab_products: "店铺精选",
       LanguageConfigKeys.Shop_featured_tab_brand: "关于品牌",
       LanguageConfigKeys.Promotion_highlight_category_fallback: "分类",
+
+      LanguageConfigKeys.JumpPage_contact_customer_service: "联系客服",
+      LanguageConfigKeys.JumpPage_long_press_save_to_phone: "长按保存到手机",
+      LanguageConfigKeys.JumpPage_save_success: "保存成功",
+      LanguageConfigKeys.JumpPage_save_fail: "保存失败",
+      LanguageConfigKeys.JumpPage_save_error: "保存出错",
+      LanguageConfigKeys.JumpPage_back: "返回",
     },
   };
 }
@@ -6088,6 +6109,14 @@ class LanguageConfigKeys {
   static const Gov_recommend_subtitle = "Gov_recommend_subtitle";
   static const Promotion_highlight_category_fallback =
       "Promotion_highlight_category_fallback";
+
+  // JumpPage
+  static const JumpPage_contact_customer_service = "JumpPage_contact_customer_service";
+  static const JumpPage_long_press_save_to_phone = "JumpPage_long_press_save_to_phone";
+  static const JumpPage_save_success = "JumpPage_save_success";
+  static const JumpPage_save_fail = "JumpPage_save_fail";
+  static const JumpPage_save_error = "JumpPage_save_error";
+  static const JumpPage_back = "JumpPage_back";
 }
 
 class LanguageType {
