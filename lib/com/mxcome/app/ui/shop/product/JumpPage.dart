@@ -148,17 +148,21 @@ class _JumpPageState extends State<JumpPage> {
             children: [
               // 提示文本区域
               Expanded(
-                child: Container(
-                  width: double.infinity,
-                  alignment: Alignment.topLeft,
-                  child: Text(
-                    "扫描二维码即可跳转",
-                    style: TextStyle(
-                      fontSize: 16.sp,
-                      color: const Color(0xFF333333),
-                      height: 1.6,
-                    ),
-                  ),
+                child: ListView.builder(
+                  itemCount: picProductList.length,
+                  itemBuilder: (context, index) {
+                    final item = picProductList[index];
+                    final picUrl = BaseModel.getString(item, 'picUrl');
+                    return Container(
+                      width: double.infinity,
+                      margin: EdgeInsets.only(bottom: 16.w),
+                      child: Image.network(
+                        picUrl,
+                        width: double.infinity,
+                        fit: BoxFit.fitWidth,
+                      ),
+                    );
+                  },
                 ),
               ),
 
