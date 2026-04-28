@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:mxcome/com/mxcome/app/Logger.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 import 'package:mxcome/com/mxcome/app/config/LanguageConfig.dart';
@@ -63,10 +62,44 @@ class _ShopFeaturedBrandTabState extends State<ShopFeaturedBrandTab> {
     });
   }
 
+  bool _isBrandDataEmpty() {
+    if (_brandData == null) return true;
+    final logo = _brandData!['logo']?.toString() ?? '';
+    final name = _brandData!['name']?.toString() ?? '';
+    final subtitle = _brandData!['subtitle']?.toString() ?? '';
+    final authMark = _brandData!['authMark']?.toString() ?? '';
+    final videoUrls = _brandData!['videoUrls']?.toString() ?? '';
+    return logo.isEmpty && name.isEmpty && subtitle.isEmpty && authMark.isEmpty && videoUrls.isEmpty;
+  }
+
+  Widget _buildEmpty() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.store_outlined,
+            size: 80.w,
+            color: IConstant.grey_color,
+          ),
+          SizedBox(height: 16.w),
+          Text(
+            LanguageConfig.get(LanguageConfigKeys.Shop_featured_products_empty),
+            style: TextStyle(fontSize: 16.sp, color: IConstant.grey_color),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_brandData == null) {
       return const Center(child: CircularProgressIndicator());
+    }
+
+    if (_isBrandDataEmpty()) {
+      return _buildEmpty();
     }
 
     return SingleChildScrollView(
