@@ -455,7 +455,7 @@ class _CouponDetailDrawerState extends State<CouponDetailDrawer> {
           ),
         ),
         SizedBox(height: 12.w),
-        Expanded(child: ShopFeaturedModule(shopId: shopId)),
+        Expanded(child: ShopFeaturedModule(shopId: shopId, shopData: Map<String, dynamic>.from(initShop))),
       ],
     );
   }

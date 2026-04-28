@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mxcome/com/mxcome/app/IConstant.dart';
-import 'package:mxcome/com/mxcome/app/model/BaseRsp.dart';
-import 'package:mxcome/com/mxcome/app/model/ShopFeaturedServer.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 import 'package:mxcome/com/mxcome/app/config/LanguageConfig.dart';
+import 'package:mxcome/com/mxcome/app/ui/LanguagePage.dart';
 
 class ShopFeaturedBrandTab extends StatefulWidget {
   final int shopId;
+  final Map<String, dynamic>? shopData;
 
   const ShopFeaturedBrandTab({
     super.key,
     required this.shopId,
+    this.shopData,
   });
 
   @override
@@ -20,92 +21,43 @@ class ShopFeaturedBrandTab extends StatefulWidget {
 }
 
 class _ShopFeaturedBrandTabState extends State<ShopFeaturedBrandTab> {
-  bool _isLoading = true;
-  bool _hasError = false;
-  bool _isEmpty = false;
   Map<String, dynamic>? _brandData;
 
   @override
   void initState() {
     super.initState();
-    _fetchBrandData();
+    _initFromShopData();
   }
 
-  Future<void> _fetchBrandData() async {
-    setState(() {
-      _isLoading = true;
-      _hasError = false;
-      _isEmpty = false;
-    });
-
-    try {
-      final BaseRsp rsp = await ShopFeaturedServer.shopBrandByShopidUrl({
-        'shopId': widget.shopId.toString(),
-      });
-
-      if (!mounted) return;
-
-      if (rsp.retCode == RspRetCode.SUCCESS && rsp.data != null) {
-        final data = rsp.data as Map<String, dynamic>;
-        if (data.isEmpty) {
-          setState(() {
-            _isEmpty = true;
-            _isLoading = false;
-          });
-        } else {
-          setState(() {
-            _brandData = data;
-            _isLoading = false;
-          });
-        }
-      } else {
-        setState(() {
-          _isLoading = false;
-          _hasError = true;
-        });
-      }
-    } catch (e) {
-      print('Brand Error: $e');
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-          _hasError = true;
-        });
-      }
+  void _initFromShopData() {
+    final shop = widget.shopData!;
+    String name = shop['brandName']?.toString() ?? '';
+    String intro = '';
+    if (LanguagePage.language == LanguageType.ZH) {
+      name = shop['brandNameZh']?.toString() ?? name;
+      intro = shop['introZh']?.toString() ?? '';
+    } else if (LanguagePage.language == LanguageType.TH) {
+      name = shop['brandNameTh']?.toString() ?? name;
+      intro = shop['introTh']?.toString() ?? '';
+    } else {
+      name = shop['brandNameEn']?.toString() ?? name;
+      intro = shop['introEn']?.toString() ?? '';
     }
+
+    setState(() {
+      _brandData = {
+        'logo': shop['logoUrl'] ?? '',
+        'name': name,
+        'authMark': intro,
+        'provoPhoto': '',
+      };
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_isLoading) {
+    if (_brandData == null) {
       return const Center(child: CircularProgressIndicator());
-    }
-
-    if (_isEmpty) {
-      return Center(
-        child: Text(
-          LanguageConfig.get(LanguageConfigKeys.Shop_brand_no_data),
-          style: TextStyle(color: IConstant.grey_color, fontSize: 14.sp),
-        ),
-      );
-    }
-
-    if (_hasError || _brandData == null) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(LanguageConfig.get(LanguageConfigKeys.Shop_brand_load_failed),
-                style: TextStyle(color: IConstant.grey_color, fontSize: 14.sp)),
-            SizedBox(height: 10.h),
-            ElevatedButton(
-              onPressed: _fetchBrandData,
-              child: Text(LanguageConfig.get(
-                  LanguageConfigKeys.Shop_brand_click_retry)),
-            )
-          ],
-        ),
-      );
     }
 
     return SingleChildScrollView(

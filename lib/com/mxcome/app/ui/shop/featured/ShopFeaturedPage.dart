@@ -9,11 +9,13 @@ import 'ShopFeaturedBrandTab.dart';
 class ShopFeaturedModule extends StatefulWidget {
   final int shopId;
   final int pageSize;
+  final Map<String, dynamic>? shopData;
 
   const ShopFeaturedModule({
     super.key,
     required this.shopId,
     this.pageSize = 10,
+    this.shopData,
   });
 
   @override
@@ -121,6 +123,7 @@ class _ShopFeaturedModuleState extends State<ShopFeaturedModule> {
     } else {
       content = ShopFeaturedBrandTab(
         shopId: widget.shopId,
+        shopData: widget.shopData,
       );
     }
 
