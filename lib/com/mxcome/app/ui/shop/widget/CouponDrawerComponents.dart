@@ -10,6 +10,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import 'package:sprintf/sprintf.dart';
 import 'package:mxcome/com/mxcome/app/config/LanguageConfig.dart';
+import 'package:mxcome/com/mxcome/app/ui/LanguagePage.dart';
 import 'package:mxcome/com/mxcome/app/ui/shop/brand/BrandShopPage.dart';
 
 /// 优惠券展示类型（用于券卡片/券类型选择）
@@ -352,12 +353,26 @@ class CouponShopTabHeaderSection extends StatelessWidget {
                               selectedStoreIndex < shopList.length
                           ? shopList[selectedStoreIndex]
                           : {};
-                      final String addressText =
-                          BaseModel.getString(store, 'addressZh').isNotEmpty
-                              ? BaseModel.getString(store, 'addressZh')
-                              : (BaseModel.getString(store, 'addressTh').isNotEmpty
-                                  ? BaseModel.getString(store, 'addressTh')
-                                  : BaseModel.getString(store, 'addressEn'));
+                      final String addressText;
+                      if (LanguagePage.language == LanguageType.ZH) {
+                        addressText = BaseModel.getString(store, 'addressZh').isNotEmpty
+                            ? BaseModel.getString(store, 'addressZh')
+                            : (BaseModel.getString(store, 'addressTh').isNotEmpty
+                                ? BaseModel.getString(store, 'addressTh')
+                                : BaseModel.getString(store, 'addressEn'));
+                      } else if (LanguagePage.language == LanguageType.TH) {
+                        addressText = BaseModel.getString(store, 'addressTh').isNotEmpty
+                            ? BaseModel.getString(store, 'addressTh')
+                            : (BaseModel.getString(store, 'addressEn').isNotEmpty
+                                ? BaseModel.getString(store, 'addressEn')
+                                : BaseModel.getString(store, 'addressZh'));
+                      } else {
+                        addressText = BaseModel.getString(store, 'addressEn').isNotEmpty
+                            ? BaseModel.getString(store, 'addressEn')
+                            : (BaseModel.getString(store, 'addressTh').isNotEmpty
+                                ? BaseModel.getString(store, 'addressTh')
+                                : BaseModel.getString(store, 'addressZh'));
+                      }
 
                       return SingleChildScrollView(
                         controller: controller,
@@ -1531,11 +1546,26 @@ class CouponStoreList extends StatelessWidget {
         itemBuilder: (context, index) {
           final store = shopList[index];
           final bool active = index == selectedIndex;
-          final String address = BaseModel.getString(store, 'addressZh').isNotEmpty
-              ? BaseModel.getString(store, 'addressZh')
-              : (BaseModel.getString(store, 'addressTh').isNotEmpty
-                  ? BaseModel.getString(store, 'addressTh')
-                  : BaseModel.getString(store, 'addressEn'));
+          final String address;
+          if (LanguagePage.language == LanguageType.ZH) {
+            address = BaseModel.getString(store, 'addressZh').isNotEmpty
+                ? BaseModel.getString(store, 'addressZh')
+                : (BaseModel.getString(store, 'addressTh').isNotEmpty
+                    ? BaseModel.getString(store, 'addressTh')
+                    : BaseModel.getString(store, 'addressEn'));
+          } else if (LanguagePage.language == LanguageType.TH) {
+            address = BaseModel.getString(store, 'addressTh').isNotEmpty
+                ? BaseModel.getString(store, 'addressTh')
+                : (BaseModel.getString(store, 'addressEn').isNotEmpty
+                    ? BaseModel.getString(store, 'addressEn')
+                    : BaseModel.getString(store, 'addressZh'));
+          } else {
+            address = BaseModel.getString(store, 'addressEn').isNotEmpty
+                ? BaseModel.getString(store, 'addressEn')
+                : (BaseModel.getString(store, 'addressTh').isNotEmpty
+                    ? BaseModel.getString(store, 'addressTh')
+                    : BaseModel.getString(store, 'addressZh'));
+          }
           return Container(
             padding: EdgeInsets.all(10.w),
             decoration: BoxDecoration(
@@ -1837,11 +1867,26 @@ class CouponPhoneStoreList extends StatelessWidget {
         itemBuilder: (context, index) {
           final store = shopList[index];
           final bool active = index == selectedIndex;
-          final String address = BaseModel.getString(store, 'addressZh').isNotEmpty
-              ? BaseModel.getString(store, 'addressZh')
-              : (BaseModel.getString(store, 'addressTh').isNotEmpty
-                  ? BaseModel.getString(store, 'addressTh')
-                  : BaseModel.getString(store, 'addressEn'));
+          final String address;
+          if (LanguagePage.language == LanguageType.ZH) {
+            address = BaseModel.getString(store, 'addressZh').isNotEmpty
+                ? BaseModel.getString(store, 'addressZh')
+                : (BaseModel.getString(store, 'addressTh').isNotEmpty
+                    ? BaseModel.getString(store, 'addressTh')
+                    : BaseModel.getString(store, 'addressEn'));
+          } else if (LanguagePage.language == LanguageType.TH) {
+            address = BaseModel.getString(store, 'addressTh').isNotEmpty
+                ? BaseModel.getString(store, 'addressTh')
+                : (BaseModel.getString(store, 'addressEn').isNotEmpty
+                    ? BaseModel.getString(store, 'addressEn')
+                    : BaseModel.getString(store, 'addressZh'));
+          } else {
+            address = BaseModel.getString(store, 'addressEn').isNotEmpty
+                ? BaseModel.getString(store, 'addressEn')
+                : (BaseModel.getString(store, 'addressTh').isNotEmpty
+                    ? BaseModel.getString(store, 'addressTh')
+                    : BaseModel.getString(store, 'addressZh'));
+          }
           final String phone = BaseModel.getString(store, 'addressPhone') ?? '';
           return Container(
             padding: EdgeInsets.all(10.w),
@@ -1956,11 +2001,25 @@ class _CouponStorePickerActionSectionState extends State<CouponStorePickerAction
     if (_currentSelectedIndex >= 0 &&
         _currentSelectedIndex < widget.shopList.length) {
       final store = widget.shopList[_currentSelectedIndex];
-      _currentAddressText = BaseModel.getString(store, 'addressZh').isNotEmpty
-          ? BaseModel.getString(store, 'addressZh')
-          : (BaseModel.getString(store, 'addressTh').isNotEmpty
-              ? BaseModel.getString(store, 'addressTh')
-              : BaseModel.getString(store, 'addressEn'));
+      if (LanguagePage.language == LanguageType.ZH) {
+        _currentAddressText = BaseModel.getString(store, 'addressZh').isNotEmpty
+            ? BaseModel.getString(store, 'addressZh')
+            : (BaseModel.getString(store, 'addressTh').isNotEmpty
+                ? BaseModel.getString(store, 'addressTh')
+                : BaseModel.getString(store, 'addressEn'));
+      } else if (LanguagePage.language == LanguageType.TH) {
+        _currentAddressText = BaseModel.getString(store, 'addressTh').isNotEmpty
+            ? BaseModel.getString(store, 'addressTh')
+            : (BaseModel.getString(store, 'addressEn').isNotEmpty
+                ? BaseModel.getString(store, 'addressEn')
+                : BaseModel.getString(store, 'addressZh'));
+      } else {
+        _currentAddressText = BaseModel.getString(store, 'addressEn').isNotEmpty
+            ? BaseModel.getString(store, 'addressEn')
+            : (BaseModel.getString(store, 'addressTh').isNotEmpty
+                ? BaseModel.getString(store, 'addressTh')
+                : BaseModel.getString(store, 'addressZh'));
+      }
     } else {
       _currentAddressText = '';
     }
@@ -2045,11 +2104,26 @@ class _CouponStorePickerActionSectionState extends State<CouponStorePickerAction
     }
 
     final dynamic store = widget.shopList[_currentSelectedIndex];
-    final String address = BaseModel.getString(store, 'addressZh').isNotEmpty
-        ? BaseModel.getString(store, 'addressZh')
-        : (BaseModel.getString(store, 'addressTh').isNotEmpty
-            ? BaseModel.getString(store, 'addressTh')
-            : BaseModel.getString(store, 'addressEn'));
+    final String address;
+    if (LanguagePage.language == LanguageType.ZH) {
+      address = BaseModel.getString(store, 'addressZh').isNotEmpty
+          ? BaseModel.getString(store, 'addressZh')
+          : (BaseModel.getString(store, 'addressTh').isNotEmpty
+              ? BaseModel.getString(store, 'addressTh')
+              : BaseModel.getString(store, 'addressEn'));
+    } else if (LanguagePage.language == LanguageType.TH) {
+      address = BaseModel.getString(store, 'addressTh').isNotEmpty
+          ? BaseModel.getString(store, 'addressTh')
+          : (BaseModel.getString(store, 'addressEn').isNotEmpty
+              ? BaseModel.getString(store, 'addressEn')
+              : BaseModel.getString(store, 'addressZh'));
+    } else {
+      address = BaseModel.getString(store, 'addressEn').isNotEmpty
+          ? BaseModel.getString(store, 'addressEn')
+          : (BaseModel.getString(store, 'addressTh').isNotEmpty
+              ? BaseModel.getString(store, 'addressTh')
+              : BaseModel.getString(store, 'addressZh'));
+    }
     final String lat = BaseModel.getString(store, 'lat');
     final String lng = BaseModel.getString(store, 'lng');
 
