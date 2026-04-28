@@ -255,26 +255,24 @@ class ProductAdvertiseState extends BaseKeepAliveState<ProductAdvertise> {
           itemBuilder: (context, index) {
             return InkWell(
               onTap: () async {
-                // 点击跳转逻辑
-                if (index == 0) {
-                  // 入境申请 (快速通关) -> 跳往自定义的中转页
+                int? itemId;
+                if (featuredPromotionList.isNotEmpty && index < featuredPromotionList.length) {
+                  itemId = BaseModel.getInt(featuredPromotionList[index], "id");
+                }
+                if (itemId == 16) {
+                  nextPage(CategoryPage(getId(index)), false);
+                } else {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const JumpPage(
-                        note: 'https://tdac.immigration.go.th/',
-                        applyUrl: 'https://tdac.immigration.go.th/',
-                        selfApplyStatus: true,
+                      builder: (context) => JumpPage(
+                        itemId: itemId,
                       ),
                     ),
                   );
-                } else if (index == 3) {
-                  nextPage(CategoryPage(getId(index)), false);
-                } else if (index == 5) {
-                  nextPage(ConsumptionRebatePage(), false);
-                } else {
-                  // web3Wallet() 或其他
                 }
+                // 消费返点
+                // nextPage(ConsumptionRebatePage(), false);
               },
               child: Column(
                 mainAxisSize: MainAxisSize.min,
