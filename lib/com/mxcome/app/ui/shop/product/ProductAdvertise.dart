@@ -2,7 +2,9 @@ import 'package:card_swiper/card_swiper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mxcome/com/mxcome/app/IURLConstant.dart';
+import 'package:mxcome/com/mxcome/app/Logger.dart';
 import 'package:mxcome/com/mxcome/app/model/BaseRsp.dart';
+import 'package:mxcome/com/mxcome/app/model/homeAdvertiseServer.dart';
 import 'package:mxcome/com/mxcome/app/ui/LanguagePage.dart';
 import 'package:mxcome/com/mxcome/app/ui/WebPage.dart';
 import 'package:mxcome/com/mxcome/app/ui/shop/category/CategoryPage.dart';
@@ -41,13 +43,14 @@ class ProductAdvertise extends StatefulWidget {
 
 class ProductAdvertiseState extends BaseKeepAliveState<ProductAdvertise> {
   List<dynamic> advertiseList = [];
-
+  List<dynamic> featuredPromotionList = [];
   dynamic userInfo;
 
   @override
   void initState() {
     super.initState();
     initData();
+    fetchFeaturedPromotion();
   }
 
   Future<void> initData() async {
@@ -62,6 +65,19 @@ class ProductAdvertiseState extends BaseKeepAliveState<ProductAdvertise> {
       userInfo = data;
       advertiseList = tempList;
     });
+  }
+
+  Future<void> fetchFeaturedPromotion() async {
+    try {
+      BaseRsp rsp = await HomeAdvertiseServer.featuredPromotionUrl();
+      if (rsp.retCode == RspRetCode.SUCCESS && rsp.data != null) {
+        setState(() {
+          featuredPromotionList = rsp.data as List<dynamic>? ?? [];
+        });
+      }
+    } catch (e) {
+      Logger.log('fetchFeaturedPromotion error: $e');
+    }
   }
 
   @override
@@ -188,9 +204,35 @@ class ProductAdvertiseState extends BaseKeepAliveState<ProductAdvertise> {
 
   // 新版六宫格菜单
   Widget buildNewGridMenu() {
-    // 如果有接口数据，优先使用接口数据
-    final List<Map<String, String>> menus =
-        StaticDataConfig.productAdvertiseMenus;
+    final List<Map<String, String>> menus = featuredPromotionList.map((item) {
+            String title;
+            String subtitle;
+            switch (LanguagePage.language) {
+              case 'EN':
+                title = BaseModel.getString(item, "nameEn").isNotEmpty
+                    ? BaseModel.getString(item, "nameEn")
+                    : BaseModel.getString(item, "name");
+                subtitle = BaseModel.getString(item, "middleNameEn");
+                break;
+              case 'TH':
+                title = BaseModel.getString(item, "nameTn").isNotEmpty
+                    ? BaseModel.getString(item, "nameTn")
+                    : BaseModel.getString(item, "name");
+                subtitle = BaseModel.getString(item, "middleNameTn");
+                break;
+              default:
+                title = BaseModel.getString(item, "name");
+                subtitle = BaseModel.getString(item, "middleNameCn");
+            }
+            return <String, String>{
+              "icon": BaseModel.getString(item, "pic").toString(),
+              "title": title,
+              "subtitle": subtitle,
+              "url": BaseModel.getString(item, "url").toString(),
+            };
+          }).toList();
+
+    final bool isFromApi = featuredPromotionList.isNotEmpty;
 
     double itemHeight = 85.w;
     double gridHeight = itemHeight * 2 + 10.w;
@@ -237,12 +279,14 @@ class ProductAdvertiseState extends BaseKeepAliveState<ProductAdvertise> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Image.asset(
-                    menus[index]["icon"]!,
-                    width: 32.w,
-                    height: 32.w,
-                    fit: BoxFit.contain,
-                  ),
+                  isFromApi
+                      ? LoadImageView(32.w, 32.w, menus[index]["icon"]!)
+                      : Image.asset(
+                          menus[index]["icon"]!,
+                          width: 32.w,
+                          height: 32.w,
+                          fit: BoxFit.contain,
+                        ),
                   SizedBox(height: 8.w),
                   Text(
                     menus[index]["title"]!,
@@ -256,7 +300,7 @@ class ProductAdvertiseState extends BaseKeepAliveState<ProductAdvertise> {
                   ),
                   SizedBox(height: 4.w),
                   Text(
-                    menus[index]["subtitle"]!,
+                    menus[index]["subtitle"] ?? "",
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
