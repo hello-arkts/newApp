@@ -131,9 +131,20 @@ class _ShopFeaturedProductsTabState extends State<ShopFeaturedProductsTab> {
   @override
   Widget build(BuildContext context) {
     final Widget empty = Center(
-      child: Text(
-        LanguageConfig.get(LanguageConfigKeys.Shop_featured_products_empty),
-        style: TextStyle(fontSize: 14.sp, color: IConstant.grey_color),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.shopping_bag_outlined,
+            size: 80.w,
+            color: IConstant.grey_color,
+          ),
+          SizedBox(height: 16.w),
+          Text(
+            LanguageConfig.get(LanguageConfigKeys.Shop_featured_products_empty),
+            style: TextStyle(fontSize: 16.sp, color: IConstant.grey_color),
+          ),
+        ],
       ),
     );
 
