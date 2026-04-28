@@ -7,7 +7,8 @@ import 'package:mxcome/com/mxcome/app/model/homeAdvertiseServer.dart';
 import 'package:mxcome/com/mxcome/app/model/BaseRsp.dart';
 import 'package:mxcome/com/mxcome/app/model/BaseModel.dart';
 import 'package:mxcome/com/mxcome/app/config/LanguageConfig.dart';
-import 'package:image_gallery_saver/image_gallery_saver.dart';
+import 'package:mxcome/com/mxcome/app/ui/shop/detail/ProductDetailPage.dart';
+import 'package:mxcome/com/mxcome/app/ui/shop/widget/ContactServiceDrawer.dart';
 import 'package:mxcome/com/mxcome/app/utils/ViewUtils.dart';
 
 class JumpPage extends StatefulWidget {
@@ -52,84 +53,7 @@ class _JumpPageState extends State<JumpPage> {
 
   // 显示联系客服抽屉
   void _showContactDrawer() {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (BuildContext context) {
-        return Container(
-          height: MediaQuery.of(context).size.height * 0.7,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(16.w)),
-          ),
-          child: Column(
-            children: [
-              // 拖拽把手
-              Center(
-                child: Container(
-                  margin: EdgeInsets.only(top: 12.w, bottom: 20.w),
-                  width: 40.w,
-                  height: 4.w,
-                  decoration: BoxDecoration(
-                    color: IConstant.grey_color.withOpacity(0.3),
-                    borderRadius: BorderRadius.circular(2.w),
-                  ),
-                ),
-              ),
-              Expanded(
-                child: ListView.builder(
-                  padding: EdgeInsets.symmetric(horizontal: 16.w),
-                  itemCount: keFuList.length,
-                  itemBuilder: (context, index) {
-                    final item = keFuList[index];
-                    final picUrl = BaseModel.getString(item, 'picUrl');
-                    return Container(
-                      margin: EdgeInsets.only(bottom: 16.w),
-                      child: Column(
-                        children: [
-                          GestureDetector(
-                            onLongPress: () async {
-                              try {
-                                final ByteData data =
-                                    await rootBundle.load('assets/icons/wexin.png');
-                                final Uint8List bytes = data.buffer.asUint8List();
-                                final result =
-                                    await ImageGallerySaver.saveImage(bytes);
-                                if (result['isSuccess']) {
-                                  ViewUtils.displayToast(LanguageConfig.get(LanguageConfigKeys.JumpPage_save_success));
-                                } else {
-                                  ViewUtils.displayToast(LanguageConfig.get(LanguageConfigKeys.JumpPage_save_fail));
-                                }
-                              } catch (e) {
-                                ViewUtils.displayToast(LanguageConfig.get(LanguageConfigKeys.JumpPage_save_error));
-                              }
-                            },
-                            child: Image.network(
-                              picUrl,
-                              width: 260.w,
-                              fit: BoxFit.fitWidth,
-                            ),
-                          ),
-                          SizedBox(height: 8.w),
-                          Text(
-                            LanguageConfig.get(LanguageConfigKeys.JumpPage_long_press_save_to_phone),
-                            style: TextStyle(
-                              fontSize: 14.sp,
-                              color: IConstant.grey_color,
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
+    ContactServiceDrawer.show(context, keFuList);
   }
 
   @override
@@ -155,13 +79,26 @@ class _JumpPageState extends State<JumpPage> {
                   itemBuilder: (context, index) {
                     final item = picProductList[index];
                     final picUrl = BaseModel.getString(item, 'picUrl');
-                    return Container(
-                      width: double.infinity,
-                      margin: EdgeInsets.only(bottom: 16.w),
-                      child: Image.network(
-                        picUrl,
+                    final productId = BaseModel.getInt(item, 'productId');
+                    return GestureDetector(
+                      onTap: () {
+                        if (widget.itemId.toString() == '14') {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ProductDetailPage(productId.toString(), showContactService: true, contactServiceData: keFuList),
+                            ),
+                          );
+                        }
+                      },
+                      child: Container(
                         width: double.infinity,
-                        fit: BoxFit.fitWidth,
+                        margin: EdgeInsets.only(bottom: 16.w),
+                        child: Image.network(
+                          picUrl,
+                          width: double.infinity,
+                          fit: BoxFit.fitWidth,
+                        ),
                       ),
                     );
                   },

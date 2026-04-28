@@ -40,6 +40,7 @@ import '../model/SpecModel.dart';
 import '../utils/EventBusUtil.dart';
 import '../widget/CartNumberView.dart';
 import '../widget/PriceText.dart';
+import '../widget/ContactServiceDrawer.dart';
 import 'ProductHtml.dart';
 import 'ProductInfo.dart';
 import 'ProductParamPage.dart';
@@ -53,8 +54,16 @@ class ProductDetailPage extends StatefulWidget {
 
   bool isLottery;
 
+  bool showContactService;
+
+  List contactServiceData;
+
   ProductDetailPage(this.productId,
-      {this.pocketCode = "", this.activityId = "", this.isLottery = false});
+      {this.pocketCode = "",
+      this.activityId = "",
+      this.isLottery = false,
+      this.showContactService = false,
+      this.contactServiceData = const []});
 
   @override
   State<StatefulWidget> createState() {
@@ -489,6 +498,39 @@ class ProductDetailPageState extends BaseKeepAliveState<ProductDetailPage>
               ),
             ),
           ),
+          if (widget.showContactService)
+            Positioned(
+              right: 16.w,
+              top: MediaQuery.of(context).size.height * 0.4,
+              child: GestureDetector(
+                onTap: () {
+                  _showContactDrawer();
+                },
+                child: Container(
+                  width: 48.w,
+                  height: 48.w,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Center(
+                    child: Image.asset(
+                      "assets/icons/kefu.png",
+                      width: 24.w,
+                      height: 24.w,
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+                ),
+              ),
+            ),
         ],
       ),
       bottomNavigationBar: buildBottomBar(),
@@ -610,6 +652,10 @@ class ProductDetailPageState extends BaseKeepAliveState<ProductDetailPage>
             style: TextStyle(fontSize: 12.sp)),
       ),
     ));
+  }
+
+  void _showContactDrawer() {
+    ContactServiceDrawer.show(context, widget.contactServiceData);
   }
 
   BottomAppBar buildBottomBar() {
