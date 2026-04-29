@@ -3485,7 +3485,7 @@ class LanguageConfig {
       LanguageConfigKeys.Featured_promotion_category_popular_thai:
           "热门泰货", //热门泰货
       LanguageConfigKeys.Featured_promotion_category_leisure: "休闲娱乐", //休闲娱乐
-      LanguageConfigKeys.Shop_product_shop: "店铺", //店铺
+      LanguageConfigKeys.Shop_product_shop: "关于品牌", //关于品牌
       LanguageConfigKeys.Shop_product_consulting: "咨询", //咨询
       LanguageConfigKeys.Shop_product_join: "加入", //加入
       LanguageConfigKeys.Shop_product_rise: "起", //起
