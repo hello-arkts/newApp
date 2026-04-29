@@ -107,10 +107,12 @@ class _CouponDetailDrawerState extends State<CouponDetailDrawer> {
   int _selectedStoreIndex = 0;
   int _tabIndex = 0;
   double _bottomDragDy = 0;
+  late final PageController _pageController;
 
   @override
   void initState() {
     super.initState();
+    _pageController = PageController(initialPage: _tabIndex);
     _activeCouponId = ValueNotifier(widget.initialCouponId);
     _loadDetail(_activeCouponId.value);
   }
@@ -118,6 +120,7 @@ class _CouponDetailDrawerState extends State<CouponDetailDrawer> {
   @override
   void dispose() {
     _activeCouponId.dispose();
+    _pageController.dispose();
     super.dispose();
   }
 
@@ -283,9 +286,11 @@ class _CouponDetailDrawerState extends State<CouponDetailDrawer> {
   void _switchToShopTab() {
     if (_tabIndex != 0) return;
     if (_bottomDragDy < -40) {
-      setState(() {
-        _tabIndex = 1;
-      });
+      _pageController.animateToPage(
+        1,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
     }
   }
 
@@ -320,9 +325,11 @@ class _CouponDetailDrawerState extends State<CouponDetailDrawer> {
                     ],
                     onChanged: (i) {
                       if (i == _tabIndex) return;
-                      setState(() {
-                        _tabIndex = i;
-                      });
+                      _pageController.animateToPage(
+                        i,
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeInOut,
+                      );
                     },
                   ),
                 ),
@@ -337,43 +344,50 @@ class _CouponDetailDrawerState extends State<CouponDetailDrawer> {
                               const CircularProgressIndicator(strokeWidth: 2),
                         ),
                       )
-                    : CouponDrawerTabSwitcher(
-                        index: _tabIndex,
-                        useCouponBuilder: (_) => Column(
-                          children: [
-                            Expanded(
-                              child: SingleChildScrollView(
-                                padding:
-                                    EdgeInsets.fromLTRB(16.w, 8.w, 16.w, 12.w),
-                                child: _buildContent(),
+                    : PageView(
+                        controller: _pageController,
+                        onPageChanged: (index) {
+                          setState(() {
+                            _tabIndex = index;
+                          });
+                        },
+                        children: [
+                          Column(
+                            children: [
+                              Expanded(
+                                child: SingleChildScrollView(
+                                  padding:
+                                      EdgeInsets.fromLTRB(16.w, 8.w, 16.w, 12.w),
+                                  child: _buildContent(),
+                                ),
                               ),
-                            ),
-                            Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 8.w),
-                              child: CouponStorePickerActionSection(
-                                addressText: _getSelectedAddress().isEmpty
-                                    ? LanguageConfig.get(
-                                        LanguageConfigKeys.Coupon_detail_select_address)
-                                    : _getSelectedAddress(),
-                                shopList: _shopList,
-                                selectedIndex: _selectedStoreIndex,
-                                shopName: _getShopName(),
-                                onSelectIndex: (index) {
-                                  setState(() {
-                                    _selectedStoreIndex = index;
-                                  });
-                                },
-                                onNoDataTap: () {
-                                  ViewUtils.displayToast(
-                                      LanguageConfig.get(LanguageConfigKeys.ViewUtils_no_data));
-                                },
+                              Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 8.w),
+                                child: CouponStorePickerActionSection(
+                                  addressText: _getSelectedAddress().isEmpty
+                                      ? LanguageConfig.get(
+                                          LanguageConfigKeys.Coupon_detail_select_address)
+                                      : _getSelectedAddress(),
+                                  shopList: _shopList,
+                                  selectedIndex: _selectedStoreIndex,
+                                  shopName: _getShopName(),
+                                  onSelectIndex: (index) {
+                                    setState(() {
+                                      _selectedStoreIndex = index;
+                                    });
+                                  },
+                                  onNoDataTap: () {
+                                    ViewUtils.displayToast(
+                                        LanguageConfig.get(LanguageConfigKeys.ViewUtils_no_data));
+                                  },
+                                ),
                               ),
-                            ),
-                            SizedBox(height: 8.w),
-                            _buildBottom(),
-                          ],
-                        ),
-                        shopBuilder: (_) => _buildShopTab(),
+                              SizedBox(height: 8.w),
+                              _buildBottom(),
+                            ],
+                          ),
+                          _buildShopTab(),
+                        ],
                       ),
               ),
             ],
@@ -439,9 +453,11 @@ class _CouponDetailDrawerState extends State<CouponDetailDrawer> {
             onSelectCouponId: (id) {
               if (id.isEmpty) return;
               if (_tabIndex != 0) {
-                setState(() {
-                  _tabIndex = 0;
-                });
+                _pageController.animateToPage(
+                  0,
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeInOut,
+                );
               }
               if (id == _activeCouponId.value) return;
               _activeCouponId.value = id;
@@ -530,11 +546,13 @@ class _CouponDetailDrawerState extends State<CouponDetailDrawer> {
                 activeCouponId: activeId,
                 onSelect: (id) {
                   if (id.isEmpty) return;
-                  // 切换回“使用优惠券”Tab
+                  // 切换回"使用优惠券"Tab
                   if (_tabIndex != 0) {
-                    setState(() {
-                      _tabIndex = 0;
-                    });
+                    _pageController.animateToPage(
+                      0,
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeInOut,
+                    );
                   }
                   if (id == _activeCouponId.value) return;
                   _activeCouponId.value = id;
