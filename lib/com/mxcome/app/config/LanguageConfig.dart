@@ -1645,7 +1645,7 @@ class LanguageConfig {
           "Please show this code to the staff when paying",
       LanguageConfigKeys.Coupon_detail_select_address:
           "Please select a store address",
-      LanguageConfigKeys.Coupon_detail_swipe_up_shop: "Swipe up to view shop",
+      LanguageConfigKeys.Coupon_detail_swipe_up_shop: "Swipe up to browse the shop",
       LanguageConfigKeys.Coupon_type_full_reduction: "Full Reduction",
       LanguageConfigKeys.Coupon_type_discount_coupon: "Discount Coupon",
       LanguageConfigKeys.Coupon_type_free_shipping: "Free Shipping",
@@ -4696,7 +4696,7 @@ class LanguageConfig {
       LanguageConfigKeys.Featured_promotion_discount: "优惠",
       LanguageConfigKeys.Coupon_detail_show_code_tip: "买单时请向店员出示此券码核销",
       LanguageConfigKeys.Coupon_detail_select_address: "请选择门店地址",
-      LanguageConfigKeys.Coupon_detail_swipe_up_shop: "上滑查看店铺",
+      LanguageConfigKeys.Coupon_detail_swipe_up_shop: "上滑进店逛逛",
       LanguageConfigKeys.Coupon_type_full_reduction: "满减券",
       LanguageConfigKeys.Coupon_type_discount_coupon: "折扣券",
       LanguageConfigKeys.Coupon_type_free_shipping: "免邮券",
