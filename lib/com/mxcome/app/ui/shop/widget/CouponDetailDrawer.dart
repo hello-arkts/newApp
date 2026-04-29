@@ -11,6 +11,7 @@ import 'package:mxcome/com/mxcome/app/utils/ViewUtils.dart';
 import 'package:mxcome/com/mxcome/app/ui/shop/widget/CouponDrawerComponents.dart';
 import 'package:mxcome/com/mxcome/app/ui/shop/widget/CouponDrawerTabSwitcher.dart';
 import 'package:mxcome/com/mxcome/app/ui/shop/featured/ShopFeaturedPage.dart';
+import 'package:mxcome/com/mxcome/app/ui/shop/brand/BrandShopPage.dart';
 
 import 'package:sprintf/sprintf.dart';
 
@@ -568,18 +569,38 @@ class _CouponDetailDrawerState extends State<CouponDetailDrawer> {
   Widget _buildBottom() {
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
-      onVerticalDragStart: (_) {
-        _bottomDragDy = 0;
-      },
-      onVerticalDragUpdate: (details) {
-        _bottomDragDy += details.delta.dy;
+      onTap: () {
+        final dynamic detail = _detail ?? {};
+        final dynamic initShop = _shopInfo ?? {};
+        final int shopId = BaseModel.getInt(initShop, 'id') != 0
+            ? BaseModel.getInt(initShop, 'id')
+            : BaseModel.getInt(detail, 'id');
+        if (shopId > 0) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => BrandShopPage(shopId.toString()),
+            ),
+          );
+        }
       },
       onVerticalDragEnd: (details) {
         final double v = details.primaryVelocity ?? 0;
         if (v < -500) {
-          _bottomDragDy = -999;
+          final dynamic detail = _detail ?? {};
+          final dynamic initShop = _shopInfo ?? {};
+          final int shopId = BaseModel.getInt(initShop, 'id') != 0
+              ? BaseModel.getInt(initShop, 'id')
+              : BaseModel.getInt(detail, 'id');
+          if (shopId > 0) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => BrandShopPage(shopId.toString()),
+              ),
+            );
+          }
         }
-        _switchToShopTab();
       },
       child: SafeArea(
         top: false,
