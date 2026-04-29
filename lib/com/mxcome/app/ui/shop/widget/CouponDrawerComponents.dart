@@ -950,68 +950,67 @@ class CouponBenefitCard extends StatelessWidget {
       borderRadius: BorderRadius.circular(12.w),
       child: Opacity(
         opacity: dimmed ? 0.55 : 1,
-        child: IntrinsicWidth(
-          child: Container(
-            padding: EdgeInsets.all(12.w),
-            decoration: BoxDecoration(
-              color: IConstant.red_bg_color6,
-              borderRadius: BorderRadius.circular(12.w),
-              border: Border.all(width: 1.w, color: borderColor),
-              boxShadow: active
-                  ? [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.06),
-                        blurRadius: 10,
-                        offset: const Offset(0, 2),
-                      ),
-                    ]
-                  : null,
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      _typeText(),
-                      style: TextStyle(
-                        fontSize: 14.sp,
-                        fontWeight: FontWeight.bold,
-                        color: IConstant.title_color,
-                      ),
+        child: Container(
+          constraints: BoxConstraints(minWidth: width.w),
+          padding: EdgeInsets.all(12.w),
+          decoration: BoxDecoration(
+            color: IConstant.red_bg_color6,
+            borderRadius: BorderRadius.circular(12.w),
+            border: Border.all(width: 1.w, color: borderColor),
+            boxShadow: active
+                ? [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.06),
+                      blurRadius: 10,
+                      offset: const Offset(0, 2),
                     ),
-                    SizedBox(width: 8.w),
-                    Text(
-                      _amountText(),
-                      style: TextStyle(
-                        fontSize: 14.sp,
-                        fontWeight: FontWeight.bold,
-                        color: IConstant.title_color,
-                      ),
+                  ]
+                : null,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    _typeText(),
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.bold,
+                      color: IConstant.title_color,
                     ),
-                  ],
-                ),
-                SizedBox(height: 4.w),
-                Text(
-                  _benefitText(),
-                  style: TextStyle(
-                    fontSize: 12.sp,
-                    fontWeight: FontWeight.w600,
-                    color: IConstant.main_color,
                   ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+                  SizedBox(width: 8.w),
+                  Text(
+                    _amountText(),
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.bold,
+                      color: IConstant.title_color,
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 4.w),
+              Text(
+                _benefitText(),
+                style: TextStyle(
+                  fontSize: 12.sp,
+                  fontWeight: FontWeight.w600,
+                  color: IConstant.main_color,
                 ),
-                SizedBox(height: 4.w),
-                Text(
-                  _expireText(),
-                  style: TextStyle(fontSize: 11.sp, color: IConstant.grey_color),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-            ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              SizedBox(height: 4.w),
+              Text(
+                _expireText(),
+                style: TextStyle(fontSize: 11.sp, color: IConstant.grey_color),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
           ),
         ),
       ),
