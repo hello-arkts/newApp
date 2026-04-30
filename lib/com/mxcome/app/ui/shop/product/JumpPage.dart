@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:mxcome/com/mxcome/app/IConstant.dart';
 import 'package:mxcome/com/mxcome/app/Logger.dart';
 import 'package:mxcome/com/mxcome/app/model/homeAdvertiseServer.dart';
 import 'package:mxcome/com/mxcome/app/model/BaseRsp.dart';
@@ -9,7 +8,6 @@ import 'package:mxcome/com/mxcome/app/model/BaseModel.dart';
 import 'package:mxcome/com/mxcome/app/config/LanguageConfig.dart';
 import 'package:mxcome/com/mxcome/app/ui/shop/detail/ProductDetailPage.dart';
 import 'package:mxcome/com/mxcome/app/ui/shop/widget/ContactServiceDrawer.dart';
-import 'package:mxcome/com/mxcome/app/utils/ViewUtils.dart';
 
 class JumpPage extends StatefulWidget {
   final int? itemId;
@@ -60,10 +58,7 @@ class _JumpPageState extends State<JumpPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          LanguageConfig.get(LanguageConfigKeys.JumpPage_back),
-          style: const TextStyle(color: Color(0xFF333333)),
-        ),
+        title: Text(''),
         elevation: 0,
         iconTheme: const IconThemeData(color: Color(0xFF333333)),
       ),
