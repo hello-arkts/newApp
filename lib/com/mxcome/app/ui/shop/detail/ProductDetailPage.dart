@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mxcome/com/mxcome/app/IConstant.dart';
+import 'package:mxcome/com/mxcome/app/ui/LanguagePage.dart';
 import 'package:mxcome/com/mxcome/app/ui/shop/brand/BrandShopPage.dart';
 import 'package:mxcome/com/mxcome/app/ui/shop/cart/CartPage.dart';
 import 'package:mxcome/com/mxcome/app/ui/shop/widget/CouponDrawerComponents.dart';
@@ -39,6 +40,7 @@ import '../model/SpecModel.dart';
 import '../utils/EventBusUtil.dart';
 import '../widget/CartNumberView.dart';
 import '../widget/PriceText.dart';
+import '../widget/ContactServiceDrawer.dart';
 import 'ProductHtml.dart';
 import 'ProductInfo.dart';
 import 'ProductParamPage.dart';
@@ -52,8 +54,16 @@ class ProductDetailPage extends StatefulWidget {
 
   bool isLottery;
 
+  bool showContactService;
+
+  List contactServiceData;
+
   ProductDetailPage(this.productId,
-      {this.pocketCode = "", this.activityId = "", this.isLottery = false});
+      {this.pocketCode = "",
+      this.activityId = "",
+      this.isLottery = false,
+      this.showContactService = false,
+      this.contactServiceData = const []});
 
   @override
   State<StatefulWidget> createState() {
@@ -84,6 +94,8 @@ class ProductDetailPageState extends BaseKeepAliveState<ProductDetailPage>
   String productId = "";
 
   dynamic _product;
+
+  dynamic _shopDetail;
 
   int _isNeedAgree = 0;
 
@@ -212,7 +224,6 @@ class ProductDetailPageState extends BaseKeepAliveState<ProductDetailPage>
     if (rsp.retCode == RspRetCode.SUCCESS) {
       setState(() {
         _product = rsp.data;
-        // _isNeedAgree = BaseModel.getInt(rsp.data, "isNeedAgree");
         _skuStockList = BaseModel.getDynamic(rsp.data, "skuStockList");
         _productAttributeList =
             BaseModel.isNotEmpty(rsp.data, "productAttributeList")
@@ -223,12 +234,29 @@ class ProductDetailPageState extends BaseKeepAliveState<ProductDetailPage>
                 ? BaseModel.getDynamic(rsp.data, "productAttributeValueList")
                 : [];
       });
+      final int shopId = BaseModel.getInt(_product ?? {}, 'shopId');
+      if (shopId > 0) {
+        await _loadShopDetail(shopId);
+      }
     } else {
       ViewUtils.displayToast(rsp.msg);
     }
     loadCartNum();
     detailReadCount =
         await AppUtils.getReadCount(IConstant.activity_detail_count);
+  }
+
+  Future<void> _loadShopDetail(int shopId) async {
+    try {
+      final rsp = await HttpUtils.post(IURLConstant.MALL_PRODUCT_BY_SHOPID, {'shopId': shopId});
+      if (rsp.retCode == RspRetCode.SUCCESS && rsp.data != null) {
+        setState(() {
+          _shopDetail = rsp.data;
+        });
+      }
+    } catch (e) {
+      // ignore error, shop details will not be shown
+    }
   }
 
   Future<void> loadCartNum() async {
@@ -260,28 +288,57 @@ class ProductDetailPageState extends BaseKeepAliveState<ProductDetailPage>
   Widget build(BuildContext context) {
     super.build(context);
 
-    // 解析店铺相关数据，根据真实 JSON 结构，店铺信息在 "brand" 对象里，外层可能还有 "shopName", "shopIcon"
-    final dynamic brandData =
+    // 解析店铺相关数据，商品详情接口返回的是 shop 对象
+    final dynamic shopData =
         _product != null ? BaseModel.getDynamic(_product, 'shop') ?? {} : {};
 
-    // 如果 brand 里没有，尝试从外层直接拿
-    final String shopLogo = BaseModel.getString(brandData, 'logo');
+    // 店铺名称和Logo从商品接口的shop对象获取
+    final String shopName = BaseModel.getString(shopData, 'name').isNotEmpty
+        ? BaseModel.getString(shopData, 'name')
+        : '';
 
-    final String shopName = BaseModel.getString(brandData, 'name');
+    final String shopLogo = BaseModel.getString(shopData, 'logo');
 
-    // 从详情里的属性拿地址（或者使用 useAddress/productAddress）
-    final String shopAddress = BaseModel.getString(brandData, 'address');
+    // 地址和电话根据当前语言显示对应版本
+    String shopAddress = '';
+    if (LanguagePage.language == LanguageType.ZH) {
+      shopAddress = BaseModel.getString(_shopDetail ?? shopData, 'addressZh');
+    } else if (LanguagePage.language == LanguageType.TH) {
+      shopAddress = BaseModel.getString(_shopDetail ?? shopData, 'addressTh');
+    } else {
+      shopAddress = BaseModel.getString(_shopDetail ?? shopData, 'addressEn');
+    }
+    if (shopAddress.isEmpty) {
+      shopAddress = BaseModel.getString(shopData, 'address');
+    }
 
-    final String shopPhone = BaseModel.getString(brandData, 'phone');
+    final String shopPhone = _shopDetail != null
+        ? BaseModel.getString(_shopDetail, 'addressPhone') ?? ''
+        : BaseModel.getString(shopData, 'phone');
 
-    // 使用 brand 的 shopId 或者外层的 shopId
-    final int shopId = BaseModel.getInt(brandData, 'shopId') > 0
-        ? BaseModel.getInt(brandData, 'shopId')
-        : BaseModel.getInt(_product ?? {}, 'shopId');
+    // 使用外层 product 的 shopId 或 shop.id
+    final int shopId = BaseModel.getInt(_product ?? {}, 'shopId') > 0
+        ? BaseModel.getInt(_product ?? {}, 'shopId')
+        : BaseModel.getInt(shopData, 'id');
 
-    // 构造 shopList 数据用于抽屉地图选择器，这里商品详情通常只有一个所属店铺
-    final List<dynamic> shopList =
-        _product != null && brandData.isNotEmpty ? [brandData] : [];
+    // 构造 shopList 数据用于抽屉地图选择器
+    // 优先使用店铺详情API的数据，如果没有则使用商品接口的shop数据
+    List<dynamic> shopList;
+    if (_shopDetail != null) {
+      shopList = [_shopDetail];
+    } else if (_product != null && shopData.isNotEmpty) {
+      // 将商品接口的shop数据转换为适配格式，确保字段名一致
+      final Map<String, dynamic> adaptedShop = {
+        'id': shopId,
+        'name': shopName,
+        'logoUrl': shopLogo,
+        'addressZh': BaseModel.getString(shopData, 'address'),
+        'addressPhone': BaseModel.getString(shopData, 'phone'),
+      };
+      shopList = [adaptedShop];
+    } else {
+      shopList = [];
+    }
 
     return Scaffold(
       backgroundColor: IConstant.white_color,
@@ -302,6 +359,7 @@ class ProductDetailPageState extends BaseKeepAliveState<ProductDetailPage>
                     address: shopAddress,
                     phone: shopPhone,
                     shopId: shopId,
+                    shopName: shopName,
                     onNavigateTap: () async {
                       if (shopList.isEmpty) {
                         ViewUtils.displayToast(LanguageConfig.get(
@@ -331,8 +389,17 @@ class ProductDetailPageState extends BaseKeepAliveState<ProductDetailPage>
                                 child: StatefulBuilder(
                                   builder: (context, setModalState) {
                                     final store = shopList[0];
-                                    final String address =
-                                        BaseModel.getString(store, 'address');
+                                    String address = '';
+                                    if (LanguagePage.language == LanguageType.ZH) {
+                                      address = BaseModel.getString(store, 'addressZh');
+                                    } else if (LanguagePage.language == LanguageType.TH) {
+                                      address = BaseModel.getString(store, 'addressTh');
+                                    } else {
+                                      address = BaseModel.getString(store, 'addressEn');
+                                    }
+                                    if (address.isEmpty) {
+                                      address = BaseModel.getString(store, 'address');
+                                    }
 
                                     return SingleChildScrollView(
                                       controller: controller,
@@ -357,6 +424,7 @@ class ProductDetailPageState extends BaseKeepAliveState<ProductDetailPage>
                                             addressText: address,
                                             shopList: shopList,
                                             selectedIndex: 0,
+                                            shopName: shopName,
                                             onSelectIndex: (int index) {
                                               // 详情页通常只有一家店，不做切换处理
                                             },
@@ -430,6 +498,39 @@ class ProductDetailPageState extends BaseKeepAliveState<ProductDetailPage>
               ),
             ),
           ),
+          if (widget.showContactService)
+            Positioned(
+              right: 16.w,
+              top: MediaQuery.of(context).size.height * 0.4,
+              child: GestureDetector(
+                onTap: () {
+                  _showContactDrawer();
+                },
+                child: Container(
+                  width: 48.w,
+                  height: 48.w,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Center(
+                    child: Image.asset(
+                      "assets/icons/kefu.png",
+                      width: 24.w,
+                      height: 24.w,
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+                ),
+              ),
+            ),
         ],
       ),
       bottomNavigationBar: buildBottomBar(),
@@ -551,6 +652,10 @@ class ProductDetailPageState extends BaseKeepAliveState<ProductDetailPage>
             style: TextStyle(fontSize: 12.sp)),
       ),
     ));
+  }
+
+  void _showContactDrawer() {
+    ContactServiceDrawer.show(context, widget.contactServiceData);
   }
 
   BottomAppBar buildBottomBar() {

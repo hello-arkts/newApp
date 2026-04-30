@@ -7,6 +7,7 @@ import 'package:mxcome/com/mxcome/app/model/BaseRsp.dart';
 import 'package:mxcome/com/mxcome/app/model/ShopFeaturedServer.dart';
 import 'package:mxcome/com/mxcome/app/utils/ViewUtils.dart';
 
+import 'package:mxcome/com/mxcome/app/config/LanguageConfig.dart';
 import '../widget/LoadImageView.dart';
 import '../widget/PriceText.dart';
 import '../detail/ProductDetailPage.dart';
@@ -43,7 +44,7 @@ class _ShopFeaturedProductsTabState extends State<ShopFeaturedProductsTab> {
     if (_loading) return;
     if (widget.shopId <= 0) {
       setState(() {
-        _errorText = '店铺不存在';
+        _errorText = LanguageConfig.get(LanguageConfigKeys.Shop_featured_products_not_exist);
         _total = 0;
       });
       return;
@@ -130,9 +131,20 @@ class _ShopFeaturedProductsTabState extends State<ShopFeaturedProductsTab> {
   @override
   Widget build(BuildContext context) {
     final Widget empty = Center(
-      child: Text(
-        '暂无商品',
-        style: TextStyle(fontSize: 14.sp, color: IConstant.grey_color),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.shopping_bag_outlined,
+            size: 80.w,
+            color: IConstant.grey_color,
+          ),
+          SizedBox(height: 16.w),
+          Text(
+            LanguageConfig.get(LanguageConfigKeys.Shop_featured_products_empty),
+            style: TextStyle(fontSize: 16.sp, color: IConstant.grey_color),
+          ),
+        ],
       ),
     );
 
@@ -172,7 +184,7 @@ class _ShopFeaturedProductsTabState extends State<ShopFeaturedProductsTab> {
         emptyWidget: Container(
           padding: EdgeInsets.all(10.w),
           child: Text(
-            '没有更多了',
+            LanguageConfig.get(LanguageConfigKeys.Shop_featured_no_more),
             style: TextStyle(fontSize: 14.sp, color: IConstant.text_color),
           ),
         ),

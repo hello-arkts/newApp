@@ -5,12 +5,16 @@ import 'package:mxcome/com/mxcome/app/model/BaseModel.dart';
 import 'package:mxcome/com/mxcome/app/ui/shop/event/CartEvent.dart';
 import 'package:mxcome/com/mxcome/app/ui/shop/event/HomeEvent.dart';
 import 'package:mxcome/com/mxcome/app/utils/TextUtils.dart';
+import 'package:mxcome/com/mxcome/app/utils/ViewUtils.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 import '../../../BaseKeepAliveState.dart';
 import '../../../IConstant.dart';
 import '../../../config/LanguageConfig.dart';
 import '../../../utils/Adapt.dart';
 import '../../../utils/AppUtils.dart';
+import '../utils/Util.dart';
 import '../cart/CartBadge.dart';
 import '../cart/CartPage.dart';
 import '../event/OpenMenuEvent.dart';
@@ -20,6 +24,7 @@ import '../product/ProductAdvertise.dart';
 import '../search/SearchDelegateBar.dart';
 import '../utils/EventBusUtil.dart';
 import '../widget/GenAvatar.dart';
+import '../mine/invite/MineLinkPage.dart';
 
 class ProductHeaderBar extends StatefulWidget {
   bool innerBoxIsScrolled = false;
@@ -37,6 +42,8 @@ class _ProductHeaderBarState extends BaseKeepAliveState<ProductHeaderBar> {
 
   dynamic userInfoEvent;
 
+  dynamic userInfo;
+
   dynamic homeEvent;
 
   dynamic cartEvent;
@@ -52,9 +59,19 @@ class _ProductHeaderBarState extends BaseKeepAliveState<ProductHeaderBar> {
   @override
   void initState() {
     super.initState();
-    userInfoEvent = EventBusUtil.getInstance().on<UserInfoEvent>((event) {
-      if (event.userInfoStatus == UserInfoStatus.complete) {
-        loadContentDatas();
+    userInfoEvent = EventBusUtil.getInstance().on<UserInfoEvent>((event) async {
+      bool loginState = await AppUtils.isLogined();
+      if (loginState) {
+        dynamic data = await AppUtils.getUserInfo();
+        setState(() {
+          userInfo = data;
+          isLogin = loginState;
+        });
+      } else {
+        setState(() {
+          userInfo = null;
+          isLogin = false;
+        });
       }
     });
     homeEvent = EventBusUtil.getInstance().on<HomeEvent>((event) {
@@ -120,6 +137,12 @@ class _ProductHeaderBarState extends BaseKeepAliveState<ProductHeaderBar> {
       categoryList.insert(0, {'name': 'Web3 wallet'});
       categoryList.insert(2, {'name': 'Monthly benefits'});
     });
+  }
+
+  Future<void> shareWeb() async {
+    String kolName = BaseModel.getString(userInfo, "kolName");
+    String shareUrl = Util.getShareKolURL(kolName);
+    Share.share(shareUrl);
   }
 
   @override
@@ -212,7 +235,20 @@ class _ProductHeaderBarState extends BaseKeepAliveState<ProductHeaderBar> {
             // 分享/链接图标
             InkWell(
               onTap: () {
-                // TODO: 添加链接点击逻辑
+                if (isLogin) {
+                  String kolName = BaseModel.getString(userInfo, "kolName");
+                  if (TextUtils.isEmpty(kolName)) {
+                    showPop(0.7 * Adapt.getWindowHeight(), MineLinkPage());
+                  } else {
+                    shareWeb();
+                  }
+                } else {
+                  toLogin((ctx) => {
+                        setState(() {
+                          finishContext(ctx);
+                        })
+                      });
+                }
               },
               child: Image.asset(
                 "assets/icons/ic_kol_link1.png",
@@ -227,7 +263,7 @@ class _ProductHeaderBarState extends BaseKeepAliveState<ProductHeaderBar> {
             // 红包图标与红点
             InkWell(
               onTap: () {
-                // TODO: 添加红包点击逻辑
+                launchUrlString('mxcome://app/lottery');
               },
               child: Stack(
                 clipBehavior: Clip.none,

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mxcome/com/mxcome/app/IConstant.dart';
 import 'package:mxcome/com/mxcome/app/config/LanguageConfig.dart';
+import 'package:mxcome/com/mxcome/app/ui/shop/event/LanguageEvent.dart';
+import 'package:mxcome/com/mxcome/app/ui/shop/utils/EventBusUtil.dart';
 
 const List<Map<String, String>> featuredPromotionCategories = [
   {
@@ -33,7 +35,7 @@ const List<Map<String, String>> featuredPromotionCategories = [
 /// 精选优惠 - 分类高亮组件
 /// 对应红色标记区域 1：展示优惠重点信息（分类导航）
 /// 独立可复用，具有清晰的接口和样式隔离
-class PromotionHighlight extends StatelessWidget {
+class PromotionHighlight extends StatefulWidget {
   /// 分类数据列表
   /// 每个分类应包含：id, name, icon, chName, enName
   final List<dynamic> categories;
@@ -64,40 +66,60 @@ class PromotionHighlight extends StatelessWidget {
   });
 
   @override
+  State<PromotionHighlight> createState() => _PromotionHighlightState();
+}
+
+class _PromotionHighlightState extends State<PromotionHighlight> {
+  dynamic _languageEvent;
+
+  @override
+  void initState() {
+    super.initState();
+    _languageEvent = EventBusUtil.getInstance().on<LanguageEvent>((event) {
+      if (mounted) setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    EventBusUtil.getInstance().off(_languageEvent);
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12.r),
-        // color: Colors.white,
       ),
       padding: EdgeInsets.all(2.w),
-      child: mode == 'row' ? _buildRowMode() : _buildGridMode(),
+      child: widget.mode == 'row' ? _buildRowMode() : _buildGridMode(),
     );
   }
 
   /// 构建单行滚动模式
   Widget _buildRowMode() {
     return _RowModeWithArrows(
-      categories: categories,
-      activeIndex: activeIndex,
-      cardHeight: cardHeight,
-      onCategoryTap: onCategoryTap,
+      categories: widget.categories,
+      activeIndex: widget.activeIndex,
+      cardHeight: widget.cardHeight,
+      onCategoryTap: widget.onCategoryTap,
     );
   }
 
   /// 构建九宫格模式
   Widget _buildGridMode() {
     return GridView.builder(
-      padding: EdgeInsets.zero, // 移除默认内边距
+      padding: EdgeInsets.zero,
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: columnsCount,
-        mainAxisExtent: cardHeight.h,
+        crossAxisCount: widget.columnsCount,
+        mainAxisExtent: widget.cardHeight.h,
         mainAxisSpacing: 12.w,
         crossAxisSpacing: 12.w,
       ),
-      itemCount: categories.length,
+      itemCount: widget.categories.length,
       itemBuilder: (BuildContext context, int index) {
         return _buildCategoryItem(index);
       },
@@ -106,22 +128,22 @@ class PromotionHighlight extends StatelessWidget {
 
   /// 构建分类项
   Widget _buildCategoryItem(int index) {
-    if (index >= categories.length) {
+    if (index >= widget.categories.length) {
       return const SizedBox.shrink();
     }
 
-    final category = categories[index];
+    final category = widget.categories[index];
     final String icon = _getCategoryIcon(index);
     final String name = _getCategoryName(category, index);
 
     return GestureDetector(
       onTap: () {
-        if (onCategoryTap != null) {
-          onCategoryTap!(category);
+        if (widget.onCategoryTap != null) {
+          widget.onCategoryTap!(category);
         }
       },
       child: Container(
-        padding: mode == 'row'
+        padding: widget.mode == 'row'
             ? EdgeInsets.symmetric(horizontal: 14.w)
             : EdgeInsets.zero,
         decoration: BoxDecoration(
@@ -134,27 +156,27 @@ class PromotionHighlight extends StatelessWidget {
               offset: const Offset(0, 2),
             ),
           ],
-          border: index == activeIndex
+          border: index == widget.activeIndex
               ? Border.all(color: IConstant.main_color, width: 1.w)
               : Border.all(color: Colors.transparent, width: 1.w),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
-          mainAxisSize: mode == 'row' ? MainAxisSize.min : MainAxisSize.max,
+          mainAxisSize: widget.mode == 'row' ? MainAxisSize.min : MainAxisSize.max,
           children: [
             // 分类图标
             _buildCategoryIcon(icon, index),
             SizedBox(width: 6.w),
             // 分类名称
-            mode == 'row'
+            widget.mode == 'row'
                 ? Text(
                     name,
                     style: TextStyle(
                       fontSize: 12.sp,
-                      fontWeight: index == activeIndex
+                      fontWeight: index == widget.activeIndex
                           ? FontWeight.bold
                           : FontWeight.normal,
-                      color: index == activeIndex
+                      color: index == widget.activeIndex
                           ? IConstant.main_color
                           : IConstant.title_color,
                     ),
@@ -164,10 +186,10 @@ class PromotionHighlight extends StatelessWidget {
                       name,
                       style: TextStyle(
                         fontSize: 12.sp,
-                        fontWeight: index == activeIndex
+                        fontWeight: index == widget.activeIndex
                             ? FontWeight.bold
                             : FontWeight.normal,
-                        color: index == activeIndex
+                        color: index == widget.activeIndex
                             ? IConstant.main_color
                             : IConstant.title_color,
                       ),
@@ -188,11 +210,10 @@ class PromotionHighlight extends StatelessWidget {
       width: 20.w,
       height: 20.w,
       errorBuilder: (context, error, stackTrace) {
-        // 如果图片加载失败，使用默认图标
         return Icon(
           _getDefaultIcon(index),
           size: 20.w,
-          color: index == activeIndex
+          color: index == widget.activeIndex
               ? IConstant.main_color
               : IConstant.text_color,
         );

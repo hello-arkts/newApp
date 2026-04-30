@@ -67,6 +67,7 @@ class ProductSliverState extends BaseKeepAliveState<ProductSliver> {
   List<dynamic> promotionCategories = []; // 分类列表
   List<dynamic> promotionItems = []; // 优惠券列表
   int _selectedCategoryIndex = 0; // 当前选中的分类索引
+  int _activePromotionIndex = 0; // 精选优惠头部当前选中索引
   int _promotionPageNum = 1;
   int _promotionPageSize = 10;
   bool _promotionHasMore = true;
@@ -312,9 +313,6 @@ class ProductSliverState extends BaseKeepAliveState<ProductSliver> {
             return ProductTask();
           }, childCount: 1)),
           // 横向店铺列表
-          SliverToBoxAdapter(
-            child: _buildShopFeaturedScroller(),
-          ),
           // 当活动为空时隐藏活动列表
           if (datas.isNotEmpty) ...[
             SliverList(
@@ -361,8 +359,18 @@ class ProductSliverState extends BaseKeepAliveState<ProductSliver> {
             ),
           ],
           // 精选优惠组件
+          FeaturedPromotionSliver(
+            categories: promotionCategories,
+            externalActiveIndex: _activePromotionIndex,
+            onCategoryTap: (category) {
+              setState(() {
+                _activePromotionIndex = promotionCategories.indexOf(category);
+              });
+              loadPromotionItems(category);
+            },
+          ),
           SliverToBoxAdapter(
-            child: _buildFeaturedPromotion(),
+            child: _buildFeaturedPromotionContent(),
           ),
           // KOL 分享
           SliverToBoxAdapter(
@@ -757,18 +765,19 @@ class ProductSliverState extends BaseKeepAliveState<ProductSliver> {
   }
 
   /// 构建精选优惠组件
-  Widget _buildFeaturedPromotion() {
-    return FeaturedPromotion(
-      categories: promotionCategories,
-      promotionItems: promotionItems,
-      onCategoryTap: (category) {
-        // 处理分类点击，加载对应分类的优惠券
-        loadPromotionItems(category);
-      },
-      onPromotionTap: (item) {
-        // 处理商品点击
-        print('点击商品：${item}');
-      },
+  Widget _buildFeaturedPromotionContent() {
+    return ConstrainedBox(
+      constraints: BoxConstraints(minHeight: MediaQuery.of(context).size.height - 320.w),
+      child: FeaturedPromotionContent(
+        categories: promotionCategories,
+        promotionItems: promotionItems,
+        onCategoryTap: (category) {
+          loadPromotionItems(category);
+        },
+        onPromotionTap: (item) {
+          print('点击商品：${item}');
+        },
+      ),
     );
   }
 
@@ -777,3 +786,4 @@ class ProductSliverState extends BaseKeepAliveState<ProductSliver> {
     return const ShopFeaturedScroller();
   }
 }
+

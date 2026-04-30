@@ -507,10 +507,10 @@ class IURLConstant {
       "${BASE_URL}/mall-portal/member/coupon/listByProductShop/"; //获取当前商家优惠券
 
   static const MALL_COUPON_LIST =
-      "${BASE_URL}/mall-portal/member/coupon/coupon1List"; //优惠券列表（精选优惠）
+      "${BASE_URL}/mall-portal/home/coupon1List"; //优惠券列表（精选优惠）
 
   static const MALL_COUPON_DETAIL =
-      "${BASE_URL}/mall-portal/member/coupon/coupon1Detail"; //优惠券详情（精选优惠）
+      "${BASE_URL}/mall-portal/member/coupon/couponDetail"; //优惠券详情（精选优惠）
 
   static const MALL_COUPON_DETAIL_BY_ID_SHOP =
       "${BASE_URL}/mall-portal/home/productByShopid"; // 店铺精选
@@ -520,4 +520,10 @@ class IURLConstant {
 
   static const MALL_SHOP_LIST_BY_ID_SHOP =
       "${BASE_URL}/mall-portal/home/shopList"; // 商超列表
+
+  static const MALL_SHOP_FEATURED_PROMOTION =
+      "${BASE_URL}/mall-portal/home/homeAdvertiseList"; // 快捷功能列表
+
+  static const MALL_SHOP_FEATURED_PROMOTION_DETAIL =
+      "${BASE_URL}/mall-portal/home/homeAdvertiseDetail"; // 快捷功能详情
 }

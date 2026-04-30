@@ -2,60 +2,69 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mxcome/com/mxcome/app/config/LanguageConfig.dart';
 import 'package:mxcome/com/mxcome/app/IConstant.dart';
+import 'package:mxcome/com/mxcome/app/ui/shop/event/LanguageEvent.dart';
+import 'package:mxcome/com/mxcome/app/ui/shop/utils/EventBusUtil.dart';
 
 import 'PromotionHighlight.dart';
 import 'PromotionAction.dart';
 import 'FeaturedOfferDetails.dart';
 
-/// 精选优惠主组件
-/// 作为 PromotionHighlight 和 PromotionAction 的容器
-/// 提供响应式布局和统一的样式规范
-class FeaturedPromotion extends StatefulWidget {
-  /// 分类数据列表
+/// 精选优惠 Sliver 版本（用于 CustomScrollView）
+class FeaturedPromotionSliver extends StatefulWidget {
   final List<dynamic> categories;
-
-  /// 优惠商品数据列表
-  final List<dynamic> promotionItems;
-
-  /// 点击分类的回调
+  final List<dynamic>? promotionItems;
   final Function(dynamic)? onCategoryTap;
-
-  /// 点击优惠商品的回调
   final Function(dynamic)? onPromotionTap;
+  final int? externalActiveIndex;
+  final Function(int)? onExternalIndexChanged;
 
-  const FeaturedPromotion({
+  const FeaturedPromotionSliver({
     Key? key,
     required this.categories,
-    required this.promotionItems,
+    this.promotionItems,
     this.onCategoryTap,
     this.onPromotionTap,
+    this.externalActiveIndex,
+    this.onExternalIndexChanged,
   }) : super(key: key);
 
   @override
-  State<FeaturedPromotion> createState() => _FeaturedPromotionState();
+  State<FeaturedPromotionSliver> createState() => _FeaturedPromotionSliverState();
 }
 
-class _FeaturedPromotionState extends State<FeaturedPromotion> {
-  /// 当前选中的分类索引
-  int _activeIndex = 0;
+class _FeaturedPromotionSliverState extends State<FeaturedPromotionSliver> {
+  int get _activeIndex => widget.externalActiveIndex ?? _internalActiveIndex;
+  int _internalActiveIndex = 0;
+  dynamic _languageEvent;
+  int _languageVersion = 0;
 
   @override
   void initState() {
     super.initState();
-    // 初始化时选中第一个分类
-    if (widget.categories.isNotEmpty) {
+    _languageEvent = EventBusUtil.getInstance().on<LanguageEvent>((event) {
+      if (mounted) {
+        _languageVersion++;
+        setState(() {});
+      }
+    });
+    if (widget.externalActiveIndex == null && widget.categories.isNotEmpty) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        _onCategorySelected(widget.categories[0], 0);
+        _internalActiveIndex = 0;
       });
     }
   }
 
-  /// 处理分类选中事件
-  void _onCategorySelected(dynamic category, int index) {
-    setState(() {
-      _activeIndex = index;
-    });
-    // 调用父组件的回调获取数据
+  @override
+  void dispose() {
+    EventBusUtil.getInstance().off(_languageEvent);
+    super.dispose();
+  }
+
+  void _onCategoryTap(dynamic category) {
+    final index = widget.categories.indexOf(category);
+    if (widget.onExternalIndexChanged != null) {
+      widget.onExternalIndexChanged!(index);
+    }
     if (widget.onCategoryTap != null) {
       widget.onCategoryTap!(category);
     }
@@ -63,54 +72,115 @@ class _FeaturedPromotionState extends State<FeaturedPromotion> {
 
   @override
   Widget build(BuildContext context) {
+    return SliverPersistentHeader(
+      pinned: true,
+      delegate: _FeaturedPromotionHeaderDelegate(
+        categories: widget.categories,
+        activeIndex: _activeIndex,
+        onCategoryTap: _onCategoryTap,
+        languageVersion: _languageVersion,
+      ),
+    );
+  }
+}
+
+class _FeaturedPromotionHeaderDelegate extends SliverPersistentHeaderDelegate {
+  final List<dynamic> categories;
+  final int activeIndex;
+  final Function(dynamic) onCategoryTap;
+  final int languageVersion;
+
+  _FeaturedPromotionHeaderDelegate({
+    required this.categories,
+    required this.activeIndex,
+    required this.onCategoryTap,
+    required this.languageVersion,
+  });
+
+  @override
+  double get minExtent => 120.h;
+
+  @override
+  double get maxExtent => 120.h;
+
+  @override
+  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
     return Container(
-      margin: EdgeInsets.all(10.w),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // 标题栏
-          _buildHeader(),
-          SizedBox(height: 2.h),
-          // 分类导航区域 (PromotionHighlight)
-          PromotionHighlight(
-            categories: widget.categories,
-            activeIndex: _activeIndex,
-            onCategoryTap: (category) {
-              int index = widget.categories.indexOf(category);
-              _onCategorySelected(category, index);
-            },
-          ),
-          SizedBox(height: 8.h),
-          // 优惠商品列表 (PromotionAction)
-          PromotionAction(
-            promotionItems: widget.promotionItems,
-            onPromotionTap: widget.onPromotionTap,
-            maxItems: null,
-            scrollable: true,
-          ),
-        ],
+      color: Colors.white,
+      margin: EdgeInsets.symmetric(horizontal: 10.w),
+      child: FeaturedPromotionContent.buildHeaderContent(
+        context: context,
+        categories: categories,
+        activeIndex: activeIndex,
+        onCategoryTap: onCategoryTap,
       ),
     );
   }
 
-  /// 构建标题栏
-  Widget _buildHeader() {
+  @override
+  bool shouldRebuild(covariant _FeaturedPromotionHeaderDelegate oldDelegate) {
+    return activeIndex != oldDelegate.activeIndex ||
+        categories != oldDelegate.categories ||
+        languageVersion != oldDelegate.languageVersion;
+  }
+}
+
+/// 精选优惠内容组件（无头部，用于 SliverToBoxAdapter 或普通布局）
+class FeaturedPromotionContent extends StatefulWidget {
+  final List<dynamic> categories;
+  final List<dynamic> promotionItems;
+  final Function(dynamic)? onCategoryTap;
+  final Function(dynamic)? onPromotionTap;
+  final int? externalActiveIndex;
+  final Function(int)? onExternalIndexChanged;
+
+  const FeaturedPromotionContent({
+    Key? key,
+    required this.categories,
+    required this.promotionItems,
+    this.onCategoryTap,
+    this.onPromotionTap,
+    this.externalActiveIndex,
+    this.onExternalIndexChanged,
+  }) : super(key: key);
+
+  @override
+  State<FeaturedPromotionContent> createState() => _FeaturedPromotionContentState();
+
+  static Widget buildHeaderContent({
+    required BuildContext context,
+    required List<dynamic> categories,
+    required int activeIndex,
+    required Function(dynamic) onCategoryTap,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildHeaderWidgetStatic(context, categories),
+        SizedBox(height: 2.h),
+        PromotionHighlight(
+          categories: categories,
+          activeIndex: activeIndex,
+          onCategoryTap: onCategoryTap,
+        ),
+      ],
+    );
+  }
+
+  static Widget _buildHeaderWidgetStatic(BuildContext context, List<dynamic> categories) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Row(
-          children: [
-            Text(
-              LanguageConfig.get(LanguageConfigKeys.Featured_promotion_title),
-              style: TextStyle(
-                fontSize: 18.sp,
-                fontWeight: FontWeight.bold,
-                color: IConstant.title_color,
-              ),
+        Flexible(
+          child: Text(
+            LanguageConfig.get(LanguageConfigKeys.Featured_promotion_title),
+            style: TextStyle(
+              fontSize: 18.sp,
+              fontWeight: FontWeight.bold,
+              color: IConstant.title_color,
             ),
-          ],
+          ),
         ),
-        // 查看所有按钮
         TextButton(
           onPressed: () {
             Navigator.push(
@@ -121,13 +191,13 @@ class _FeaturedPromotionState extends State<FeaturedPromotion> {
             );
           },
           style: TextButton.styleFrom(
-            padding: EdgeInsets.zero, // 移除默认内边距
+            padding: EdgeInsets.zero,
           ),
           child: Row(
+            mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                LanguageConfig.get(
-                    LanguageConfigKeys.Featured_promotion_view_all),
+                LanguageConfig.get(LanguageConfigKeys.Featured_promotion_view_all),
                 style: TextStyle(
                   fontSize: 13.sp,
                   color: IConstant.text_color,
@@ -143,6 +213,81 @@ class _FeaturedPromotionState extends State<FeaturedPromotion> {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _FeaturedPromotionContentState extends State<FeaturedPromotionContent> {
+  int get _activeIndex => widget.externalActiveIndex ?? _internalActiveIndex;
+  int _internalActiveIndex = 0;
+  dynamic _languageEvent;
+
+  @override
+  void initState() {
+    super.initState();
+    _languageEvent = EventBusUtil.getInstance().on<LanguageEvent>((event) {
+      if (mounted) setState(() {});
+    });
+    if (widget.externalActiveIndex == null && widget.categories.isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _onCategorySelected(widget.categories[0], 0);
+      });
+    }
+  }
+
+  @override
+  void didUpdateWidget(FeaturedPromotionContent oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.externalActiveIndex != oldWidget.externalActiveIndex &&
+        widget.externalActiveIndex != null) {
+      _internalActiveIndex = widget.externalActiveIndex!;
+    }
+  }
+
+  @override
+  void dispose() {
+    EventBusUtil.getInstance().off(_languageEvent);
+    super.dispose();
+  }
+
+  void _onCategorySelected(dynamic category, int index) {
+    _internalActiveIndex = index;
+    if (widget.onExternalIndexChanged != null) {
+      widget.onExternalIndexChanged!(index);
+    }
+    setState(() {});
+    if (widget.onCategoryTap != null) {
+      widget.onCategoryTap!(category);
+    }
+  }
+
+  Widget buildHeader() {
+    return FeaturedPromotionContent.buildHeaderContent(
+      context: context,
+      categories: widget.categories,
+      activeIndex: _activeIndex,
+      onCategoryTap: (category) {
+        int index = widget.categories.indexOf(category);
+        _onCategorySelected(category, index);
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: EdgeInsets.all(10.w),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          PromotionAction(
+            promotionItems: widget.promotionItems,
+            onPromotionTap: widget.onPromotionTap,
+            maxItems: null,
+            scrollable: false,
+          ),
+        ],
+      ),
     );
   }
 }

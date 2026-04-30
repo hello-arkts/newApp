@@ -2,7 +2,9 @@ import 'package:card_swiper/card_swiper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mxcome/com/mxcome/app/IURLConstant.dart';
+import 'package:mxcome/com/mxcome/app/Logger.dart';
 import 'package:mxcome/com/mxcome/app/model/BaseRsp.dart';
+import 'package:mxcome/com/mxcome/app/model/homeAdvertiseServer.dart';
 import 'package:mxcome/com/mxcome/app/ui/LanguagePage.dart';
 import 'package:mxcome/com/mxcome/app/ui/WebPage.dart';
 import 'package:mxcome/com/mxcome/app/ui/shop/category/CategoryPage.dart';
@@ -24,6 +26,7 @@ import '../../web3/WalletCreatePage.dart';
 import '../../web3/WalletManagerPage.dart';
 import 'MonthlyBenefitsPage.dart';
 import 'SuperWednesdayPage.dart';
+import 'package:mxcome/com/mxcome/app/ui/shop/featured/ShopFeaturedScroller.dart';
 
 class ProductAdvertise extends StatefulWidget {
   dynamic advertiseList;
@@ -40,13 +43,14 @@ class ProductAdvertise extends StatefulWidget {
 
 class ProductAdvertiseState extends BaseKeepAliveState<ProductAdvertise> {
   List<dynamic> advertiseList = [];
-
+  List<dynamic> featuredPromotionList = [];
   dynamic userInfo;
 
   @override
   void initState() {
     super.initState();
     initData();
+    fetchFeaturedPromotion();
   }
 
   Future<void> initData() async {
@@ -63,6 +67,19 @@ class ProductAdvertiseState extends BaseKeepAliveState<ProductAdvertise> {
     });
   }
 
+  Future<void> fetchFeaturedPromotion() async {
+    try {
+      BaseRsp rsp = await HomeAdvertiseServer.featuredPromotionUrl();
+      if (rsp.retCode == RspRetCode.SUCCESS && rsp.data != null) {
+        setState(() {
+          featuredPromotionList = rsp.data as List<dynamic>? ?? [];
+        });
+      }
+    } catch (e) {
+      Logger.log('fetchFeaturedPromotion error: $e');
+    }
+  }
+
   @override
   void didUpdateWidget(covariant ProductAdvertise oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -72,13 +89,15 @@ class ProductAdvertiseState extends BaseKeepAliveState<ProductAdvertise> {
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return Stack(
-      alignment: Alignment.bottomCenter,
+    return Column(
       children: [
-        Container(
-            transform: Matrix4.translationValues(0.0, -70.w, 0.0),
-            height: 400.w,
-            child: Swiper(
+        Stack(
+          alignment: Alignment.bottomCenter,
+          children: [
+            Container(
+                transform: Matrix4.translationValues(0.0, -50.w, 0.0),
+                height: 340.w,
+            child: Swiper(       
               loop: advertiseList.length > 1 ? true : false,
               autoplay: advertiseList.length > 1 ? true : false,
               autoplayDelay: 5000,
@@ -127,6 +146,9 @@ class ProductAdvertiseState extends BaseKeepAliveState<ProductAdvertise> {
           ),
           child: buildNewGridMenu(),
         ),
+        ],
+        ),
+        _buildShopFeaturedScroller(),
       ],
     );
   }
@@ -182,9 +204,35 @@ class ProductAdvertiseState extends BaseKeepAliveState<ProductAdvertise> {
 
   // 新版六宫格菜单
   Widget buildNewGridMenu() {
-    // 如果有接口数据，优先使用接口数据
-    final List<Map<String, String>> menus =
-        StaticDataConfig.productAdvertiseMenus;
+    final List<Map<String, String>> menus = featuredPromotionList.map((item) {
+            String title;
+            String subtitle;
+            switch (LanguagePage.language) {
+              case 'EN':
+                title = BaseModel.getString(item, "nameEn").isNotEmpty
+                    ? BaseModel.getString(item, "nameEn")
+                    : BaseModel.getString(item, "name");
+                subtitle = BaseModel.getString(item, "middleNameEn");
+                break;
+              case 'TH':
+                title = BaseModel.getString(item, "nameTn").isNotEmpty
+                    ? BaseModel.getString(item, "nameTn")
+                    : BaseModel.getString(item, "name");
+                subtitle = BaseModel.getString(item, "middleNameTn");
+                break;
+              default:
+                title = BaseModel.getString(item, "name");
+                subtitle = BaseModel.getString(item, "middleNameCn");
+            }
+            return <String, String>{
+              "icon": BaseModel.getString(item, "pic").toString(),
+              "title": title,
+              "subtitle": subtitle,
+              "url": BaseModel.getString(item, "url").toString(),
+            };
+          }).toList();
+
+    final bool isFromApi = featuredPromotionList.isNotEmpty;
 
     double itemHeight = 85.w;
     double gridHeight = itemHeight * 2 + 10.w;
@@ -207,39 +255,41 @@ class ProductAdvertiseState extends BaseKeepAliveState<ProductAdvertise> {
           itemBuilder: (context, index) {
             return InkWell(
               onTap: () async {
-                // 点击跳转逻辑
-                if (index == 0) {
-                  // 入境申请 (快速通关) -> 跳往自定义的中转页
+                int? itemId;
+                if (featuredPromotionList.isNotEmpty && index < featuredPromotionList.length) {
+                  itemId = BaseModel.getInt(featuredPromotionList[index], "id");
+                }
+                if (itemId == 16) {
+                  nextPage(CategoryPage(getId(index)), false);
+                } else {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const JumpPage(
-                        note: 'https://tdac.immigration.go.th/',
-                        applyUrl: 'https://tdac.immigration.go.th/',
-                        selfApplyStatus: true,
+                      builder: (context) => JumpPage(
+                        itemId: itemId,
                       ),
                     ),
                   );
-                } else if (index == 3) {
-                  nextPage(CategoryPage(getId(index)), false);
-                } else if (index == 5) {
-                  nextPage(ConsumptionRebatePage(), false);
-                } else {
-                  // web3Wallet() 或其他
                 }
+                // 消费返点
+                // nextPage(ConsumptionRebatePage(), false);
               },
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Image.asset(
-                    menus[index]["icon"]!,
-                    width: 32.w,
-                    height: 32.w,
-                    fit: BoxFit.contain,
-                  ),
+                  isFromApi
+                      ? LoadImageView(32.w, 32.w, menus[index]["icon"]!)
+                      : Image.asset(
+                          menus[index]["icon"]!,
+                          width: 32.w,
+                          height: 32.w,
+                          fit: BoxFit.contain,
+                        ),
                   SizedBox(height: 8.w),
                   Text(
                     menus[index]["title"]!,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       fontSize: 14.sp,
                       fontWeight: FontWeight.bold,
@@ -248,7 +298,9 @@ class ProductAdvertiseState extends BaseKeepAliveState<ProductAdvertise> {
                   ),
                   SizedBox(height: 4.w),
                   Text(
-                    menus[index]["subtitle"]!,
+                    menus[index]["subtitle"] ?? "",
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       fontSize: 10.sp,
                       color: menus[index].containsKey("subtitleColor") &&
@@ -447,5 +499,9 @@ class ProductAdvertiseState extends BaseKeepAliveState<ProductAdvertise> {
             })
           });
     }
+  }
+
+  Widget _buildShopFeaturedScroller() {
+    return const ShopFeaturedScroller();
   }
 }
