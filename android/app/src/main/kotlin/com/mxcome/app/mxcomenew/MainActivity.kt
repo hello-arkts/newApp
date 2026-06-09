@@ -1,4 +1,4 @@
-package com.mxcome.app.mxcome
+package com.mxcome.app.mxcomenew
 
 import io.flutter.embedding.android.FlutterActivity
 
